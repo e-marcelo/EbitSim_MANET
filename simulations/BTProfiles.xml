@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE profileList SYSTEM "BitTorrentPeer.dtd">
+<profileList>
+   <profile name="test_simple">
+      <!-- Test used for testing if the simulation is running -->
+      <content>
+         <name>test_simple</name>
+         <!-- rate = 1/mean => rate = 0,16666/s = 10/min -->
+         <!-- mean seconds between arrivals -->
+         <interarrival>6</interarrival>
+      </content>
+   </profile>
+   <!-- Test single swarm -->
+   <!-- rate = 1/interarrival => rate = 0,16666/s = 10/min -->
+   <profile name="small">
+      <content>
+         <name>small</name>
+         <interarrival>6</interarrival><!-- mean seconds between arrivals -->
+      </content>
+   </profile>
+   <profile name="medium">
+      <content>
+         <name>medium</name>
+         <interarrival>6</interarrival><!-- mean seconds between arrivals -->
+      </content>
+   </profile>
+   <profile name="large">
+      <content>
+         <name>large</name>
+         <interarrival>6</interarrival><!-- mean seconds between arrivals -->
+      </content>
+   </profile>
+</profileList>

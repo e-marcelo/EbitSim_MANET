@@ -1,0 +1,93 @@
+#!/bin/bash
+if [[ $# -ne 2 ]]; then
+    echo "Usage: $0 <run> <CONFIG>"
+    exit 1
+fi
+
+# Get the simulation root
+PWD=$(pwd) # save the current directory in order to get back later
+cd -P "$( dirname "${BASH_SOURCE[0]}" )/../"
+ROOT_DIR="$(pwd)"
+
+# Get the executable file
+EXEC_FILE="$ROOT_DIR/src/EbitSim"
+if [ ! -e $EXEC_FILE ]; then
+    echo "Executable file \"$EXEC_FILE\" not found."
+    exit 1;
+fi
+
+# Get the configuration file
+INI_FILE="$ROOT_DIR/simulations/BasicConfig.ini"
+if [ ! -e $INI_FILE ]; then
+    echo "Initialization file \"$INI_FILE\" not found."
+    exit 1;
+fi
+
+# Get the simulation configuration
+CONFIG=$2 # name of the configuration
+ENV=${ENV:-Cmdenv} # If ENV is unset, use Cmdenv, or else use the one defined 
+
+MEMCHECK=${MEMCHECK:-no}
+CALLCHECK=${CALLCHECK:-no}
+
+# If MEMCHECK or CALLCHECK is not empty, call the respective valgrind tool
+if [ "$MEMCHECK" != "no"  ]; then
+    EXEC_FILE="valgrind --leak-check=yes --log-file=valgrind.log $EXEC_FILE"
+elif [ "$CALLCHECK" != "no" ]; then
+    EXEC_FILE="valgrind --tool=callgrind --log-file=valgrind.log $EXEC_FILE"
+fi
+
+# always perform a core dump if there is an error
+ulimit -c unlimited
+
+RUN_DIR="$ROOT_DIR/run"
+# Create the log directory if it don't exist
+LOG_DIR="$RUN_DIR/run_logs"
+if [ ! -d "$LOG_DIR" ]; then
+    mkdir -p "$LOG_DIR"
+fi
+ERR_FILE="${CONFIG}_$1.err.log" # the log file where all error messages will be written
+OUT_FILE="${CONFIG}_$1.out.log" # the log file where all log messages will be written
+
+# execute the simulation in the RUN_DIR to isolate core dumps and pid files
+cd "$RUN_DIR"
+
+# if HIDE_OUTPUT is defined, don't show the output in stdout
+HIDE_OUTPUT=${HIDE_OUTPUT:-no}
+if [ "$HIDE_OUTPUT" == "no" ]; then
+    FIFO="output_fifo_$CONFIG_$1"
+    mkfifo $FIFO
+    # The simulation is put on the the background to get the PID
+    $EXEC_FILE -f $INI_FILE -c $CONFIG -u $ENV -r$1 2> $LOG_DIR/$ERR_FILE > $FIFO &
+    PID=$!
+    tee $LOG_DIR/$OUT_FILE < $FIFO
+    rm $FIFO
+else
+    # The simulation is put on the the background to get the PID
+    $EXEC_FILE -f $INI_FILE -c $CONFIG -u $ENV -r$1 2> $LOG_DIR/$ERR_FILE > $LOG_DIR/$OUT_FILE &
+    PID=$!
+    wait $PID
+    if [ $? -eq 0 ]
+    then
+        echo "Finished $CONFIG $1"
+    else
+        echo "Error $CONFIG $1"
+    fi
+fi
+
+touch "${PID}_${CONFIG}_$1" # save the pid so that if there's a core dump, the run can be identified
+
+PROCESS=${PROCESS:-no}
+if [[ "$PROCESS" != "no" ]]
+then
+    # process the error output
+    PROCESSED_DIR="${ERR_FILE%%.*}_processed" # get file name without extension 
+    rm -r $PROCESSED_DIR 2> /dev/null # delete the old directory, if present
+    mkdir -p $LOG_DIR/$PROCESSED_DIR && cd $LOG_DIR/$PROCESSED_DIR
+    $ROOT_DIR/bin/process_log.py ../$ERR_FILE
+fi
+
+# get back to the original directory
+cd $PWD
+
+exit 0
