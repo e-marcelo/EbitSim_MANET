@@ -44,7 +44,7 @@ network BasicTopology extends BasicNetwork
         //double playgroundSizeX;
         //double playgroundSizeY;
 
-        //EAM :: @display("bgb=1000,1000,white;bgg=100,2,grey80");
+        @display("bgb=1000,1000,white;bgg=100,2,grey80");
         @signal[BitTorrentClient_PeerWireBytesSent];
         @signal[BitTorrentClient_ContentBytesSent];
         @statistic[PeerWireBytesSent](source=BitTorrentClient_PeerWireBytesSent; title="Total bytes of PeerWire messages sent"; record=sum);
@@ -97,12 +97,14 @@ network BasicTopology extends BasicNetwork
     submodules:
         //        tracker: Tracker;
 
-        peer[numPeers]: <> like PeerInterface; //{
+        peer[numPeers]: <> like PeerInterface { //{
             //@display("p=,,m,3,420,470");
             //@display("p=450,500");
         //}
 
 
+            @display("is=vs");
+        }
         tracker: AdhocHost {
             //IPForward = default(true); 
             //wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");  // use adhoc management
@@ -115,6 +117,7 @@ network BasicTopology extends BasicNetwork
 			//tcpAppType = "TrackerApp";
             //@address("192.168.0.133");
             //@display("p=392,293;i=device/server2");
+            @display("is=vs");
         }
 
         //		configurator: IPv4NetworkConfigurator {
