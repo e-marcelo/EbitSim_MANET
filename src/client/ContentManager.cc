@@ -684,9 +684,9 @@ void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
         if (req.isComplete()) {
 //EAM ::#ifdef DEBUG_MSG
             //EAM ::            {
-                std::ostringstream out;
-                out << "Downloaded piece " << pieceIndex;
-                this->printDebugMsg(out.str());
+                //EAM :: std::ostringstream out;
+                //EAM :: out << "Downloaded piece " << pieceIndex;
+                //EAM :: this->printDebugMsg(out.str());
                 //EAM ::            }
                 //EAM ::#endif
 

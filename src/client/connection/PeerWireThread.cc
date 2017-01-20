@@ -477,10 +477,10 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
     }
 }
 void PeerWireThread::sendPeerWireMessage(cMessage * msg) {
-    cPacket * dato = dynamic_cast<cPacket *>(msg);
-    PeerWireMsgBundle * bundleMsg = dynamic_cast<PeerWireMsgBundle *>(dato);
+    //EAM :: cPacket * dato = dynamic_cast<cPacket *>(msg);
+    PeerWireMsgBundle * bundleMsg = dynamic_cast<PeerWireMsgBundle *>(msg);
 
-    PeerWireMsg* peerWireMsg = dynamic_cast<PeerWireMsg *>(dato);
+    PeerWireMsg* peerWireMsg = dynamic_cast<PeerWireMsg *>(msg);
     assert(bundleMsg || peerWireMsg); // either one or the other
 
     if (bundleMsg != NULL) {

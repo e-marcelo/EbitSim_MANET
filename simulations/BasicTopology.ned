@@ -41,10 +41,10 @@ network BasicTopology extends BasicNetwork
 {
     parameters:
 
-        double playgroundSizeX;
-        double playgroundSizeY;
+        //double playgroundSizeX;
+        //double playgroundSizeY;
 
-        @display("bgb=1000,1000,white;bgg=100,2,grey80");
+        //EAM :: @display("bgb=1000,1000,white;bgg=100,2,grey80");
         @signal[BitTorrentClient_PeerWireBytesSent];
         @signal[BitTorrentClient_ContentBytesSent];
         @statistic[PeerWireBytesSent](source=BitTorrentClient_PeerWireBytesSent; title="Total bytes of PeerWire messages sent"; record=sum);

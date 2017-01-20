@@ -197,15 +197,15 @@ public:
             // get list of Peers returned by the tracker and tell the
             // BitTorrentClient to connect with them.
             std::list<PeerConnInfo> peers;
-            int iy = response->getPeersArraySize();
+            //EAM :: int iy = response->getPeersArraySize();
 
-            printf("Pares :: %d\n",iy);
+            //EAM :: printf("Pares :: %d\n",iy);
             for (unsigned int i = 0; i < response->getPeersArraySize(); ++i) {
                 PeerInfo& info = response->getPeers(i);
 
                 PeerConnInfo peer = make_tuple(info.getPeerId(), info.getIp(),
                     info.getPort());
-                printf("* %d :: %d\n",info.getPeerId(),info.getPort());
+                //EAM :: printf("* %d :: %d\n",info.getPeerId(),info.getPort());
                 peers.push_back(peer);
             }
             if (peers.size()) {
@@ -354,7 +354,7 @@ void SwarmManager::enterSwarm(TorrentMetadata const& torrent, bool seeder,
 
     // The swarm must be new
     assert(!this->callbacksByInfoHash.count(torrent.infoHash));
-    printf("ID peer :: %d\n",this->bitTorrentClient->getLocalPeerId());
+    //EAM :: printf("ID peer :: %d\n",this->bitTorrentClient->getLocalPeerId());
 
     // Create the socket and the callback objects
     TCPSocket * socket = new TCPSocket();
