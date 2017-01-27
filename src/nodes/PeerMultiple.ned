@@ -79,6 +79,7 @@ import inet.base.NotificationBoard;
 import inet.linklayer.ppp.PPPInterface;
 import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.ipv4.RoutingTable;
+import inet.networklayer.manetrouting.AODVUU;
 import inet.transport.tcp.TCP;
 import inet.util.TCPDump; //I.R.
 import inet.nodes.inet.NetworkLayer;
@@ -166,14 +167,17 @@ module PeerMultiple like PeerInterface
             parameters:
                 @display("p=248,349;q=queue");
         }
-//        mobility: MassMobility {
-//            parameters:
-//                @display("p=149,307");
-//        }
+        //        mobility: MassMobility {
+        //            parameters:
+        //                @display("p=149,307");
+        //        }
         tcpDump: TCPDump {
             parameters:
                 @display("p=163,297;i=abstract/cache_s");
         }
+//        aodvuu: AODVUU {
+//            @display("p=312,216");
+//        }
     connections allowunconnected:
         // Connect application to TCP layer
         bitTorrentApp1.tcpOut[0] --> tcp.appIn++;
@@ -215,4 +219,10 @@ module PeerMultiple like PeerInterface
 
         // Connect network interface to module gate
         //ethg --> wlan.radioIn;
+        
+        //Protocolo de encaminamiento
+//        aodvuu.to_ip --> networkLayer.tcpIn;
+//		aodvuu.from_ip <-- networkLayer.tcpOut;
+//		aodvuu.to_ip --> networkLayer.manetIn;
+//        networkLayer.manetOut --> aodvuu.from_ip;
 }

@@ -82,6 +82,7 @@ import inet.linklayer.ethernet.EthernetInterface;
 import inet.mobility.models.MassMobility;
 import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.ipv4.RoutingTable;
+import inet.networklayer.manetrouting.AODVUU;
 import inet.nodes.inet.AdhocHost;
 import inet.transport.tcp.TCP;
 import inet.util.TCPDump; //I.R.
@@ -192,6 +193,9 @@ module Peer like PeerInterface
 //                @display("p=149,307");
 //        }
 
+    //        aodvuu: AODVUU {
+    //            @display("p=255,164");
+    //        }
     connections allowunconnected:
         tcp.ipOut --> networkLayer.tcpIn;
         tcp.ipIn <-- networkLayer.tcpOut;
@@ -212,4 +216,12 @@ module Peer like PeerInterface
 		//ethg --> wlan.radioIn;
 		//wlan.radioIn <--> ethg;
 		//eth.phys <--> ethg;
+
+		//Protocolo de encaminamiento AODV
+//		aodvuu.to_ip --> networkLayer.tcpIn;
+//		aodvuu.from_ip <-- networkLayer.tcpOut;
+
+//        aodvuu.to_ip --> networkLayer.manetIn;
+//        networkLayer.manetOut --> aodvuu.from_ip;
+
 }

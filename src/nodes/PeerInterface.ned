@@ -18,7 +18,7 @@ package br.larc.usp.nodes;
 //
 // TODO auto-generated module
 //
-moduleinterface PeerInterface
+moduleinterface PeerInterface 
 {
     parameters:
         @display("i=device/pocketpc_s");

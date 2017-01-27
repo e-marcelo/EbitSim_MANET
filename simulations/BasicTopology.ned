@@ -33,14 +33,15 @@ import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
 //EAM :: import inet.world.ChannelControl;
 import inet.world.radio.ChannelControl;
 
-
+//Modelo de movilidad
+import inet.mobility.models.Slaw;
 //
 // Basic ethernet topology with one router and everybody connected
 //
 network BasicTopology extends BasicNetwork
 {
     parameters:
-
+        string mobilityModel;
         //double playgroundSizeX;
         //double playgroundSizeY;
 
@@ -97,17 +98,33 @@ network BasicTopology extends BasicNetwork
     submodules:
         //        tracker: Tracker;
 
-        peer[numPeers]: <> like PeerInterface { //{
-            //@display("p=,,m,3,420,470");
-            //@display("p=450,500");
-        //}
-
-
+        peer[numPeers]: <> like PeerInterface{
             @display("is=vs");
+            
         }
-        tracker: AdhocHost {
+        
+        flatNetworkConfigurator: FlatNetworkConfigurator {
+
+            @display("p=48,125");
+        }
+
+        clientController: ClientController {
+            @display("p=48,204");
+        }
+        channelControl: ChannelControl {
+            parameters:
+                //EAM :: playgroundSizeX = playgroundSizeX;
+                //EAM :: playgroundSizeY = playgroundSizeY;
+                @display("p=48,50");
+        }
+        slaw: Slaw if mobilityModel == "SlawMobility" {
+            @display("p=48,264;i=block/cogwheel_s");
+        }
+
+		tracker: AdhocHost {
             //IPForward = default(true); 
             //wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");  // use adhoc management
+            mobilityType = mobilityModel;
 
             numTcpApps = 1;
             //EAM :: numTcpApps = 1;
@@ -118,29 +135,9 @@ network BasicTopology extends BasicNetwork
             //@address("192.168.0.133");
             //@display("p=392,293;i=device/server2");
             @display("is=vs");
+            //@display("p=500,500");
         }
-
-        //		configurator: IPv4NetworkConfigurator {
-        //            parameters:
-        //                config=xml("<config><interface hosts='tracker' address='192.168.0.5' netmask='255.255.0.0'/></config>");
-        //                @display("p=140,50;i=block/cogwheel_s");
-        //        }
-        //        
-        flatNetworkConfigurator: FlatNetworkConfigurator {
-
-            @display("p=48,125");
-        }
-        clientController: ClientController {
-            @display("p=48,204");
-        }
-        channelControl: ChannelControl {
-            parameters:
-                //EAM :: playgroundSizeX = playgroundSizeX;
-                //EAM :: playgroundSizeY = playgroundSizeY;
-                @display("p=48,50");
-        }
-
-
+		
 
     connections:
         //for i=0..numPeers-1 {
