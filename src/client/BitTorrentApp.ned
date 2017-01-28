@@ -98,8 +98,12 @@ module BitTorrentApp
         // TCP connections
 //        bitTorrentClient.tcpOut --> uploadLimiter.in;
 //        uploadLimiter.out --> tcpOut[0];
+//		bitTorrentClient.tcpOut --> tcpOut[0];
+//        bitTorrentClient.tcpIn <-- tcpIn[0];
+//        swarmManager.tcpOut --> tcpOut[1];
+//        swarmManager.tcpIn <-- tcpIn[1];
+//        
         bitTorrentClient.tcpOut --> tcpOut[0];
-
         bitTorrentClient.tcpIn <-- tcpIn[0];
         swarmManager.tcpOut --> tcpOut[1];
         swarmManager.tcpIn <-- tcpIn[1];

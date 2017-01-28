@@ -98,10 +98,7 @@ network BasicTopology extends BasicNetwork
     submodules:
         //        tracker: Tracker;
 
-        peer[numPeers]: <> like PeerInterface{
-            @display("is=vs");
-            
-        }
+        
         
         flatNetworkConfigurator: FlatNetworkConfigurator {
 
@@ -120,7 +117,12 @@ network BasicTopology extends BasicNetwork
         slaw: Slaw if mobilityModel == "SlawMobility" {
             @display("p=48,264;i=block/cogwheel_s");
         }
-
+		
+		peer[numPeers]: <> like PeerInterface{
+            @display("is=vs");
+            //EAM :: mobilityType = mobilityModel;
+            
+        }
 		tracker: AdhocHost {
             //IPForward = default(true); 
             //wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");  // use adhoc management
