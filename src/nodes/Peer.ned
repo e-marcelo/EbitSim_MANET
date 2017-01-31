@@ -115,7 +115,7 @@ import inet.nodes.inet.NetworkLayer;
 //import inet.linklayer.IWiredNic;
 //import inet.linklayer.IExternalNic;
 //import inet.base.NotificationBoard;
-
+import inet.networklayer.IManetRouting;
 
 //Nuevo intento Ad-hoc
 import inet.util.PcapRecorder;
@@ -166,7 +166,10 @@ module Peer like PeerInterface
         string udpType = default(firstAvailable("UDP","UDP_None"));
         string sctpType = default(firstAvailable("SCTP","SCTP_None"));
         //EAM :: IPForward = default(false);  // disable routing by default
-
+//        wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");  // use adhoc management
+        string routingProtocol @enum("AODVUU","DYMOUM","DYMO","DSRUU","OLSR","OLSR_ETX","DSDV_2","Batman") = default("AODVUU");  // used mobile routing protocol. see: inet.networklayer.manetrouting
+//        IPForward = default(true);
+		
     gates:
         input radioIn @directIn;
 
@@ -292,6 +295,9 @@ module Peer like PeerInterface
                 ifIn[1];
                 ifOut[1];
         }
+        manetrouting: <routingProtocol> like IManetRouting if routingProtocol != "" {
+            @display("p=522,307");
+        }
     //
     //        wlan: <default("Ieee80211Nic")> like IWirelessNic {
     //            parameters:
@@ -320,6 +326,9 @@ module Peer like PeerInterface
         bitTorrentApp.tcpOut[1] --> tcp.appIn++;
         bitTorrentApp.tcpIn[0] <-- tcp.appOut++;
         bitTorrentApp.tcpIn[1] <-- tcp.appOut++;
+        
+        networkLayer.manetOut --> manetrouting.from_ip if routingProtocol != "";
+        networkLayer.manetIn <-- manetrouting.to_ip if routingProtocol != "";
 //
 //        tcp.ipOut --> networkLayer.tcpIn if hasTcp;
 //        tcp.ipIn <-- networkLayer.tcpOut if hasTcp;

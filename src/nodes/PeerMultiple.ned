@@ -84,7 +84,8 @@ import inet.transport.tcp.TCP;
 import inet.util.TCPDump; //I.R.
 import inet.nodes.inet.NetworkLayer;
 import inet.mobility.models.MassMobility;
-
+import inet.util.PcapRecorder;
+import inet.networklayer.IManetRouting;
 import inet.linklayer.IWirelessNic;
 
 import inet.applications.pingapp.PingApp;
@@ -98,7 +99,7 @@ import inet.networklayer.ipv4.RoutingTable;
 import inet.nodes.inet.NetworkLayer;
 import inet.transport.tcp.TCP;
 import inet.transport.udp.UDP;
-
+import inet.mobility.IMobility;
 
 //
 // Peer module.
@@ -107,7 +108,7 @@ module PeerMultiple like PeerInterface
 {
     parameters:
         @node();
-        bool IPForward = default(false);
+//        bool IPForward = default(false);
         int namid = default(-1);
         string routingFile = default("");
         @labels(node,wireless-node);
@@ -115,7 +116,10 @@ module PeerMultiple like PeerInterface
         int numUdpApps = default(0);
         string tcpAppType = default("");
         string udpAppType = default("");
-        //bool IPForard = default(false);
+        int numPcapRecorders = default(0); // no of PcapRecorders.
+     	string routingProtocol @enum("AODVUU","DYMOUM","DYMO","DSRUU","OLSR","OLSR_ETX","DSDV_2","Batman") = default("AODVUU");  // used mobile routing protocol. see: inet.networklayer.manetrouting   
+        bool IPForward = default(true);
+        bool forwardMulticast = default(false);
         //string routingFile = default("");
         string mobilityType = default("NullMobility");
         @display("i=device/pocketpc_s");
@@ -127,32 +131,46 @@ module PeerMultiple like PeerInterface
             parameters:
                 @display("p=60,70");
         }
+        
+        // optional mobility module. Required only if wireless cards are present
+        mobility: <mobilityType> like IMobility if mobilityType != "" {
+            parameters:
+                @display("p=53,111");
+        }
+        
         interfaceTable: InterfaceTable {
             parameters:
                 @display("p=60,150");
         }
         routingTable: RoutingTable {
             parameters:
+                @display("p=53,225;is=s");
                 IPForward = IPForward;
-                routerId = "";
+                forwardMulticast = forwardMulticast;
                 routingFile = routingFile;
-                @display("p=60,230");
         }
+//        routingTable: RoutingTable {
+//            parameters:
+//                IPForward = IPForward;
+//                routerId = "";
+//                routingFile = routingFile;
+//                @display("p=60,230");
+//        }
         bitTorrentApp1: BitTorrentApp {
             parameters:
-                @display("p=163,70");
+                @display("p=163,70;i=abstract/penguin");
         }
         bitTorrentApp2: BitTorrentApp {
             parameters:
-                @display("p=236,70");
+                @display("p=236,70;i=abstract/penguin");
         }
         bitTorrentApp3: BitTorrentApp {
             parameters:
-                @display("p=307,70");
+                @display("p=307,70;i=abstract/penguin");
         }
         bitTorrentApp4: BitTorrentApp {
             parameters:
-                @display("p=378,70");
+                @display("p=378,70;i=abstract/penguin");
         }
         tcp: TCP {
             parameters:
@@ -162,6 +180,9 @@ module PeerMultiple like PeerInterface
             parameters:
                 proxyARP = false;
                 @display("p=163,230;q=queue");
+        }
+        pcapRecorder[numPcapRecorders]: PcapRecorder {
+            @display("p=53,338,r,10");
         }
         wlan: <default("Ieee80211Nic")> like IWirelessNic {
             parameters:
@@ -175,9 +196,13 @@ module PeerMultiple like PeerInterface
             parameters:
                 @display("p=163,297;i=abstract/cache_s");
         }
-//        aodvuu: AODVUU {
-//            @display("p=312,216");
-//        }
+
+        manetrouting: <routingProtocol> like IManetRouting if routingProtocol != "" {
+            @display("p=522,307");
+        }
+    //        aodvuu: AODVUU {
+    //            @display("p=312,216");
+    //        }
     connections allowunconnected:
         // Connect application to TCP layer
         bitTorrentApp1.tcpOut[0] --> tcp.appIn++;
@@ -217,12 +242,11 @@ module PeerMultiple like PeerInterface
         wlan.upperLayerOut --> networkLayer.ifIn++;
         wlan.upperLayerIn <-- networkLayer.ifOut++;
 
+
+        networkLayer.manetOut --> manetrouting.from_ip if routingProtocol != "";
+        networkLayer.manetIn <-- manetrouting.to_ip if routingProtocol != "";
         // Connect network interface to module gate
         //ethg --> wlan.radioIn;
-        
+
         //Protocolo de encaminamiento
-//        aodvuu.to_ip --> networkLayer.tcpIn;
-//		aodvuu.from_ip <-- networkLayer.tcpOut;
-//		aodvuu.to_ip --> networkLayer.manetIn;
-//        networkLayer.manetOut --> aodvuu.from_ip;
 }

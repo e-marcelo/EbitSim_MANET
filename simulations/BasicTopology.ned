@@ -44,8 +44,9 @@ network BasicTopology extends BasicNetwork
         string mobilityModel;
         //double playgroundSizeX;
         //double playgroundSizeY;
-
-        @display("bgb=1000,1000,white;bgg=100,2,grey80");
+		//Área de simulación
+        //@display("bgb=1000,1000,white;bgg=100,2,grey80");
+        @display("bgb=100,100,white;bgg=100,2,grey80");
         @signal[BitTorrentClient_PeerWireBytesSent];
         @signal[BitTorrentClient_ContentBytesSent];
         @statistic[PeerWireBytesSent](source=BitTorrentClient_PeerWireBytesSent; title="Total bytes of PeerWire messages sent"; record=sum);
@@ -119,14 +120,15 @@ network BasicTopology extends BasicNetwork
         }
 		
 		peer[numPeers]: <> like PeerInterface{
+		   
             @display("is=vs");
             //EAM :: mobilityType = mobilityModel;
             
         }
 		tracker: AdhocHost {
-            //IPForward = default(true); 
+            IPForward = default(true); 
             //wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");  // use adhoc management
-            mobilityType = mobilityModel;
+            //[Definido en el archivo de inicialización] :: mobilityType = mobilityModel;
 
             numTcpApps = 1;
             //EAM :: numTcpApps = 1;

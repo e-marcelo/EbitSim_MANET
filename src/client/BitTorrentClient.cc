@@ -137,6 +137,7 @@ BitTorrentClient::~BitTorrentClient() {
 // Method used by the SwarmManager::SwarmModules
 void BitTorrentClient::addUnconnectedPeers(int infoHash,
     UnconnectedList & peers) {
+
     Enter_Method("addUnconnectedPeers(infoHash: %d, qtty: %d)", infoHash,peers.size());
     Swarm & swarm = this->getSwarm(infoHash);
 
