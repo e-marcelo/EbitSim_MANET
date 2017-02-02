@@ -72,6 +72,8 @@
 
 package br.larc.usp.nodes;
 
+import inet.nodes.inet.NodeBase;
+
 import br.larc.usp.client.BitTorrentApp;
 //import inet.mobility.models.Slaw;
 
@@ -141,37 +143,41 @@ import inet.transport.IUDP;
 //
 // Peer module.
 //
-module Peer like PeerInterface
+module Peer extends NodeBase
 {
     parameters:
-        @display("i=device/pocketpc_s");
-        @display("bgb=,448");
-        @node;
-        @labels(node,wireless-node);
-        int numExtInterfaces = default(0);
-        int numRadios = default(0);               // the number of radios in the router. by default no wireless
-        int numPcapRecorders = default(0); // no of PcapRecorders.
-        string mobilityType = default(numRadios > 0 ? "StationaryMobility" : "");
-        string routingFile = default("");
-        bool IPForward = default(true);
-        bool forwardMulticast = default(false);
-        int numTcpApps = default(0);  // no of TCP apps. Specify the app types in INI file with tcpApp[0..1].typename="TCPEchoApp" syntax
-        int numUdpApps = default(0);  // no of UDP apps. Specify the app types in INI file with udpApp[0..1].typename="UDPVideoStreamCli" syntax
-        int numSctpApps = default(0); // no of SCTP apps. Specify the app types in INI file with sctpApp[0..1].typename="SCTPServer" syntax
-        int numPingApps = default(0);  // no of PING apps. Specify the app types in INI file with pingApp[0..1].typename="PingApp" syntax
-        bool hasTcp = default(numTcpApps>0);
-        bool hasUdp = default(numUdpApps>0);
-        bool hasSctp = default(numSctpApps>0);
-        string tcpType = default(firstAvailable("TCP", "TCP_lwIP", "TCP_NSC", "TCP_None"));  // tcp implementation (e.g. ~TCP, ~TCP_lwIP, ~TCP_NSC) or ~TCPSpoof
-        string udpType = default(firstAvailable("UDP","UDP_None"));
-        string sctpType = default(firstAvailable("SCTP","SCTP_None"));
+        //@display("i=device/pocketpc_s");
+        @display("i=device/cellphone");
+        wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");  // use adhoc management
+        IPForward = default(true);
+        //EAM @display("bgb=,448");
+        //EAM @node;
+        //EAM@labels(node,wireless-node);
+//        int numExtInterfaces = default(0);
+//        int numRadios = default(0);               // the number of radios in the router. by default no wireless
+//        int numPcapRecorders = default(0); // no of PcapRecorders.
+//        string mobilityType = default(numRadios > 0 ? "StationaryMobility" : "");
+//        string routingFile = default("");
+//        bool IPForward = default(false);
+//        bool forwardMulticast = default(false);
+//        int numTcpApps = default(1);  // no of TCP apps. Specify the app types in INI file with tcpApp[0..1].typename="TCPEchoApp" syntax
+//        int numUdpApps = default(0);  // no of UDP apps. Specify the app types in INI file with udpApp[0..1].typename="UDPVideoStreamCli" syntax
+//        int numSctpApps = default(0); // no of SCTP apps. Specify the app types in INI file with sctpApp[0..1].typename="SCTPServer" syntax
+//        int numPingApps = default(0);  // no of PING apps. Specify the app types in INI file with pingApp[0..1].typename="PingApp" syntax
+//        bool hasTcp = default(numTcpApps>0);
+//        bool hasUdp = default(numUdpApps>0);
+//        bool hasSctp = default(numSctpApps>0);
+//        string tcpType = default(firstAvailable("TCP", "TCP_lwIP", "TCP_NSC", "TCP_None"));  // tcp implementation (e.g. ~TCP, ~TCP_lwIP, ~TCP_NSC) or ~TCPSpoof
+//        string udpType = default(firstAvailable("UDP","UDP_None"));
+//        string sctpType = default(firstAvailable("SCTP","SCTP_None"));
         //EAM :: IPForward = default(false);  // disable routing by default
 //        wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");  // use adhoc management
         string routingProtocol @enum("AODVUU","DYMOUM","DYMO","DSRUU","OLSR","OLSR_ETX","DSDV_2","Batman") = default("AODVUU");  // used mobile routing protocol. see: inet.networklayer.manetrouting
 //        IPForward = default(true);
-		
-    gates:
-        input radioIn @directIn;
+		numRadios = default(1);
+//		proxyARP = false;		
+//    gates:
+//        input radioIn @directIn;
 
     submodules:
 //        slaw: Slaw {
@@ -206,42 +212,42 @@ module Peer like PeerInterface
 //                @display("p=635,141,row,60");
 //        }
 
-
-        //Basic Node
-        notificationBoard: NotificationBoard {
-            parameters:
-                @display("p=53,155;is=s");
-        }
-
-        // optional mobility module. Required only if wireless cards are present
-        mobility: <mobilityType> like IMobility if mobilityType != "" {
-            parameters:
-                @display("p=53,111");
-        }
-
-
-        routingTable: RoutingTable {
-            parameters:
-                @display("p=53,225;is=s");
-                IPForward = IPForward;
-                forwardMulticast = forwardMulticast;
-                routingFile = routingFile;
-        }
-
-        // linklayer
-        interfaceTable: InterfaceTable {
-            parameters:
-                @display("p=53,287;is=s");
-        }
-
-        pcapRecorder[numPcapRecorders]: PcapRecorder {
-            @display("p=53,338,r,10");
-        }
-
-        wlan: <default("Ieee80211Nic")> like IWirelessNic {
-            parameters:
-                @display("p=214,406,row,60;q=queue");
-        }
+//
+//        //Basic Node
+//        notificationBoard: NotificationBoard {
+//            parameters:
+//                @display("p=53,155;is=s");
+//        }
+//
+//        // optional mobility module. Required only if wireless cards are present
+//        mobility: <mobilityType> like IMobility if mobilityType != "" {
+//            parameters:
+//                @display("p=53,111");
+//        }
+//
+//
+//        routingTable: RoutingTable {
+//            parameters:
+//                @display("p=53,225;is=s");
+//                IPForward = IPForward;
+//                forwardMulticast = forwardMulticast;
+//                routingFile = routingFile;
+//        }
+//
+//        // linklayer
+//        interfaceTable: InterfaceTable {
+//            parameters:
+//                @display("p=53,287;is=s");
+//        }
+//
+//        pcapRecorder[numPcapRecorders]: PcapRecorder {
+//            @display("p=53,338,r,10");
+//        }
+//
+//        wlan: <default("Ieee80211Nic")> like IWirelessNic {
+//            parameters:
+//                @display("p=214,406,row,60;q=queue");
+//        }
 
         //    parameters: EbitSim [original]
         //        @node();
@@ -287,14 +293,14 @@ module Peer like PeerInterface
             parameters:
                 @display("p=163,154");
         }
-        networkLayer: NetworkLayer {
-            parameters:
-                proxyARP = false;
-                @display("p=248,247;q=queue");
-            gates:
-                ifIn[1];
-                ifOut[1];
-        }
+//        networkLayer: NetworkLayer {
+//            parameters:
+//                proxyARP = false;
+//                @display("p=248,247;q=queue");
+//            gates:
+//                ifIn[1];
+//                ifOut[1];
+//        }
         manetrouting: <routingProtocol> like IManetRouting if routingProtocol != "" {
             @display("p=522,307");
         }
@@ -304,15 +310,15 @@ module Peer like PeerInterface
     //                @display("p=248,349;q=queue");
     //        }
     connections allowunconnected:
-        tcp.ipOut --> networkLayer.tcpIn;
-        tcp.ipIn <-- networkLayer.tcpOut;
+//        tcp.ipOut --> networkLayer.tcpIn;
+//        tcp.ipIn <-- networkLayer.tcpOut;
         //
         //        // connections to network outside
-        radioIn --> wlan.radioIn;
-        //
-        //        //EAM :: Cambio ++ --> upperLayerIn
-        wlan.upperLayerOut --> networkLayer.ifIn++;
-        wlan.upperLayerIn <-- networkLayer.ifOut++;
+//        radioIn --> wlan.radioIn;
+//        //
+//        //        //EAM :: Cambio ++ --> upperLayerIn
+//        wlan.upperLayerOut --> networkLayer.ifIn++;
+//        wlan.upperLayerIn <-- networkLayer.ifOut++;
         //        // Connect application to TCP layer
 
         //

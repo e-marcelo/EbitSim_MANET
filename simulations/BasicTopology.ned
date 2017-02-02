@@ -15,7 +15,8 @@
 package br.larc.usp.simulations;
 
 import br.larc.usp.controller.ClientController;
-import br.larc.usp.nodes.Peer;
+//EAM :: import br.larc.usp.nodes.Peer;
+import br.larc.usp.nodes.PeerEx;
 import br.larc.usp.nodes.PeerInterface;
 
 import inet.examples.mobility.MobileHost;
@@ -119,9 +120,13 @@ network BasicTopology extends BasicNetwork
             @display("p=48,264;i=block/cogwheel_s");
         }
 		
-		peer[numPeers]: <> like PeerInterface{
-		   
+		//EAM :: peer[numPeers]: <> like PeerInterface{
+		peer[numPeers]: PeerEx{
+		//EAM :: peer[numPeers] : AdhocHost{
+//		   	@display("i=device/cellphone");
             @display("is=vs");
+            IPForward = default(true);
+            numTcpApps = 1;
             //EAM :: mobilityType = mobilityModel;
             
         }

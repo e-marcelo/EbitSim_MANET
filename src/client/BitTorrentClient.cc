@@ -79,7 +79,7 @@
 #include <IPvXAddressResolver.h>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
-
+#include <boost/tuple/tuple.hpp>
 #include "Application_m.h"
 #include "PeerWire_m.h"
 #include "PeerWireMsgBundle_m.h"
@@ -87,6 +87,7 @@
 #include "Choker.h"
 #include "ContentManager.h"
 #include "SwarmManager.h"
+
 
 // Dumb fix because of the CDT parser (https://bugs.eclipse.org/bugs/show_bug.cgi?id=332278)
 #ifdef __CDT_PARSER__
@@ -584,7 +585,7 @@ void BitTorrentClient::connect(int infoHash, PeerConnInfo const& peer) {
     // initialize variables with the tuple content
     int peerId, port;
     IPvXAddress ip;
-    tie(peerId, ip, port) = peer;
+    boost::tie(peerId, ip, port) = peer;
 
     TCPSocket * socket = new TCPSocket();
     //EAM :: Nuevas sentencias

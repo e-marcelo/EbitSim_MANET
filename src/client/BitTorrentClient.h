@@ -319,6 +319,7 @@ private:
     //!
     cMessage endOfProcessingTimer;
     //! Processing time histogram, used to generate values for the simulation
+    //EAM :: [Creo que no hay comunicacion por el histograma que sigue (genera "timeout")] ->
     cDoubleHistogram doubleProcessingTimeHist;
     //@}
 

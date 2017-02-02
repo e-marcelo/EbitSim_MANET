@@ -671,7 +671,7 @@ void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
         int blockIndex = begin / blockSize;
         if (req.setBlock(blockIndex)) {
             std::multimap<int, int>::iterator it, end;
-            tie(it, end) = this->requestedPieces.equal_range(peerId);
+            boost::tie(it, end) = this->requestedPieces.equal_range(peerId);
             for (/* empty */; it != end; ++it) {
                 if (it->second == pieceIndex) {
                     --this->numPendingRequests.at(peerId);
@@ -800,7 +800,7 @@ void ContentManager::getRemainingPieces(cPacketQueue * const bundle,
     // get blocks from pieces previously requested by this peerId
     std::multimap<int, int>::iterator it;
     std::multimap<int, int>::const_iterator end;
-    tie(it, end) = this->requestedPieces.equal_range(peerId);
+    boost::tie(it, end) = this->requestedPieces.equal_range(peerId);
     typedef std::pair<int, int> pair_t;
     while (it != end) {
         PieceBlocks & req = this->missingBlocks.at(it->second);

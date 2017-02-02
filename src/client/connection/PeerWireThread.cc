@@ -265,6 +265,7 @@ simtime_t PeerWireThread::startProcessing() {
         cMessage *messageInProcessing = static_cast<cMessage *>(o);
         assert(dynamic_cast<PeerWireMsg *>(messageInProcessing)); // not NULL
         processingTime = this->btClient->doubleProcessingTimeHist.random();
+        //EAM :: Prueba processingTime = 3.0;
         this->issueTransition(messageInProcessing);
     }
     return processingTime;
