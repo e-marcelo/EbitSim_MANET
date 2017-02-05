@@ -94,7 +94,7 @@ class ContentManager;
 //! Vector of PeerStatus pointers.
 typedef std::vector<PeerStatus const*> PeerVector;
 //! Tuple with connect information about a Peer. <PeerId, IpAddress, Port>
-typedef tuple<int, IPvXAddress, int> PeerConnInfo;
+typedef boost::tuple<int, IPvXAddress, int> PeerConnInfo;
 //! List of unconnected Peers
 typedef std::list<PeerConnInfo> UnconnectedList;
 //! Map of peer entries with peerId as key

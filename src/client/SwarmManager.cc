@@ -197,15 +197,22 @@ public:
             // get list of Peers returned by the tracker and tell the
             // BitTorrentClient to connect with them.
             std::list<PeerConnInfo> peers;
+
             //EAM :: int iy = response->getPeersArraySize();
 
             //EAM :: printf("Pares :: %d\n",iy);
             for (unsigned int i = 0; i < response->getPeersArraySize(); ++i) {
                 PeerInfo& info = response->getPeers(i);
+                ////! Tuple with connect information about a Peer. <PeerId, IpAddress, Port>
+                //typedef boost::tuple<int, IPvXAddress, int> PeerConnInfo;
 
-                PeerConnInfo peer = make_tuple(info.getPeerId(), info.getIp(),
+                PeerConnInfo peer = boost::make_tuple(info.getPeerId(), info.getIp(),
                     info.getPort());
-                //EAM :: printf("* %d :: %d\n",info.getPeerId(),info.getPort());
+                // EAM :: printf("->  %d :: %s :: %d\n",info.getPeerId(),info.getIp().str(),info.getPort());
+                /*std::cerr << "->" << info.getPeerId();
+                std::cerr << " :: " << info.getIp().str();
+                std::cerr << " ::  " << info.getPort() << "\n";
+                */
                 peers.push_back(peer);
             }
             if (peers.size()) {
@@ -224,16 +231,19 @@ public:
         this->parent->socketMap.removeSocket(this->socket);
         // make the socket ready to connect again
         this->socket->renewSocket();
-        this->socket->setDataTransferMode(TCP_TRANSFER_OBJECT);
+
+        this->socket->setDataTransferMode(TCPDataTransferMode::TCP_TRANSFER_OBJECT);
+
 
         switch (this->lastAnnounceType) {
         case A_COMPLETED: {
             // Check if the peer will leave the swarm after completed
-            if (uniform(0, 1) > parent->par("remainingSeeders").doubleValue()) {
-                cMessage * leaveMsg = new cMessage("Leave");
-                leaveMsg->setContextPointer(this);
-                this->parent->scheduleAt(simTime(), leaveMsg);
-            }
+            //El par se mantiene en el enjambre compartiendo el contenido
+//            if (uniform(0, 1) > parent->par("remainingSeeders").doubleValue()) {
+//                cMessage * leaveMsg = new cMessage("Leave");
+//                leaveMsg->setContextPointer(this);
+//                this->parent->scheduleAt(simTime(), leaveMsg);
+//            }
         }
             break;
         case A_STOPPED: {
@@ -338,9 +348,9 @@ void SwarmManager::askMorePeers(int infoHash) {
 void SwarmManager::finishedDownload(int infoHash) {
     // tell simulator that this method is being called.
     Enter_Method("finishedDownload(%d)", infoHash);
-#ifdef DEBUG_MSG
+//#ifdef DEBUG_MSG
     this->printDebugMsg("Finished download for swarm " + toStr(infoHash));
-#endif
+//#endif
 
     TrackerSocketCallback * socketCallback = this->callbacksByInfoHash.at(
         infoHash);
@@ -368,8 +378,9 @@ void SwarmManager::enterSwarm(TorrentMetadata const& torrent, bool seeder,
     socket->setCallbackObject(socketCallback);
 
     socketCallback->sendAnnounce(A_STARTED);
+    //Evitar la comunicación con el par y el tracker
 
-    // Create a new SwarmModules object and insert it in the SwarmModules map.
+    // Create a new SwarmModules object and insert it in the SwarmModules map. <- Crear elementos para crear el SwarmModule con todos los pares desde el inicio
     this->callbacksByInfoHash[torrent.infoHash] = socketCallback;
 
     this->bitTorrentClient->createSwarm(torrent.infoHash, torrent.numOfPieces,
@@ -424,15 +435,15 @@ void SwarmManager::treatTCPMessage(cMessage * msg) {
 }
 
 void SwarmManager::printDebugMsg(std::string s) {
-#ifdef DEBUG_MSG
-    if (this->debugFlag) {
-        // debug "header"
+//EAM :: #ifdef DEBUG_MSG
+  //EAM ::   if (this->debugFlag) {
+        //EAM ::  debug "header"
         std::cerr << simulation.getEventNumber();
         std::cerr << ";" << simulation.getSimTime();
         std::cerr << ";(smanager);Peer " << this->localPeerId << ";";
         std::cerr << s << "\n";
-    }
-#endif
+    //EAM :: }
+//EAM :: #endif
 }
 void SwarmManager::setStatusString(const char * s) {
     if (ev.isGUI()) {

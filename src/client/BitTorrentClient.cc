@@ -313,7 +313,7 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     int numOfSubPieces, int subPieceSize, bool newSwarmSeeding) {
     Enter_Method("addSwarm(infoHash: %d, %s)", infoHash,
         (newSwarmSeeding ? "seeding" : "leeching"));
-    assert(!this->swarmMap.count(infoHash)); // Swarm must not exist
+    assert(!this->swarmMap.count(infoHash)); // Swarm must not exist <- Cuidar la validación
 
     // create Choker module
     cModule * choker;
