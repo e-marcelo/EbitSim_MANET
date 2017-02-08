@@ -127,14 +127,14 @@ network BasicTopology extends BasicNetwork
             @display("is=vs");
             IPForward = default(true);
             numTcpApps = 1;
-            //EAM :: mobilityType = mobilityModel;
+            mobilityType = mobilityModel;
             
         }
 		tracker: AdhocHost {
             IPForward = default(true); 
             //wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");  // use adhoc management
             //[Definido en el archivo de inicialización] :: mobilityType = mobilityModel;
-
+			
             numTcpApps = 1;
             //EAM :: numTcpApps = 1;
             //EAM :: tcpAppType = "TrackerApp"; **Revisar version 5

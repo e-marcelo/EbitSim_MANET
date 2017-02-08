@@ -206,14 +206,15 @@ public:
                 ////! Tuple with connect information about a Peer. <PeerId, IpAddress, Port>
                 //typedef boost::tuple<int, IPvXAddress, int> PeerConnInfo;
 
-                PeerConnInfo peer = boost::make_tuple(info.getPeerId(), info.getIp(),
-                    info.getPort());
+                PeerConnInfo peer = boost::make_tuple(info.getPeerId(), info.getIp(),info.getPort());
                 // EAM :: printf("->  %d :: %s :: %d\n",info.getPeerId(),info.getIp().str(),info.getPort());
                 /*std::cerr << "->" << info.getPeerId();
                 std::cerr << " :: " << info.getIp().str();
                 std::cerr << " ::  " << info.getPort() << "\n";
                 */
+                //Method to append an element to the end of the list
                 peers.push_back(peer);
+
             }
             if (peers.size()) {
                 this->parent->bitTorrentClient->addUnconnectedPeers(
@@ -340,9 +341,9 @@ void SwarmManager::askMorePeers(int infoHash) {
 #ifdef DEBUG_MSG
     this->printDebugMsg("Ask for more peers for swarm " + toStr(infoHash));
 #endif
-    TrackerSocketCallback * socketCallback = this->callbacksByInfoHash.at(
-        infoHash);
-    socketCallback->sendAnnounce(A_NORMAL);
+//    TrackerSocketCallback * socketCallback = this->callbacksByInfoHash.at(
+//        infoHash);
+//    socketCallback->sendAnnounce(A_NORMAL);
 
 }
 void SwarmManager::finishedDownload(int infoHash) {
@@ -352,9 +353,10 @@ void SwarmManager::finishedDownload(int infoHash) {
     this->printDebugMsg("Finished download for swarm " + toStr(infoHash));
 //#endif
 
-    TrackerSocketCallback * socketCallback = this->callbacksByInfoHash.at(
-        infoHash);
-    socketCallback->sendAnnounce(A_COMPLETED);
+//EAM    TrackerSocketCallback * socketCallback = this->callbacksByInfoHash.at(
+//EAM        infoHash);
+//EAM    socketCallback->sendAnnounce(A_COMPLETED);
+    std::cerr << "Mensaje :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
 }
 
 // Private methods
@@ -362,38 +364,40 @@ void SwarmManager::finishedDownload(int infoHash) {
 void SwarmManager::enterSwarm(TorrentMetadata const& torrent, bool seeder,
     IPvXAddress const& trackerAddress, int trackerPort) {
 
+    //Evitamos contactar al tracker y en su lugar utilizamos una lista con la información completa (semillas y pares)
     // The swarm must be new
-    assert(!this->callbacksByInfoHash.count(torrent.infoHash));
+    assert(!this->callbacksByInfoHash.count(torrent.infoHash)); // <-- [:)]
     //EAM :: printf("ID peer :: %d\n",this->bitTorrentClient->getLocalPeerId());
 
     // Create the socket and the callback objects
-    TCPSocket * socket = new TCPSocket();
-    socket->setOutputGate(gate("tcpOut"));
+    //EAM :: TCPSocket * socket = new TCPSocket();
+    //EAM :: socket->setOutputGate(gate("tcpOut"));
     //EAM :: Nuevas sentencias
     //socket->readDataTransferModePar(*this);
-    socket->setDataTransferMode(TCP_TRANSFER_OBJECT);
+    //EAM :: socket->setDataTransferMode(TCP_TRANSFER_OBJECT);
 
-    TrackerSocketCallback * socketCallback = new TrackerSocketCallback(this,
-        torrent, seeder, socket, trackerAddress, trackerPort);
-    socket->setCallbackObject(socketCallback);
+    //EAM :: TrackerSocketCallback * socketCallback = new TrackerSocketCallback(this,
+    //EAM ::     torrent, seeder, socket, trackerAddress, trackerPort);
+    //EAM :: socket->setCallbackObject(socketCallback);
 
-    socketCallback->sendAnnounce(A_STARTED);
+    //EAM :: socketCallback->sendAnnounce(A_STARTED);
     //Evitar la comunicación con el par y el tracker
 
     // Create a new SwarmModules object and insert it in the SwarmModules map. <- Crear elementos para crear el SwarmModule con todos los pares desde el inicio
-    this->callbacksByInfoHash[torrent.infoHash] = socketCallback;
+    //EAM :: this->callbacksByInfoHash[torrent.infoHash] = socketCallback;
 
+    //El controlador define que infoHash se utilizará
     this->bitTorrentClient->createSwarm(torrent.infoHash, torrent.numOfPieces,
         torrent.numOfSubPieces, torrent.subPieceSize, seeder);
     emit(this->enterSwarmSignal, simTime());
     emit(this->emittedPeerId_Signal, this->localPeerId);
 }
 void SwarmManager::leaveSwarm(int infoHash) {
-    this->callbacksByInfoHash.at(infoHash)->sendAnnounce(A_STOPPED);
+//EAM    this->callbacksByInfoHash.at(infoHash)->sendAnnounce(A_STOPPED);
     // remove the swarm from the application, closing all connections
     // with other peers
     this->bitTorrentClient->deleteSwarm(infoHash);
-    delete this->callbacksByInfoHash.at(infoHash);
+//    delete this->callbacksByInfoHash.at(infoHash);
     this->callbacksByInfoHash.erase(infoHash);
     emit(this->leaveSwarmSignal, simTime());
     emit(this->emittedPeerId_Signal, this->localPeerId);

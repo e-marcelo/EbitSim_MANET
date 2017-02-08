@@ -1,77 +1,10 @@
-// EbitSim - Enhanced BitTorrent Simulation
-// This program is under the terms of the Creative Commons
-// Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)
-//
-// You are free:
-//
-//    to Share - to copy, distribute and transmit the work
-//    to Remix - to adapt the work
-//
-// Under the following conditions:
-//
-//    Attribution - You must attribute the work in the manner specified by the
-//    author or licensor (but not in any way that suggests that they endorse you
-//    or your use of the work).
-//
-//    Noncommercial - You may not use this work for commercial purposes.
-//
-//    Share Alike - If you alter, transform, or build upon this work, you may
-//    distribute the resulting work only under the same or similar license to
-//    this one.
-//
-// With the understanding that:
-//
-//    Waiver - Any of the above conditions can be waived if you get permission
-//    from the copyright holder.
-//
-//    Public Domain - Where the work or any of its elements is in the public
-//    domain under applicable law, that status is in no way affected by the
-//    license.
-//
-//    Other Rights - In no way are any of the following rights affected by the
-//    license:
-//        - Your fair dealing or fair use rights, or other applicable copyright
-//          exceptions and limitations;
-//        - The author's moral rights;
-//        - Rights other persons may have either in the work itself or in how
-//          the work is used, such as publicity or privacy rights.
-//
-//    Notice - For any reuse or distribution, you must make clear to others the
-//    license terms of this work. The best way to do this is with a link to this
-//    web page. <http://creativecommons.org/licenses/by-nc-sa/3.0/>
-//
-// Author:
-//     Pedro Manoel Fabiano Alves Evangelista <pevangelista@larc.usp.br>
-//     Supervised by Prof Tereza Cristina M. B. Carvalho <carvalho@larc.usp.br>
-//     Graduate Student at Escola Politecnica of University of Sao Paulo, Brazil
-//
-// Contributors:
-//     Marcelo Carneiro do Amaral <mamaral@larc.usp.br>
-//     Victor Souza <victor.souza@ericsson.com>
-//
-// Disclaimer:
-//     This work is part of a Master Thesis developed by:
-//        Pedro Evangelista, graduate student at
-//        Laboratory of Computer Networks and Architecture
-//        Escola Politecnica
-//        University of Sao Paulo
-//        Brazil
-//     and supported by:
-//        Innovation Center
-//        Ericsson Telecomunicacoes S.A., Brazil.
-//
-// UNLESS OTHERWISE MUTUALLY AGREED TO BY THE PARTIES IN WRITING AND TO THE
-// FULLEST EXTENT PERMITTED BY APPLICABLE LAW, LICENSOR OFFERS THE WORK AS-IS
-// AND MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND CONCERNING THE WORK,
-// EXPRESS, IMPLIED, STATUTORY OR OTHERWISE, INCLUDING, WITHOUT LIMITATION,
-// WARRANTIES OF TITLE, MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
-// NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER DEFECTS, ACCURACY, OR THE
-// PRESENCE OF ABSENCE OF ERRORS, WHETHER OR NOT DISCOVERABLE. SOME
-// JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES, SO THIS
-// EXCLUSION MAY NOT APPLY TO YOU.
+// -> typedef std::map<int, Swarm> SwarmMap;
+// -> typedef std::map<int, PeerStatus> PeerMap;
+// -> std::map<std::string, TorrentMetadataBTM> contents; //The key is the content name from XML file
+// -> std::map<int, SwarmPeerList> swarms; // The key is the infoHash
 
 #include "BitTorrentClient.h"
-
+#include <string.h>
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
@@ -194,7 +127,7 @@ PeerVector BitTorrentClient::getFastestToDownload(int infoHash) const {
     if (peerMap.size()) {
         orderedPeers.reserve(peerMap.size());
         PeerMapConstIt it = peerMap.begin();
-        int i = 0;
+//EAM ::        int i = 0;
         for (; it != peerMap.end(); ++it) {
             PeerStatus const* peerStatus = &it->second;
             orderedPeers.push_back(peerStatus);
@@ -354,6 +287,11 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     swarm.closing = false;
     swarm.choker = static_cast<Choker*>(choker);
     swarm.contentManager = static_cast<ContentManager*>(contentManager);
+    //EAM :: std::cerr << "[***] Pares en la lista" << peers.size() << "\n";
+    //Iniciamos la descarga, obviando la consulta que previamente se realizaba consultando al Tracker.
+    if (peers.size()) {
+        this->addUnconnectedPeers(infoHash, peers);
+    }
 }
 void BitTorrentClient::deleteSwarm(int infoHash) {
     Enter_Method("removeSwarm(infoHash: %d)", infoHash);
@@ -573,9 +511,9 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
         }
         // Either the active slots are full or the unconnected list is empty
         // If more than half of the active slots is unoccupied, ask for more peers
-        if (swarm.numActive < this->numActiveConn / 2) {
-            this->swarmManager->askMorePeers(infoHash);
-        }
+        //*EAM :: if (swarm.numActive < this->numActiveConn / 2) {
+        //*EAM ::    this->swarmManager->askMorePeers(infoHash);
+        //*EAM :: }
     }
 }
 /*!
@@ -647,15 +585,18 @@ void BitTorrentClient::emitSentSignal(int messageId) {
 }
 Swarm const& BitTorrentClient::getSwarm(int infoHash) const {
     assert(this->swarmMap.count(infoHash));
+//EAM ::    std::cerr << "Problema [1] :: infoHash = " << infoHash << "\n";
     return this->swarmMap.at(infoHash);
 }
 Swarm & BitTorrentClient::getSwarm(int infoHash) {
     assert(this->swarmMap.count(infoHash));
+//EAM :: std::cerr << "Problema [2] :: infoHash = " << infoHash  << "\n";
     return this->swarmMap.at(infoHash);
 }
 PeerStatus & BitTorrentClient::getPeerStatus(int infoHash, int peerId) {
     Swarm & swarm = this->getSwarm(infoHash);
     assert(swarm.peerMap.count(peerId));
+
     return swarm.peerMap.at(peerId);
 }
 PeerStatus const& BitTorrentClient::getPeerStatus(int infoHash,
@@ -872,8 +813,7 @@ void BitTorrentClient::initialize(int stage) {
         // create a listening connection
         TCPSrvHostApp::initialize();
 
-        this->swarmManager = check_and_cast<SwarmManager*>(
-            getParentModule()->getSubmodule("swarmManager"));
+        this->swarmManager = check_and_cast<SwarmManager*>(getParentModule()->getSubmodule("swarmManager"));
         this->localPeerId = this->getParentModule()->getParentModule()->getId();
 
         // get parameters from the modules
@@ -905,6 +845,58 @@ void BitTorrentClient::initialize(int stage) {
             this->doubleProcessingTimeHist.loadFromFile(histogramFile);
             fclose(histogramFile);
         }
+
+        //Adaptación de la construcción del archivo torrent
+        // read all contents from the xml file.
+        cXMLElementList contentsList = par("contents").xmlValue()->getChildrenByTagName("content");
+
+        if (contentsList.empty()) {
+            //EAMthrow std::invalid_argument
+            printf("List of contents is empty. Check the xml file");
+        }
+        cXMLElementList::iterator it = contentsList.begin();
+
+        for (; it != contentsList.end(); ++it) {
+            TorrentMetadataBTM torrentMetadata;
+            cXMLElement * child;
+            // create the torrent metadata
+            child = (*it)->getFirstChildWithTag("numOfPieces");
+            torrentMetadata.numOfPieces = atoi(child->getNodeValue());
+            child = (*it)->getFirstChildWithTag("numOfSubPieces");
+            torrentMetadata.numOfSubPieces = atoi(child->getNodeValue());
+            child = (*it)->getFirstChildWithTag("subPieceSize");
+            torrentMetadata.subPieceSize = atoi(child->getNodeValue());
+            torrentMetadata.infoHash = simulation.getUniqueNumber(); //Número único para identifacar al archivo: *.torrent
+            this->swarms[torrentMetadata.infoHash];
+            // save a list of torrents for each video content
+            std::string contentName((*it)->getAttribute("name"));
+            this->contents[contentName] = torrentMetadata;
+        }
+
+        //Arreglo de pares presentes en la simulación
+        // Test if Tracker has this content -> especificamos el hash del contenido digital a compartir
+        this->numberOfPeers = par("numberOfPeers");
+        std::string opt;
+        std::ostringstream numNode;
+        int peerId;
+        int port = 6881;
+
+        int peerIdActual = this->getParentModule()->getParentModule()->getId();
+
+        for(int i=0; i< this->numberOfPeers; i++){
+            opt = std::string("peer[");
+            numNode << i;
+            opt.append(numNode.str());
+            opt.append("]");
+            peerId = simulation.getModuleByPath(opt.c_str())->getId();
+            if (peerIdActual != peerId){
+                PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),port);
+                this->peers.push_back(peer);
+            }
+            opt.clear();
+            numNode.str("");
+        }
+
     }
 }
 void BitTorrentClient::handleMessage(cMessage* msg) {
@@ -958,3 +950,5 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
         }
     }
 }
+
+
