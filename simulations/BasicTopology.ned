@@ -47,7 +47,7 @@ network BasicTopology extends BasicNetwork
         //double playgroundSizeY;
 		//Área de simulación
         //@display("bgb=1000,1000,white;bgg=100,2,grey80");
-        @display("bgb=100,100,white;bgg=100,2,grey80");
+        @display("bgb=1000,1000,white;bgg=100,2,grey80");
         @signal[BitTorrentClient_PeerWireBytesSent];
         @signal[BitTorrentClient_ContentBytesSent];
         @statistic[PeerWireBytesSent](source=BitTorrentClient_PeerWireBytesSent; title="Total bytes of PeerWire messages sent"; record=sum);
@@ -100,41 +100,42 @@ network BasicTopology extends BasicNetwork
     submodules:
         //        tracker: Tracker;
 
-        
-        
+
+
         flatNetworkConfigurator: FlatNetworkConfigurator {
 
-            @display("p=48,125");
+            @display("p=17,134");
         }
 
         clientController: ClientController {
-            @display("p=48,204");
+            @display("p=17,20");
         }
         channelControl: ChannelControl {
             parameters:
                 //EAM :: playgroundSizeX = playgroundSizeX;
                 //EAM :: playgroundSizeY = playgroundSizeY;
-                @display("p=48,50");
+                @display("p=17,197");
         }
         slaw: Slaw if mobilityModel == "SlawMobility" {
-            @display("p=48,264;i=block/cogwheel_s");
+            @display("p=17,79;i=block/cogwheel_s");
         }
-		
-		//EAM :: peer[numPeers]: <> like PeerInterface{
-		peer[numPeers]: PeerEx{
+
+        //EAM :: peer[numPeers]: <> like PeerInterface{
+        peer[numPeers]: PeerEx {
 		//EAM :: peer[numPeers] : AdhocHost{
-//		   	@display("i=device/cellphone");
-            @display("is=vs");
+            //		   	@display("i=device/cellphone");
+            //@display("i");
             IPForward = default(true);
             numTcpApps = 1;
             mobilityType = mobilityModel;
-            
+
+            @display("p=297,94");
         }
-		tracker: AdhocHost {
-            IPForward = default(true); 
+        tracker: AdhocHost {
+            IPForward = default(true);
             //wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");  // use adhoc management
             //[Definido en el archivo de inicialización] :: mobilityType = mobilityModel;
-			
+
             numTcpApps = 1;
             //EAM :: numTcpApps = 1;
             //EAM :: tcpAppType = "TrackerApp"; **Revisar version 5
@@ -143,10 +144,10 @@ network BasicTopology extends BasicNetwork
 			//tcpAppType = "TrackerApp";
             //@address("192.168.0.133");
             //@display("p=392,293;i=device/server2");
-            @display("is=vs");
+            @display("i=old/x_blank;is=vs;p=2,2");
             //@display("p=500,500");
         }
-		
+
 
     connections:
         //for i=0..numPeers-1 {
