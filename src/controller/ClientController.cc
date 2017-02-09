@@ -52,7 +52,7 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
     cTopology topo;
     topo.extractByProperty("peer");
 
-    int numNodes = topo.getNumNodes();
+//    int numNodes = topo.getNumNodes();
 
     simtime_t enterTime = startTime;
 
@@ -68,12 +68,14 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
 
         // The first peers set to seeders and start imediatelly
         if (seeder) {
-            self->scheduleAt(simTime(), msg);
+//EAM::            self->scheduleAt(simTime(), msg);
+            self->scheduleAt(enterTime,msg);
         } else {
             self->emitEnterTime(enterTime);
-            self->scheduleAt(simTime(), msg);
+            self->scheduleAt(enterTime,msg);
+            //EAM :: self->scheduleAt(simTime(), msg);
             //EAM :: self->scheduleAt(enterTime, msg);
-            //EAM ::enterTime += exponential(interarrivalTime);
+            //EAM :: enterTime += exponential(interarrivalTime);
         }
     }
 }

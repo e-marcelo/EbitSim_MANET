@@ -47,7 +47,7 @@ network BasicTopology extends BasicNetwork
         //double playgroundSizeY;
 		//Área de simulación
         //@display("bgb=1000,1000,white;bgg=100,2,grey80");
-        @display("bgb=1000,1000,white;bgg=100,2,grey80");
+        @display("bgb=440,200,white;bgg=100,2,grey80");
         @signal[BitTorrentClient_PeerWireBytesSent];
         @signal[BitTorrentClient_ContentBytesSent];
         @statistic[PeerWireBytesSent](source=BitTorrentClient_PeerWireBytesSent; title="Total bytes of PeerWire messages sent"; record=sum);
@@ -127,9 +127,10 @@ network BasicTopology extends BasicNetwork
             //@display("i");
             IPForward = default(true);
             numTcpApps = 1;
-            mobilityType = mobilityModel;
+            //EAM :: mobilityType = mobilityModel;
+            @display("is=vs;p=296,71;i=old/x_active");
 
-            @display("p=297,94");
+
         }
         tracker: AdhocHost {
             IPForward = default(true);
@@ -150,6 +151,7 @@ network BasicTopology extends BasicNetwork
 
 
     connections:
+
         //for i=0..numPeers-1 {
         //    peer[i].ethg <--> ethernetline <--> router.ethg++;
         //}
