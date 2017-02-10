@@ -927,7 +927,7 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
 
         if(msg->getKind() == TCP_I_TIMED_OUT){
             std::cerr << "Creo que debemos intentar de nuevo! Peer :: [ " << this->getId() << "]\n";
-            delete msg;
+            //EAM :: delete msg;
         }else{
             // statistics about the PeerWireMsgs
             this->peerWireStatistics(msg,false);
