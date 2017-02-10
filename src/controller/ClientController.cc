@@ -69,11 +69,11 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
         // The first peers set to seeders and start imediatelly
         if (seeder) {
 //EAM::            self->scheduleAt(simTime(), msg);
-            self->scheduleAt(enterTime,msg);
+            self->scheduleAt(simTime(),msg);
         } else {
             self->emitEnterTime(enterTime);
-            self->scheduleAt(enterTime,msg);
-            //EAM :: self->scheduleAt(simTime(), msg);
+            //EAM :: self->scheduleAt(enterTime,msg);
+            self->scheduleAt(simTime(), msg);
             //EAM :: self->scheduleAt(enterTime, msg);
             //EAM :: enterTime += exponential(interarrivalTime);
         }

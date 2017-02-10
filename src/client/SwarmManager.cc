@@ -239,6 +239,7 @@ public:
         switch (this->lastAnnounceType) {
         case A_COMPLETED: {
             // Check if the peer will leave the swarm after completed
+            std::cerr << "SwarmManager :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
             //El par se mantiene en el enjambre compartiendo el contenido
 //            if (uniform(0, 1) > parent->par("remainingSeeders").doubleValue()) {
 //                cMessage * leaveMsg = new cMessage("Leave");
@@ -356,7 +357,9 @@ void SwarmManager::finishedDownload(int infoHash) {
 //EAM    TrackerSocketCallback * socketCallback = this->callbacksByInfoHash.at(
 //EAM        infoHash);
 //EAM    socketCallback->sendAnnounce(A_COMPLETED);
-    std::cerr << "Mensaje :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
+//EAM    std::cerr << "SwarmManager :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
+    std::cerr << "Became a seeder :: " << this->bitTorrentClient->getId() << "\n";
+//Retomar ::    emit(this->seederSignal, &data); Retomar señales
 }
 
 // Private methods

@@ -156,7 +156,7 @@ void PeerWireThread::established() {
     }
 }
 void PeerWireThread::failure(int code) {
-#ifdef DEBUG_MSG
+//#ifdef DEBUG_MSG
     std::ostringstream out;
     out << "Connection failure - ";
     switch (code) {
@@ -171,9 +171,9 @@ void PeerWireThread::failure(int code) {
         break;
     }
     this->printDebugMsg(out.str());
-#endif
+//#endif
     //EAM :: throw std::logic_error
-    printf("TCP connection failure");
+    printf("TCP connection failure ***\n");
 }
 void PeerWireThread::init(TCPSrvHostApp* hostmodule, TCPSocket* socket) {
     // call parent method
@@ -211,7 +211,7 @@ std::string PeerWireThread::getThreadId() {
     return out;
 }
 void PeerWireThread::printDebugMsg(std::string s) {
-#ifdef DEBUG_MSG
+//#ifdef DEBUG_MSG
     std::ostringstream out;
     if (this->remotePeerId != -1) {
         out << "peerId " << this->remotePeerId;
@@ -222,7 +222,7 @@ void PeerWireThread::printDebugMsg(std::string s) {
     out << ";" << s;
 
     this->btClient->printDebugMsg(out.str());
-#endif
+//#endif
 }
 
 // Private methods

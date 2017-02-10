@@ -664,15 +664,15 @@ void BitTorrentClient::peerWireStatistics(cMessage const*msg, bool sending =
     }
 }
 void BitTorrentClient::printDebugMsg(std::string s) const {
-#ifdef DEBUG_MSG
-    if (this->debugFlag) {
+//#ifdef DEBUG_MSG
+//    if (this->debugFlag) {
         // debug "header"
         std::cerr << simulation.getEventNumber();
         std::cerr << ";" << simulation.getSimTime();
         std::cerr << ";(btclient);Peer " << this->localPeerId << ";";
         std::cerr << s << "\n";
-    }
-#endif
+//    }
+//#endif
 }
 
 void BitTorrentClient::printDebugMsgConnections(std::string methodName,
@@ -925,9 +925,14 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
             }
         }
 
-        // statistics about the PeerWireMsgs
-        this->peerWireStatistics(msg,false);
-        socket->processMessage(msg);
+        if(msg->getKind() == TCP_I_TIMED_OUT){
+            std::cerr << "Creo que debemos intentar de nuevo! Peer :: [ " << this->getId() << "]\n";
+            delete msg;
+        }else{
+            // statistics about the PeerWireMsgs
+            this->peerWireStatistics(msg,false);
+            socket->processMessage(msg);
+        }
     } else {
         if (msg == &this->endOfProcessingTimer) {
             (*this->threadInProcessingIt)->finishProcessing();
