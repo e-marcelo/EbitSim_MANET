@@ -20,8 +20,13 @@ simple Choker
         // Number of regular unchoked
         int numberOfRegularSlots = default(3);
         // The time between each unchoke round
+<<<<<<< HEAD
         //double roundInterval @unit(s) = default(40s);
         double roundInterval @unit(s) = default(10s);
+=======
+//        double roundInterval @unit(s) = default(10s);
+		double roundInterval @unit(s) = default(40s);
+>>>>>>> a2a338769517efe47c1218bd0e6c1410e39e5430
         // True if the Client have all pieces already.
         bool seeder;
 
