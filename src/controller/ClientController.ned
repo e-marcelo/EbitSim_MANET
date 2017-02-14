@@ -7,12 +7,13 @@ package br.larc.usp.controller;
 simple ClientController
 {
     parameters:
-//        @signal[ClientController_EnterTimeSignal];
-//        @statistic[EnterTime](
-//            source=ClientController_EnterTimeSignal;
-//            title="Enter Time";
-//            record=vector;
-//        );
+        @controller(); // used by the Tracker to find all Peers in the simulation
+        @signal[ClientController_EnterTimeSignal];
+        @statistic[EnterTime](
+            source=ClientController_EnterTimeSignal;
+            title="Enter Time";
+            record=vector;
+        );
         @display("i=block/user");
         bool debugFlag = default(false);
         xml profile;
@@ -21,4 +22,6 @@ simple ClientController
         double startTime @unit(s) = default(1s); // the entry time of the first peer
         string trackerAddress = default("tracker");  // tracker address
         int trackerPort = default(8082); //The port number to connect to
+    gates:
+        input userController @directIn;
 }

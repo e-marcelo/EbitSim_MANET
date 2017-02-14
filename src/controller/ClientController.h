@@ -26,11 +26,15 @@ public:
 private:
     //! Set to true to print debug messages
     bool debugFlag;
+    int endPeerDownload;
+    int numNodesTotal;
+
     //!@name Signals
     //@{
     simsignal_t enterTime_Signal; //! Emitted the instant a peer enters the swarm
     //@}
 private:
+    void endUserDownload(cMessage * msg);
     /*! Return the torrent metadata for the passed content. Must be called after
      * init stage 0.
      */

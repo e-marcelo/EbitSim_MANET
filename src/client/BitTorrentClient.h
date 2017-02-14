@@ -198,6 +198,8 @@ public:
      * @param infoHash[in] The infoHash that identifies the swarm.
      */
     void deleteSwarm(int infoHash);
+
+    void finishDownload();
     //@}
 private:
     /*!
@@ -308,6 +310,7 @@ private:
     int numActiveConn;
     //! TODO document this
     int numPassiveConn;
+    int numWant;
     //!@name Signals and helper variables
     //@{
     unsigned int prevNumUnconnected;
@@ -351,6 +354,7 @@ private:
     // get list of Peers returned by the tracker and tell the
     // BitTorrentClient to connect with them.
     std::list<PeerConnInfo> peers;
+    std::vector<PeerConnInfo> peers_aux;
     // Private Methods
     //! TODO document this
     void attemptActiveConnections(Swarm & swarm, int infoHash);

@@ -52,8 +52,6 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
     cTopology topo;
     topo.extractByProperty("peer");
 
-//    int numNodes = topo.getNumNodes();
-
     simtime_t enterTime = startTime;
 
     for (int i = 0; i < topo.getNumNodes(); ++i) {
@@ -65,18 +63,22 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
         bool seeder = i < numSeeders;
         cMessage *msg = createAnnounceMsg(defaultControlInfo, seeder,
                 swarmManager);
-
-        // The first peers set to seeders and start imediatelly
-        if (seeder) {
-//EAM::            self->scheduleAt(simTime(), msg);
-            self->scheduleAt(simTime(),msg);
-        } else {
+        self->scheduleAt(enterTime, msg);
+        if(!seeder)
             self->emitEnterTime(enterTime);
-            //EAM :: self->scheduleAt(enterTime,msg);
-            self->scheduleAt(simTime(), msg);
-            //EAM :: self->scheduleAt(enterTime, msg);
-            //EAM :: enterTime += exponential(interarrivalTime);
-        }
+        // The first peers set to seeders and start imediatelly
+//        if (seeder) {
+////EAM::            self->scheduleAt(simTime(), msg);
+//            //self->scheduleAt(simTime(),msg);
+//            self->scheduleAt(enterTime,msg);
+//
+//        } else {
+//            self->emitEnterTime(enterTime);
+//            //EAM :: self->scheduleAt(enterTime,msg);
+//            self->scheduleAt(enterTime, msg);
+//            //EAM :: self->scheduleAt(enterTime, msg);
+//            //EAM :: enterTime += exponential(interarrivalTime);
+//        }
     }
 }
 }
@@ -160,18 +162,22 @@ void ClientController::initialize(int stage) {
                     numSeeders, defaultControlInfo);
 
         }
-
+        //Contador de pares que terminan la descarga
+        endPeerDownload = 0;
+        cTopology topo;
+        topo.extractByProperty("peer");
+        numNodesTotal = topo.getNumNodes() - numSeeders;
         this->updateStatusString();
     }
 }
 // Private methods
 void ClientController::printDebugMsg(std::string s) {
     if (this->debugFlag) {
-//        // debug "header"
-//        std::cerr << simulation.getEventNumber() << " (T=";
-//        std::cerr << simulation.getSimTime() << ")(ClientController) - ";
-//        std::cerr << "Peer " << this->localPeerId << ": ";
-//        std::cerr << s << "\n";
+        // debug "header"
+        std::cerr << simulation.getEventNumber() << " (T=";
+        std::cerr << simulation.getSimTime() << ")(ClientController) - ";
+        //EAM :: std::cerr << "Peer " << this->localPeerId << ": ";
+        std::cerr << s << "\n";
     }
 }
 void ClientController::updateStatusString() {
@@ -185,17 +191,31 @@ void ClientController::subscribeToSignals() {
     subscribe("ContentManager_BecameSeeder", this);
 }
 
+void ClientController::endUserDownload(cMessage *msg)
+{
+    if(msg->getKind() == 3){
+        if(endPeerDownload == numNodesTotal){
+            endSimulation();
+        }
+        endPeerDownload++;
+    }
+}
+
 // Protected methods
 // TODO add startTimer (to tell when the Client will enter the swarm)
 // TODO make creation of Peers dynamic? Research memory consumption gains
 // TODO add stopTimer (to tell when the Client will leave the swarm)
 // TODO add seedTimer (to tell how long the Client will be seeding). Maybe utilize the stopTimer.
 void ClientController::handleMessage(cMessage *msg) {
-    if (!msg->isSelfMessage()) {
-        throw cException("This module doesn't process messages");
+    if (msg->arrivedOn("userController")) {
+        this->endUserDownload(msg);
+    }else{
+        if (!msg->isSelfMessage()) {
+            throw cException("This module doesn't process messages");
+        }
+        SwarmManager * swarmManager = check_and_cast<SwarmManager *>(
+                (cModule *) msg->getContextPointer());
+        // Send the scheduled message directly to the swarm manager module
+        sendDirect(msg, swarmManager, "userCommand");
     }
-    SwarmManager * swarmManager = check_and_cast<SwarmManager *>(
-            (cModule *) msg->getContextPointer());
-    // Send the scheduled message directly to the swarm manager module
-    sendDirect(msg, swarmManager, "userCommand");
 }

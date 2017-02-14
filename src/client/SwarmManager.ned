@@ -80,63 +80,62 @@ simple SwarmManager like ITCPApp
         @signal[SwarmManager_EnterSwarm];
         @signal[SwarmManager_LeaveSwarm];
         @signal[SwarmManager_EmittedPeerId];
-//        @statistic[SwarmManager_EnteredSwarm](
-//            title="Enter Swarm Instant";
-//            record=last
-//        );
+        @statistic[SwarmManager_EnteredSwarm](
+            title="Enter Swarm Instant";
+            record=last
+        );
         
         // X axis
-//        @statistic[ContentManager_DownloadMarkPeerId](
-//            title="Download Time Abscissa";
-//            unit=s;
-//            record=vector
-//        );
+        @statistic[ContentManager_DownloadMarkPeerId](
+            title="Download Time Abscissa";
+            unit=s;
+            record=vector
+        );
 //        // 25%
-//        @statistic[ContentManager_25_percentDownloadMarkTime](
-//            title="25% Download Time Ordinate";
-//            unit=s;
-//            record=histogram
-//        );
+       @statistic[ContentManager_25_percentDownloadMarkTime](
+            title="25% Download Time Ordinate";
+            unit=s;
+            record=histogram
+        );
 //        // 50%
-//        @statistic[ContentManager_50_percentDownloadMarkTime](
-//            title="50% Download Time Ordinate";
-//            unit=s;
-//            record=histogram
-//        );
+        @statistic[ContentManager_50_percentDownloadMarkTime](
+            title="50% Download Time Ordinate";
+            unit=s;
+            record=histogram
+        );
 //        // 75%
-//        @statistic[ContentManager_75_percentDownloadMarkTime](
-//            title="75% Download Time Ordinate";
-//            unit=s;
-//            record=histogram
-//        );
+        @statistic[ContentManager_75_percentDownloadMarkTime](
+            title="75% Download Time Ordinate";
+            unit=s;
+            record=histogram
+        );
 //        // 100%
-//        @statistic[ContentManager_100_percentDownloadMarkTime](
-//            title="100% Download Time Ordinate";
-//            unit=s;
-//            record=histogram
-//        );
-        
+        @statistic[ContentManager_100_percentDownloadMarkTime](
+            title="100% Download Time Ordinate";
+            unit=s;
+            record=histogram
+        );       
         // statistics from the ContentManager
-//        @statistic[ContentManager_TotalBytesDownloaded](
-//            title="Swarm Total of Bytes Downloaded";
-//            record=vector
-//        );
-//        @statistc[ContentManager_TotalDownloadTime](
-//            title="Content Download Time";
-//            record=vector
-//        );
-//        @statistic[ContentManager_PieceDownloadTime](
-//            title="Swarm Piece Download Time";
-//            record=histogram
-//        );
-//        @statistic[SwarmManagerDownloadRate](
-//            title="Swarm Downloaded Rate";
-//            record=vector
-//        );
-//        @statistic[SwarmManagerUploadRate](
-//            title="Swarm Upload Rate";
-//            record=vector
-//        );
+        @statistic[ContentManager_TotalBytesDownloaded](
+            title="Swarm Total of Bytes Downloaded";
+            record=vector
+        );
+        @statistc[ContentManager_TotalDownloadTime](
+            title="Content Download Time";
+            record=vector
+        );
+        @statistic[ContentManager_PieceDownloadTime](
+            title="Swarm Piece Download Time";
+            record=histogram
+        );
+        @statistic[SwarmManagerDownloadRate](
+            title="Swarm Downloaded Rate";
+            record=vector
+        );
+        @statistic[SwarmManagerUploadRate](
+            title="Swarm Upload Rate";
+            record=vector
+        );
 
         @display("i=misc/globe,red");
         // own parameters

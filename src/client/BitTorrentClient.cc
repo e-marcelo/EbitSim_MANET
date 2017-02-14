@@ -4,6 +4,10 @@
 // -> std::map<int, SwarmPeerList> swarms; // The key is the infoHash
 
 #include "BitTorrentClient.h"
+#include <ctopology.h>
+#include "controller/ClientController.h"
+#include "UserCommand_m.h"
+
 #include <string.h>
 #include <algorithm>
 #include <iostream>
@@ -19,7 +23,13 @@
 #include "PeerWireThread.h"
 #include "Choker.h"
 #include "ContentManager.h"
+#include <boost/foreach.hpp>
 #include "SwarmManager.h"
+// random_shuffle example
+
+#include <vector>       // std::vector
+#include <ctime>        // std::time
+#include <cstdlib>      //
 
 
 // Dumb fix because of the CDT parser (https://bugs.eclipse.org/bugs/show_bug.cgi?id=332278)
@@ -619,7 +629,7 @@ PeerStatus const& BitTorrentClient::getPeerStatus(int infoHash,
 //}
 
 void BitTorrentClient::peerWireStatistics(cMessage const*msg, bool sending =
-    false) {
+    true) {
     if (dynamic_cast<PeerWireMsg const*>(msg)) {
         PeerWireMsg const* peerWireMsg = static_cast<PeerWireMsg const*>(msg);
         int messageId = peerWireMsg->getMessageId();
@@ -664,15 +674,15 @@ void BitTorrentClient::peerWireStatistics(cMessage const*msg, bool sending =
     }
 }
 void BitTorrentClient::printDebugMsg(std::string s) const {
-//#ifdef DEBUG_MSG
-//    if (this->debugFlag) {
+#ifdef DEBUG_MSG
+    if (this->debugFlag) {
         // debug "header"
         std::cerr << simulation.getEventNumber();
         std::cerr << ";" << simulation.getSimTime();
         std::cerr << ";(btclient);Peer " << this->localPeerId << ";";
         std::cerr << s << "\n";
-//    }
-//#endif
+    }
+#endif
 }
 
 void BitTorrentClient::printDebugMsgConnections(std::string methodName,
@@ -804,7 +814,7 @@ int BitTorrentClient::numInitStages() const {
     return 4;
 }
 void BitTorrentClient::finish() {
-    //    this->doubleProcessingTimeHist.record();
+        this->doubleProcessingTimeHist.record();
 }
 void BitTorrentClient::initialize(int stage) {
     if (stage == 0) {
@@ -826,7 +836,7 @@ void BitTorrentClient::initialize(int stage) {
         this->globalNumberOfPeers = par("globalNumberOfPeers"); //FIXME use this!
         this->numActiveConn = par("numberOfActivePeers");
         this->numPassiveConn = par("numberOfPassivePeers");
-
+        this->numWant = par("numWant");
         IPvXAddressResolver resolver;
         this->localIp = resolver.addressOf(getParentModule()->getParentModule(),
                 IPvXAddressResolver::ADDR_PREFER_IPv4);
@@ -876,13 +886,14 @@ void BitTorrentClient::initialize(int stage) {
         //Arreglo de pares presentes en la simulación
         // Test if Tracker has this content -> especificamos el hash del contenido digital a compartir
         this->numberOfPeers = par("numberOfPeers");
+
         std::string opt;
         std::ostringstream numNode;
         int peerId;
         int port = 6881;
 
         int peerIdActual = this->getParentModule()->getParentModule()->getId();
-
+        // get all the pointers to the PeerInfo objects, except for self
         for(int i=0; i< this->numberOfPeers; i++){
             opt = std::string("peer[");
             numNode << i;
@@ -891,14 +902,45 @@ void BitTorrentClient::initialize(int stage) {
             peerId = simulation.getModuleByPath(opt.c_str())->getId();
             if (peerIdActual != peerId){
                 PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),port);
-                this->peers.push_back(peer);
+                // the size of the peerList minus self
+                this->peers_aux.push_back(peer);
             }
             opt.clear();
             numNode.str("");
         }
 
+        // random shuffle the return list || Generador por defecto
+        std::random_shuffle(peers_aux.begin(), peers_aux.end(), intrand);
+        // throw away the extra pointers.
+        if (numberOfPeers > numWant) {
+            peers_aux.resize(numWant);
+        }
+        //EAM :: int i = 0;
+        //Es necesario utilizar una asignación al tipo de dato que utilizan los prototipos de función de EbitSim
+        BOOST_FOREACH(PeerConnInfo peer, peers_aux){
+            //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
+            peers.push_back(peer);
+            //EAM :: i++;
+        }
+        //Destruimos el vector auxiliar
+        peers_aux.~vector();
+
     }
 }
+void BitTorrentClient::finishDownload()
+{
+    cTopology topo;
+    topo.extractByProperty("controller");
+
+    ClientController * clientController = check_and_cast<ClientController *>(topo.getNode(0)->getModule());
+    //topo.getNode(0)->getModule()->getSubmodule("clientController"));
+    cMessage *data = new cMessage("");
+    data->setKind(3);
+    sendDirect(data, clientController, "userController");
+
+
+}
+
 void BitTorrentClient::handleMessage(cMessage* msg) {
     if (!msg->isSelfMessage()) {
         // message arrived after the processing time, process as it normally would
@@ -930,7 +972,8 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
             //EAM :: delete msg;
         }else{
             // statistics about the PeerWireMsgs
-            this->peerWireStatistics(msg,false);
+            //EAM :: this->peerWireStatistics(msg,false);
+            this->peerWireStatistics(msg,true);
             socket->processMessage(msg);
         }
     } else {

@@ -169,7 +169,6 @@ public:
         minimumAnnounceTimer("MinimumAnnounceTimer") {
 
         this->announceRequestBase.setInfoHash(this->torrent.infoHash);
-        this->announceRequestBase.setNumWant(this->parent->numWant);
         this->announceRequestBase.setPeerId(this->parent->localPeerId);
         this->announceRequestBase.setPort(this->parent->localPort);
         this->announceRequestBase.setDownloaded(0);
@@ -196,7 +195,7 @@ public:
                 check_and_cast<AnnounceResponseMsg*>(msg);
             // get list of Peers returned by the tracker and tell the
             // BitTorrentClient to connect with them.
-            std::list<PeerConnInfo> peers;
+            //EAM :: std::list<PeerConnInfo> peers;
 
             //EAM :: int iy = response->getPeersArraySize();
 
@@ -213,13 +212,13 @@ public:
                 std::cerr << " ::  " << info.getPort() << "\n";
                 */
                 //Method to append an element to the end of the list
-                peers.push_back(peer);
+                //EAM :: peers.push_back(peer);
 
             }
-            if (peers.size()) {
-                this->parent->bitTorrentClient->addUnconnectedPeers(
-                    this->torrent.infoHash, peers);
-            }
+//EAM::            if (peers.size()) {
+//EAM::                this->parent->bitTorrentClient->addUnconnectedPeers(
+//EAM::                    this->torrent.infoHash, peers);
+//EAM::            }
         }
         delete msg;
         msg = NULL;
@@ -239,7 +238,13 @@ public:
         switch (this->lastAnnounceType) {
         case A_COMPLETED: {
             // Check if the peer will leave the swarm after completed
-            std::cerr << "SwarmManager :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
+            //EAM :: std::cerr << "SwarmManager :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
+            //EAM :: Enviamos mensaje al controlador para evaluar la condición de paro de la simulación
+
+            //EAM :: Termina la descarga
+            parent->bitTorrentClient->finishDownload();
+            // Send the scheduled message directly to the swarm manager module
+
             //El par se mantiene en el enjambre compartiendo el contenido
 //            if (uniform(0, 1) > parent->par("remainingSeeders").doubleValue()) {
 //                cMessage * leaveMsg = new cMessage("Leave");

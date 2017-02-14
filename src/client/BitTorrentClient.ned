@@ -63,4 +63,6 @@ simple BitTorrentClient extends TCPSrvHostApp
         int numberOfPeers = default(0);
         int numberOfActivePeers = default(4);
         int numberOfPassivePeers = default(6);
+        // The number of Peers the Client requests to the Tracker
+        int numWant = default(50);
 }
