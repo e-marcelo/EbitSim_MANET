@@ -914,8 +914,8 @@ void ContentManager::registerEmittedSignals() {
 }
 // module methods
 void ContentManager::printDebugMsg(std::string s) {
-//EAM :: #ifdef DEBUG_MSG
-    //EAM ::     if (this->debugFlag) {
+ #ifdef DEBUG_MSG
+   if (this->debugFlag) {
         // debug "header"
         std::cerr << simulation.getEventNumber();
         std::cerr << ";" << simulation.getSimTime();
@@ -923,8 +923,8 @@ void ContentManager::printDebugMsg(std::string s) {
         std::cerr << ";infoHash " << this->infoHash << ";";
         std::cerr << s << "\n";
         std::cerr.flush();
-        //EAM ::     }
-        //EAM :: #endif
+    }
+#endif
 }
 void ContentManager::updateStatusString() {
     if (ev.isGUI()) {

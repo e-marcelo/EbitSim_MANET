@@ -315,6 +315,7 @@ private:
     //@{
     unsigned int prevNumUnconnected;
     unsigned int prevNumConnected;
+    simsignal_t numDownloadComplete_Signal;
     simsignal_t numUnconnected_Signal;
     simsignal_t numConnected_Signal;
 
@@ -349,6 +350,7 @@ private:
     simsignal_t unchokeReceived_Signal;
     //@}
 private:
+    bool connectPeer = true;
     std::map<std::string, TorrentMetadataBTM> contents; //The key is the content name from XML file
     std::map<int, SwarmPeerList> swarms; // The key is the infoHash
     // get list of Peers returned by the tracker and tell the

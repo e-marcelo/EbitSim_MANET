@@ -47,7 +47,9 @@ network BasicTopology extends BasicNetwork
         //double playgroundSizeY;
 		//Área de simulación
         //@display("bgb=1000,1000,white;bgg=100,2,grey80");
-        @display("bgb=360,120,white;bgg=100,2,grey80");
+        @display("bgb=460,220,white;bgg=100,2,grey80");
+        @signal[BitTorrentClient_DownloadComplete_Test];
+        @statistic[DownloadComplete_Test](source=BitTorrentClient_DownloadComplete_Test; title="Tiempo de desacarga (prueba)"; record=vector);
         @signal[BitTorrentClient_PeerWireBytesSent];
         @signal[BitTorrentClient_ContentBytesSent];
         @statistic[PeerWireBytesSent](source=BitTorrentClient_PeerWireBytesSent; title="Total bytes of PeerWire messages sent"; record=sum);
@@ -84,14 +86,14 @@ network BasicTopology extends BasicNetwork
         @statistic[LeaveSwarm](source=SwarmManager_LeaveSwarm; title="Leave Swarm Time"; record=vector; );
         @statistic[SwarmEmittedPeerId](source=SwarmManager_EmittedPeerId; title="Peer Swarm Signal Emitted"; record=vector; );
 
-        //        @signal[ContentManager_BecameSeeder];
-        //        @signal[ContentManager_PieceDownloadTime];
-        //        @signal[ContentManager_PieceDownloaded];
-        //        @signal[ContentManager_TotalBytesDownloaded];
-        //        @signal[ContentManager_TotalBytesUploaded];
-        //        @signal[ContentManager_25_percentDownloadTime];
-        //        @signal[ContentManager_50_percentDownloadTime];
-        //        @signal[ContentManager_75_percentDownloadTime];
+                @signal[ContentManager_BecameSeeder];
+                @signal[ContentManager_PieceDownloadTime];
+                @signal[ContentManager_PieceDownloaded];
+                @signal[ContentManager_TotalBytesDownloaded];
+                @signal[ContentManager_TotalBytesUploaded];
+                @signal[ContentManager_25_percentDownloadTime];
+                @signal[ContentManager_50_percentDownloadTime];
+                @signal[ContentManager_75_percentDownloadTime];
         @signal[ContentManager_100_percentDownloadTime];
         @statistic[DownloadComplete](source=ContentManager_100_percentDownloadTime; title="Download Complete"; unit=s; record=vector,histogram);
         @signal[ContentManager_EmittedPeerId];

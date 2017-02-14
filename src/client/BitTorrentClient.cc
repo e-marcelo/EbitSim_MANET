@@ -197,6 +197,9 @@ void BitTorrentClient::finishedDownload(int infoHash) {
     // no more active downloads
     swarm.unconnectedList.clear();
     this->swarmManager->finishedDownload(infoHash);
+    emit(this->numDownloadComplete_Signal,simTime());
+    finishDownload();
+
 }
 void BitTorrentClient::peerInteresting(int infoHash, int peerId) const {
     Enter_Method("peerInteresting(infoHash: %d, peerId: %d)", infoHash, peerId);
@@ -550,6 +553,12 @@ void BitTorrentClient::connect(int infoHash, PeerConnInfo const& peer) {
 #endif
 
     socket->connect(ip, port);
+//    emit(numDownloadComplete_Signal,simTime()); //Prueba
+    //Desde que se realiza la primera conexión se inicia a tomar el tiempo de descarga
+    if(this->connectPeer){
+        emit(this->numDownloadComplete_Signal,simTime());
+        this->connectPeer = false;
+    }
 }
 //void BitTorrentClient::closeListeningSocket() {
 //    // If the socket isn't closed, close it.
@@ -562,6 +571,7 @@ void BitTorrentClient::connect(int infoHash, PeerConnInfo const& peer) {
 void BitTorrentClient::emitReceivedSignal(int messageId) {
 #define CASE( X, Y ) case (X): emit(Y, this->localPeerId); break;
     switch (messageId) {
+    //EAM :: CASE(PW_DOWNLOADCOMPLETE_MSG,this->numDownloadComplete_Signal)
     CASE(PW_CHOKE_MSG, this->chokeReceived_Signal)
     CASE(PW_UNCHOKE_MSG, this->unchokeReceived_Signal)
     CASE(PW_INTERESTED_MSG, this->interestedReceived_Signal)
@@ -775,6 +785,10 @@ void BitTorrentClient::removeThread(PeerWireThread *thread) {
 void BitTorrentClient::registerEmittedSignals() {
     // signal that this Client entered a swarm
 #define SIGNAL(X, Y) this->X = registerSignal("BitTorrentClient_" #Y)
+
+    //Tiempo de descarga exitosa del par
+    SIGNAL(numDownloadComplete_Signal,DownloadComplete_Test);
+
     SIGNAL(numUnconnected_Signal, NumUnconnected);
     SIGNAL(numConnected_Signal, NumConnected);
     SIGNAL(processingTime_Signal, ProcessingTime);
@@ -807,6 +821,7 @@ void BitTorrentClient::registerEmittedSignals() {
     SIGNAL(requestReceived_Signal, RequestReceived);
     SIGNAL(unchokeSent_Signal, UnchokeSent);
     SIGNAL(unchokeReceived_Signal, UnchokeReceived);
+
 #undef SIGNAL
 }
 // Protected methods
@@ -934,8 +949,8 @@ void BitTorrentClient::finishDownload()
 
     ClientController * clientController = check_and_cast<ClientController *>(topo.getNode(0)->getModule());
     //topo.getNode(0)->getModule()->getSubmodule("clientController"));
-    cMessage *data = new cMessage("");
-    data->setKind(3);
+    cMessage *data = new cMessage("end");
+    data->setKind(333);
     sendDirect(data, clientController, "userController");
 
 

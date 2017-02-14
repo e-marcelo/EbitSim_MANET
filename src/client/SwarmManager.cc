@@ -242,9 +242,9 @@ public:
             //EAM :: Enviamos mensaje al controlador para evaluar la condición de paro de la simulación
 
             //EAM :: Termina la descarga
-            parent->bitTorrentClient->finishDownload();
-            // Send the scheduled message directly to the swarm manager module
+            this->seeder = true;
 
+            // Send the scheduled message directly to the swarm manager module
             //El par se mantiene en el enjambre compartiendo el contenido
 //            if (uniform(0, 1) > parent->par("remainingSeeders").doubleValue()) {
 //                cMessage * leaveMsg = new cMessage("Leave");
@@ -363,7 +363,8 @@ void SwarmManager::finishedDownload(int infoHash) {
 //EAM        infoHash);
 //EAM    socketCallback->sendAnnounce(A_COMPLETED);
 //EAM    std::cerr << "SwarmManager :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
-    std::cerr << "Became a seeder :: " << this->bitTorrentClient->getId() << "\n";
+  //EAM ::bitTorrentClient->finishDownload();
+  std::cerr << "Became a seeder :: " << this->bitTorrentClient->getId() << "\n";
 //Retomar ::    emit(this->seederSignal, &data); Retomar señales
 }
 

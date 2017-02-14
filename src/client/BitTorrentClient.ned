@@ -8,6 +8,15 @@ import inet.applications.tcpapp.TCPSrvHostApp;
 simple BitTorrentClient extends TCPSrvHostApp
 {
     parameters:
+        @signal[BitTorrentClient_DownloadComplete_Test];
+        
+        
+        @statistic[DownloadComplete_Test](
+            source=BitTorrentClient_DownloadComplete_Test;
+            title="Descargas completas (prueba)";
+            record=vector
+        );
+        
         @signal[BitTorrentClient_NumUnconnected];
         @signal[BitTorrentClient_NumConnected];
         @signal[BitTorrentClient_ProcessingTime];

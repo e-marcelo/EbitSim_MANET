@@ -193,8 +193,8 @@ void ClientController::subscribeToSignals() {
 
 void ClientController::endUserDownload(cMessage *msg)
 {
-    if(msg->getKind() == 3){
-        if(endPeerDownload == numNodesTotal){
+    if(msg->getKind() == 333){ //Tipo de dato con el identificador para terminar la simulación
+        if(endPeerDownload >= numNodesTotal){
             endSimulation();
         }
         endPeerDownload++;

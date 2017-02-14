@@ -117,37 +117,36 @@ simple ContentManager
             record=vector
         );
         // X axis
-//        @statistic[ContentManager_DownloadMarkPeerId](
-//            title="Download Time Abscissa";
-//            unit=s;
-//            record=vector
-//        );
+        @statistic[ContentManager_DownloadMarkPeerId](
+            title="Download Time Abscissa";
+            unit=s;
+            record=vector
+        );
 //        // 25%
-//        @statistic[ContentManager_25_percentDownloadMarkTime](
-//            title="25% Download Time Ordinate";
-//            unit=s;
-//            record=last,vector
-//        );
+        @statistic[ContentManager_25_percentDownloadMarkTime](
+            title="25% Download Time Ordinate";
+            unit=s;
+            record=last,vector
+        );
 //        // 50%
-//        @statistic[ContentManager_50_percentDownloadMarkTime](
-//            title="50% Download Time Ordinate";
-//            unit=s;
-//            record=last,vector
-//        );
-//        // 75%
-//        @statistic[ContentManager_75_percentDownloadMarkTime](
-//            title="75% Download Time Ordinate";
-//            unit=s;
-//            record=last,vector
-//        );
+        @statistic[ContentManager_50_percentDownloadMarkTime](
+            title="50% Download Time Ordinate";
+            unit=s;
+            record=last,vector
+        );
+        // 75%
+        @statistic[ContentManager_75_percentDownloadMarkTime](
+           title="75% Download Time Ordinate";
+            unit=s;
+            record=last,vector
+        );
         // 100%
-//        @statistic[DownloadComplete](
-//            source=ContentManager_100_percentDownloadMarkTime;
-//            title="Download Complete Time";
-//            unit=s;
-//            record=vector
-//        );
-
+        @statistic[DownloadComplete](
+            source=ContentManager_100_percentDownloadMarkTime;
+            title="Download Complete Time";
+            unit=s;
+           record=vector
+        );
         // The number of pieces in the file
         int numOfPieces;
         // The number of sub-pieces in each piece
