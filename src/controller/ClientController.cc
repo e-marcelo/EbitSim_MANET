@@ -163,10 +163,11 @@ void ClientController::initialize(int stage) {
 
         }
         //Contador de pares que terminan la descarga
-        endPeerDownload = 0;
+        this->endPeerDownload = 0;
         cTopology topo;
         topo.extractByProperty("peer");
-        numNodesTotal = topo.getNumNodes() - numSeeders;
+        this->numNodesTotal = topo.getNumNodes() - numSeeders;
+        std::cerr << "Numero de sanguijuelas :: " << this->numNodesTotal << "\n";
         this->updateStatusString();
     }
 }
@@ -194,10 +195,12 @@ void ClientController::subscribeToSignals() {
 void ClientController::endUserDownload(cMessage *msg)
 {
     if(msg->getKind() == 333){ //Tipo de dato con el identificador para terminar la simulación
-        if(endPeerDownload >= numNodesTotal){
+        if(this->endPeerDownload >= this->numNodesTotal){
             endSimulation();
+            std::cerr << "*** Termina simulación! \n";
         }
-        endPeerDownload++;
+        this->endPeerDownload++;
+        std::cerr << "[clientController]* Pares que reportan descarga completa :: "<< this->endPeerDownload << " \n";
     }
 }
 

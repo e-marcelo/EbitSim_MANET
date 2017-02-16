@@ -206,8 +206,10 @@ Exit {
                 renewKeepAliveTimer(); // sent a PeerWireMsg
             }
     timeout
-        ClosingConnection
-            {}
+       nil
+            {
+                renewTimeoutTimer();
+            }
     applicationClose
         ClosingConnection
             {}

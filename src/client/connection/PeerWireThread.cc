@@ -264,8 +264,9 @@ simtime_t PeerWireThread::startProcessing() {
         cObject *o = this->messageQueue.pop();
         cMessage *messageInProcessing = static_cast<cMessage *>(o);
         assert(dynamic_cast<PeerWireMsg *>(messageInProcessing)); // not NULL
+        //Valores del histograma
         processingTime = this->btClient->doubleProcessingTimeHist.random();
-        //EAM :: Prueba processingTime = 3.0;
+        //EAM :: processingTime = 0;// <- Procesamiento del histograma
         this->issueTransition(messageInProcessing);
     }
     return processingTime;
@@ -454,11 +455,9 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
         delete msg;
         msg = NULL; // consume the message
 
-        std::ostringstream out;
-        out << e.what();
-        out << " - Transition " << e.getTransition();
-        out << " in state " << e.getState();
-        printf("\n Error :: - Transition  in state *** ");
+        //std::ostringstream out;
+        std::cerr << e.what() << " - Transition " << e.getTransition() << " in state " << e.getState() << "\n";
+        //EAM :: printf("\n Error[A] :: - Transition  in state *** ");
         //EAM :: throw cException(out.str().c_str());
     } catch (statemap::StateUndefinedException &e) {
         std::ostringstream out;
@@ -468,7 +467,7 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
 
         delete msg;
         msg = NULL;
-        printf("\n Error :: - Transition  in state *** ");
+        printf("\n Error[B] :: - Transition  in state *** ");
         //throw cException(out.str().c_str());
     } catch (std::invalid_argument &e) {
         delete msg;

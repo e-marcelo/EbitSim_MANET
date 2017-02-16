@@ -259,6 +259,7 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     int numOfSubPieces, int subPieceSize, bool newSwarmSeeding) {
     Enter_Method("addSwarm(infoHash: %d, %s)", infoHash,
         (newSwarmSeeding ? "seeding" : "leeching"));
+
     assert(!this->swarmMap.count(infoHash)); // Swarm must not exist <- Cuidar la validación
 
     // create Choker module
@@ -300,11 +301,14 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     swarm.closing = false;
     swarm.choker = static_cast<Choker*>(choker);
     swarm.contentManager = static_cast<ContentManager*>(contentManager);
+
     //EAM :: std::cerr << "[***] Pares en la lista" << peers.size() << "\n";
     //Iniciamos la descarga, obviando la consulta que previamente se realizaba consultando al Tracker.
     if (peers.size()) {
-        this->addUnconnectedPeers(infoHash, peers);
+         //Tal vez hay que calendarizar la entrada de los pares para evitar que se sature la red con conexiones
+         this->addUnconnectedPeers(infoHash, peers);
     }
+
 }
 void BitTorrentClient::deleteSwarm(int infoHash) {
     Enter_Method("removeSwarm(infoHash: %d)", infoHash);
@@ -983,7 +987,7 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
         }
 
         if(msg->getKind() == TCP_I_TIMED_OUT){
-            std::cerr << "Creo que debemos intentar de nuevo! Peer :: [ " << this->getId() << "]\n";
+            std::cerr << "Creo que debemos intentar de nuevo! Peer :: [ " << this->localPeerId << "]\n";
             //EAM :: delete msg;
         }else{
             // statistics about the PeerWireMsgs

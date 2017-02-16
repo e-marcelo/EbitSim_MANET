@@ -364,7 +364,7 @@ void SwarmManager::finishedDownload(int infoHash) {
 //EAM    socketCallback->sendAnnounce(A_COMPLETED);
 //EAM    std::cerr << "SwarmManager :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
   //EAM ::bitTorrentClient->finishDownload();
-  std::cerr << "Became a seeder :: " << this->bitTorrentClient->getId() << "\n";
+  std::cerr << "\n\t--->Became a seeder :: " <<  this->localPeerId << "\n";
 //Retomar ::    emit(this->seederSignal, &data); Retomar señales
 }
 
@@ -451,7 +451,7 @@ void SwarmManager::printDebugMsg(std::string s) {
 //EAM :: #ifdef DEBUG_MSG
   //EAM ::   if (this->debugFlag) {
         //EAM ::  debug "header"
-        std::cerr << simulation.getEventNumber();
+        std::cerr << "\n"<< simulation.getEventNumber();
         std::cerr << ";" << simulation.getSimTime();
         std::cerr << ";(smanager);Peer " << this->localPeerId << ";";
         std::cerr << s << "\n";
