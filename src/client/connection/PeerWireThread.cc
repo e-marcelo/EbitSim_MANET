@@ -155,6 +155,7 @@ void PeerWireThread::established() {
         this->connectionSm.tcpPassiveConnection();
     }
 }
+//Redefinimos comportamiento para hacer algo ante el error en el comportamiento del socket ***
 void PeerWireThread::failure(int code) {
 //#ifdef DEBUG_MSG
     std::ostringstream out;
@@ -338,7 +339,7 @@ void PeerWireThread::sendApplicationMessage(int id) {
     CASE(APP_UPLOAD_RATE_TIMER);
     default:
         //EAM :: throw std::logic_error
-        printf("Trying to call a non-existing application transition");
+        std::cerr << "Trying to call a non-existing application transition";
         break;
     }
 #undef CASE
@@ -363,7 +364,7 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
     ApplicationMsg const* appMsg = dynamic_cast<ApplicationMsg const*>(msg);
     PeerWireMsg const* pwMsg = dynamic_cast<PeerWireMsg const*>(msg);
     this->lastEvent = simulation.getEventNumber();
-    int msgId;
+    int msgId  = -1;
 
     if (appMsg) {
         msgId = appMsg->getMessageId();
@@ -413,6 +414,7 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
         CASE_CONN(APP_TCP_PASSIVE_CONNECTION, tcpPassiveConnection());
             // connectionSM timers
         CASE_CONN(APP_KEEP_ALIVE_TIMER, keepAliveTimer());
+        //CASE_CONN(APP_TIMEOUT_TIMER, keepAliveTimer());
         CASE_CONN(APP_TIMEOUT_TIMER, timeout());
 
             // downloadSm PeerWire transitions
@@ -439,6 +441,9 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
         CASE_APP_UPLOAD(APP_SEND_PIECE_MSG, sendPieceMsg());
             // uploadSm timers
         CASE_APP_UPLOAD(APP_UPLOAD_RATE_TIMER, uploadRateTimer());
+        default:
+
+            break;
 
 #undef CONST_CAST
 #undef CASE_CONN
@@ -454,12 +459,14 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
     } catch (statemap::TransitionUndefinedException & e) {
         delete msg;
         msg = NULL; // consume the message
-
+        std::cerr << "[A] Wrong type of message :: " << msgId << "\n";
         //std::ostringstream out;
         std::cerr << e.what() << " - Transition " << e.getTransition() << " in state " << e.getState() << "\n";
         //EAM :: printf("\n Error[A] :: - Transition  in state *** ");
         //EAM :: throw cException(out.str().c_str());
     } catch (statemap::StateUndefinedException &e) {
+        std::cerr << "[B] Wrong type of message :: " << msgId << "\n";
+        std::cerr << e.what() << " - Transition " <<  msg->getName() << " called " << "\n";
         std::ostringstream out;
         out << e.what();
         out << " - Transition " << msg->getName();

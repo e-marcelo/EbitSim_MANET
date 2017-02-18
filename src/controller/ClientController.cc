@@ -63,22 +63,23 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
         bool seeder = i < numSeeders;
         cMessage *msg = createAnnounceMsg(defaultControlInfo, seeder,
                 swarmManager);
-        self->scheduleAt(enterTime, msg);
-        if(!seeder)
-            self->emitEnterTime(enterTime);
+        //self->scheduleAt(enterTime, msg);
+        //if(!seeder)
+            //self->emitEnterTime(enterTime);
         // The first peers set to seeders and start imediatelly
-//        if (seeder) {
+        if (seeder) {
 ////EAM::            self->scheduleAt(simTime(), msg);
 //            //self->scheduleAt(simTime(),msg);
-//            self->scheduleAt(enterTime,msg);
+            self->scheduleAt(enterTime,msg);
 //
-//        } else {
-//            self->emitEnterTime(enterTime);
+        } else {
+            self->emitEnterTime(enterTime);
 //            //EAM :: self->scheduleAt(enterTime,msg);
-//            self->scheduleAt(enterTime, msg);
+            self->scheduleAt(enterTime+i, msg);
 //            //EAM :: self->scheduleAt(enterTime, msg);
 //            //EAM :: enterTime += exponential(interarrivalTime);
-//        }
+        }
+//        enterTime += exponential(interarrivalTime);
     }
 }
 }
@@ -195,12 +196,13 @@ void ClientController::subscribeToSignals() {
 void ClientController::endUserDownload(cMessage *msg)
 {
     if(msg->getKind() == 333){ //Tipo de dato con el identificador para terminar la simulación
-        if(this->endPeerDownload >= this->numNodesTotal){
-            endSimulation();
-            std::cerr << "*** Termina simulación! \n";
-        }
         this->endPeerDownload++;
         std::cerr << "[clientController]* Pares que reportan descarga completa :: "<< this->endPeerDownload << " \n";
+        if(this->endPeerDownload >= this->numNodesTotal){
+            std::cerr << "*** Termina simulación [Condición de finalización aceptada]! \n";
+            endSimulation();
+
+        }
     }
 }
 

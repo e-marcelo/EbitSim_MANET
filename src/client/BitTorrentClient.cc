@@ -643,7 +643,7 @@ PeerStatus const& BitTorrentClient::getPeerStatus(int infoHash,
 //}
 
 void BitTorrentClient::peerWireStatistics(cMessage const*msg, bool sending =
-    true) {
+    false) {
     if (dynamic_cast<PeerWireMsg const*>(msg)) {
         PeerWireMsg const* peerWireMsg = static_cast<PeerWireMsg const*>(msg);
         int messageId = peerWireMsg->getMessageId();
@@ -985,16 +985,18 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
                 //throw std::logic_error(out.str());
             }
         }
+        this->peerWireStatistics(msg);
+        socket->processMessage(msg);
 
-        if(msg->getKind() == TCP_I_TIMED_OUT){
-            std::cerr << "Creo que debemos intentar de nuevo! Peer :: [ " << this->localPeerId << "]\n";
-            //EAM :: delete msg;
-        }else{
-            // statistics about the PeerWireMsgs
-            //EAM :: this->peerWireStatistics(msg,false);
-            this->peerWireStatistics(msg,true);
-            socket->processMessage(msg);
-        }
+//        if(msg->getKind() == TCP_I_TIMED_OUT){
+//            std::cerr << "Creo que debemos intentar de nuevo! Peer :: [ " << this->localPeerId << "]\n";
+//            //EAM :: delete msg;
+//        }else{
+//            // statistics about the PeerWireMsgs
+//            //EAM :: this->peerWireStatistics(msg,false);
+//            this->peerWireStatistics(msg,true);
+//            socket->processMessage(msg);
+//        }
     } else {
         if (msg == &this->endOfProcessingTimer) {
             (*this->threadInProcessingIt)->finishProcessing();

@@ -88,58 +88,58 @@ simple ContentManager
     parameters:
         // All signals emitted by this module
         @signal[ContentManager_BecameSeeder];
-        @signal[ContentManager_PieceDownloadTime];
-        @signal[ContentManager_PieceDownloaded];
-        @signal[ContentManager_TotalBytesDownloaded];
+//        @signal[ContentManager_PieceDownloadTime];
+//        @signal[ContentManager_PieceDownloaded];
+//        @signal[ContentManager_TotalBytesDownloaded];
     
-        @signal[ContentManager_TotalBytesUploaded];
-        @signal[ContentManager_25_percentDownloadTime];
-        @signal[ContentManager_50_percentDownloadTime];
-        @signal[ContentManager_75_percentDownloadTime];
+//        @signal[ContentManager_TotalBytesUploaded];
+//        @signal[ContentManager_25_percentDownloadTime];
+//        @signal[ContentManager_50_percentDownloadTime];
+//        @signal[ContentManager_75_percentDownloadTime];
         @signal[ContentManager_100_percentDownloadTime];
         @signal[ContentManager_EmittedPeerId];
-    
-        @statistic[PiecesDownloaded](
-            source=ContentManager_PieceDownloaded;
-            title="Pieces Downloaded";
-            record=vector
-        );
-        @statistic[TotalBytesDownloaded](
-            source=ContentManager_TotalBytesDownloaded;
-            title="Total of Bytes Downloaded";
-            unit=B;
-            record=vector
-        );
-        @statistic[TotalBytesUploaded](
-            source=ContentManager_TotalBytesUploaded;
-            title="Total of Bytes Uploaded";
-            unit=B;
-            record=vector
-        );
+//    
+//        @statistic[PiecesDownloaded](
+//            source=ContentManager_PieceDownloaded;
+//            title="Pieces Downloaded";
+//            record=vector
+//        );
+//        @statistic[TotalBytesDownloaded](
+//            source=ContentManager_TotalBytesDownloaded;
+//            title="Total of Bytes Downloaded";
+//            unit=B;
+//            record=vector
+//        );
+//        @statistic[TotalBytesUploaded](
+//            source=ContentManager_TotalBytesUploaded;
+//            title="Total of Bytes Uploaded";
+//            unit=B;
+//            record=vector
+//        );
         // X axis
-        @statistic[ContentManager_DownloadMarkPeerId](
-            title="Download Time Abscissa";
-            unit=s;
-            record=vector
-        );
+//        @statistic[ContentManager_DownloadMarkPeerId](
+//            title="Download Time Abscissa";
+//            unit=s;
+//            record=vector
+//        );
 //        // 25%
-        @statistic[ContentManager_25_percentDownloadMarkTime](
-            title="25% Download Time Ordinate";
-            unit=s;
-            record=last,vector
-        );
-//        // 50%
-        @statistic[ContentManager_50_percentDownloadMarkTime](
-            title="50% Download Time Ordinate";
-            unit=s;
-            record=last,vector
-        );
-        // 75%
-        @statistic[ContentManager_75_percentDownloadMarkTime](
-           title="75% Download Time Ordinate";
-            unit=s;
-            record=last,vector
-        );
+//        @statistic[ContentManager_25_percentDownloadMarkTime](
+//            title="25% Download Time Ordinate";
+//            unit=s;
+//            record=last,vector
+//        );
+////        // 50%
+//        @statistic[ContentManager_50_percentDownloadMarkTime](
+//            title="50% Download Time Ordinate";
+//            unit=s;
+//            record=last,vector
+//        );
+//        // 75%
+//        @statistic[ContentManager_75_percentDownloadMarkTime](
+//           title="75% Download Time Ordinate";
+//            unit=s;
+//            record=last,vector
+//        );
         // 100%
         @statistic[DownloadComplete](
             source=ContentManager_100_percentDownloadMarkTime;

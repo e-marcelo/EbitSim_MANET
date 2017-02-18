@@ -126,6 +126,9 @@ Exit
     tcpPassiveConnection
         WaitHandshake
             {}
+    localClose
+        LocalClosed
+            {}
 }
 
 HandshakeSent
@@ -147,6 +150,10 @@ Entry {
             {
                 sendPeerWireMsg(ctxt.getBitFieldMsg());
             }
+            
+     timeout
+     	Unconnected
+     		{}
 }
 
 WaitHandshake
@@ -171,6 +178,9 @@ Entry {
                 sendPeerWireMsg(ctxt.getHandshake());
                 sendPeerWireMsg(ctxt.getBitFieldMsg());
             }
+    timeout
+    	 ClosingConnection
+            {}
 }
 Connected
 Entry {
@@ -206,10 +216,8 @@ Exit {
                 renewKeepAliveTimer(); // sent a PeerWireMsg
             }
     timeout
-       nil
-            {
-                renewTimeoutTimer();
-            }
+        ClosingConnection
+            {}
     applicationClose
         ClosingConnection
             {}
@@ -244,6 +252,9 @@ Entry {
         nil
             {}
 	remoteClose
+        Closed
+            {}
+    timeout
         Closed
             {}
 }
