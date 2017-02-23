@@ -1092,19 +1092,21 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
         }
 
         // statistics about the PeerWireMsgs
-        this->peerWireStatistics(msg);
-        socket->processMessage(msg);
-        socket->getState();
-
-//        if(msg->getKind() == TCP_I_TIMED_OUT){
-//            std::cerr << "Creo que debemos intentar de nuevo! Peer :: [ " << this->localPeerId << "]\n";
-//            //EAM :: delete msg;
-//        }else{
-//            // statistics about the PeerWireMsgs
-//            //EAM :: this->peerWireStatistics(msg,false);
-//            this->peerWireStatistics(msg,true);
-//            socket->processMessage(msg);
-//        }
+//        this->peerWireStatistics(msg);
+//        socket->processMessage(msg);
+//        socket->getState();
+        std::cerr << msg <<" <-- ***\n";
+        if(msg != NULL){
+            if(msg->getKind() == TCP_I_TIMED_OUT || msg->getKind() == TCP_I_CONNECTION_REFUSED || msg->getKind() == TCP_I_CONNECTION_RESET){
+                std::cerr << "Error TCP detectado ! Peer :: [ " << this->localPeerId << "]\n";
+                //            //EAM :: delete msg;
+            }else{
+//                // statistics about the PeerWireMsgs
+                //            //EAM :: this->peerWireStatistics(msg,false);
+                this->peerWireStatistics(msg);
+                socket->processMessage(msg);
+            }
+        }
     } else {
         if (msg == &this->endOfProcessingTimer) {
             (*this->threadInProcessingIt)->finishProcessing();
