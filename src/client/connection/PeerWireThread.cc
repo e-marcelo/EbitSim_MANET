@@ -83,6 +83,7 @@ void PeerWireThread::established() {
         this->connectionSm.tcpPassiveConnection();
     }
 }
+//Redefinimos comportamiento para hacer algo ante el error en el comportamiento del socket ***
 void PeerWireThread::failure(int code) {
 //#ifdef DEBUG_MSG
 //    std::ostringstream out;
@@ -208,8 +209,9 @@ simtime_t PeerWireThread::startProcessing() {
         cObject *o = this->messageQueue.pop();
         cMessage *messageInProcessing = static_cast<cMessage *>(o);
         assert(dynamic_cast<PeerWireMsg *>(messageInProcessing)); // not NULL
+        //Valores del histograma
         processingTime = this->btClient->doubleProcessingTimeHist.random();
-        //EAM :: Prueba processingTime = 3.0;
+        //EAM :: processingTime = 0;// <- Procesamiento del histograma
         this->issueTransition(messageInProcessing);
     }
     return processingTime;
@@ -281,7 +283,7 @@ void PeerWireThread::sendApplicationMessage(int id) {
     CASE(APP_UPLOAD_RATE_TIMER);
     default:
         //EAM :: throw std::logic_error
-        printf("Trying to call a non-existing application transition");
+        std::cerr << "Trying to call a non-existing application transition";
         break;
     }
 #undef CASE
@@ -306,7 +308,7 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
     ApplicationMsg const* appMsg = dynamic_cast<ApplicationMsg const*>(msg);
     PeerWireMsg const* pwMsg = dynamic_cast<PeerWireMsg const*>(msg);
     this->lastEvent = simulation.getEventNumber();
-    int msgId;
+    int msgId  = -1;
 
     if (appMsg) {
         msgId = appMsg->getMessageId();
@@ -357,6 +359,7 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
         CASE_CONN(APP_TCP_PASSIVE_CONNECTION, tcpPassiveConnection());
             // connectionSM timers
         CASE_CONN(APP_KEEP_ALIVE_TIMER, keepAliveTimer());
+        //CASE_CONN(APP_TIMEOUT_TIMER, keepAliveTimer());
         CASE_CONN(APP_TIMEOUT_TIMER, timeout());
 
             // downloadSm PeerWire transitions
@@ -383,6 +386,9 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
         CASE_APP_UPLOAD(APP_SEND_PIECE_MSG, sendPieceMsg());
             // uploadSm timers
         CASE_APP_UPLOAD(APP_UPLOAD_RATE_TIMER, uploadRateTimer());
+        default:
+
+            break;
 
 #undef CONST_CAST
 #undef CASE_CONN
@@ -399,6 +405,7 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
         std::cerr << "[A] Wrong type of message :: "<< msgId << "\n";
         delete msg;
         msg = NULL; // consume the message
+<<<<<<< HEAD
 
         std::ostringstream out;
         out << e.what();
@@ -406,8 +413,16 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
         out << " in state " << e.getState();
         std::cerr << "\n[A]" << e.what() << " :: -Transition "<< e.getTransition() <<" in state :: "<< e.getState() <<"\n";
 //        printf("\n Error :: - Transition  in state *** ");
+=======
+        std::cerr << "[A] Wrong type of message :: " << msgId << "\n";
+        //std::ostringstream out;
+        std::cerr << e.what() << " - Transition " << e.getTransition() << " in state " << e.getState() << "\n";
+        //EAM :: printf("\n Error[A] :: - Transition  in state *** ");
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
         //EAM :: throw cException(out.str().c_str());
     } catch (statemap::StateUndefinedException &e) {
+        std::cerr << "[B] Wrong type of message :: " << msgId << "\n";
+        std::cerr << e.what() << " - Transition " <<  msg->getName() << " called " << "\n";
         std::ostringstream out;
         out << e.what();
         out << " - Transition " << msg->getName();
@@ -415,9 +430,13 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
 
         delete msg;
         msg = NULL;
+<<<<<<< HEAD
         std::cerr << "[B] Wrong type of message :: "<< msgId<< "\n";
         std::cerr << "\n[B]" << e.what() << " :: -Transition "<< msg->getName() <<" :: called\n";
 //        printf("\n Error :: - Transition  in state *** ");
+=======
+        printf("\n Error[B] :: - Transition  in state *** ");
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
         //throw cException(out.str().c_str());
     } catch (std::invalid_argument &e) {
         delete msg;

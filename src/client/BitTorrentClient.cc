@@ -83,7 +83,12 @@ BitTorrentClient::~BitTorrentClient() {
 // Method used by the SwarmManager::SwarmModules
 void BitTorrentClient::addUnconnectedPeers(int infoHash,
     UnconnectedList & peers) {
-
+    /*The macro should be put at the top of every module member function
+     * that may be called from other modules. This macro arranges to
+     * temporarily switch the context to the called module (the old context
+     * will be restored automatically when the method returns),
+     * and also lets the graphical user interface animate the method call.
+     */
     Enter_Method("addUnconnectedPeers(infoHash: %d, qtty: %d)", infoHash,peers.size());
     Swarm & swarm = this->getSwarm(infoHash);
 
@@ -261,6 +266,7 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     int numOfSubPieces, int subPieceSize, bool newSwarmSeeding, int idDisplay) {
     Enter_Method("addSwarm(infoHash: %d, %s)", infoHash,
         (newSwarmSeeding ? "seeding" : "leeching"));
+
     assert(!this->swarmMap.count(infoHash)); // Swarm must not exist <- Cuidar la validación
 
     // create Choker module
@@ -302,6 +308,7 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     swarm.closing = false;
     swarm.choker = static_cast<Choker*>(choker);
     swarm.contentManager = static_cast<ContentManager*>(contentManager);
+<<<<<<< HEAD
     //Referencia al identificador gráfico del nodo en la GUI
     this->idDisplay = idDisplay;
     //EAM :: std::cerr << "[***] Pares en la lista" << peers.size() << "\n";
@@ -312,7 +319,16 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
 //
 //        std::memcpy(&peers,&listPeers,peers.size());
         this->addUnconnectedPeers(infoHash, peers);
+=======
+
+    //EAM :: std::cerr << "[***] Pares en la lista" << peers.size() << "\n";
+    //Iniciamos la descarga, obviando la consulta que previamente se realizaba consultando al Tracker.
+    if (peers.size()) {
+         //Tal vez hay que calendarizar la entrada de los pares para evitar que se sature la red con conexiones
+         this->addUnconnectedPeers(infoHash, peers);
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
     }
+
 }
 void BitTorrentClient::deleteSwarm(int infoHash) {
     Enter_Method("removeSwarm(infoHash: %d)", infoHash);
@@ -537,9 +553,15 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
 
         // Either the active slots are full or the unconnected list is empty
         // If more than half of the active slots is unoccupied, ask for more peers
+<<<<<<< HEAD
         if (swarm.numActive < this->numActiveConn / 2) {
             askMoreUnconnectedPeers(infoHash);
         }
+=======
+        //*EAM :: if (swarm.numActive < this->numActiveConn / 2) {
+        //*EAM ::    this->swarmManager->askMorePeers(infoHash);
+        //*EAM :: } *** Lista de pares no seleccionados al azar!!!
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
     }
 }
 /*!
@@ -914,13 +936,11 @@ void BitTorrentClient::initialize(int stage) {
         //Arreglo de pares presentes en la simulación
         // Test if Tracker has this content -> especificamos el hash del contenido digital a compartir
         this->numberOfPeers = par("numberOfPeers");
-
+        int peerId;
         std::string opt;
         std::ostringstream numNode;
-        int peerId;
-        int port = 6881;
 
-        int peerIdActual = this->getParentModule()->getParentModule()->getId();
+
         // get all the pointers to the PeerInfo objects, except for self
         for(int i=0; i< this->numberOfPeers; i++){
             opt = std::string("peer[");
@@ -928,9 +948,14 @@ void BitTorrentClient::initialize(int stage) {
             opt.append(numNode.str());
             opt.append("]");
             peerId = simulation.getModuleByPath(opt.c_str())->getId();
+<<<<<<< HEAD
 
             if (peerIdActual != peerId){
                 PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),port);
+=======
+            if (this->localPeerId != peerId){
+                PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort);
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
                 // the size of the peerList minus self
                 this->peers_aux.push_back(peer);
             }
@@ -954,6 +979,7 @@ void BitTorrentClient::initialize(int stage) {
                 peers.push_back(peer);
                 //EAM :: i++;
         }
+<<<<<<< HEAD
 
 //        if(peerIdActual == 6){
 //            std::cerr << "Lista de pares a contactar :: \t";
@@ -964,6 +990,10 @@ void BitTorrentClient::initialize(int stage) {
 
         //Destruimos el vector auxiliar <- Evitar hacer el trabajo del recolector de basura (error al cerrar la simulación)
 //        peers_aux.~vector();
+=======
+        //Destruimos el vector auxiliar :( [Error]
+        //peers_aux.~vector();
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
 
     }
 }
@@ -974,7 +1004,10 @@ void BitTorrentClient::finishDownload()
 
     ClientController * clientController = check_and_cast<ClientController *>(topo.getNode(0)->getModule());
     //topo.getNode(0)->getModule()->getSubmodule("clientController"));
-    cMessage *data = new cMessage("end");
+    std::ostringstream seed;
+    seed << this->localPeerId << "-" << this->localIp << "-" << this->localPort;
+
+    cMessage *data = new cMessage(seed.str().c_str());
     data->setKind(333);
     sendDirect(data, clientController, "userController");
 
@@ -1090,11 +1123,16 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
                 //throw std::logic_error(out.str());
             }
         }
+<<<<<<< HEAD
 
         // statistics about the PeerWireMsgs
         this->peerWireStatistics(msg);
         socket->processMessage(msg);
         socket->getState();
+=======
+        this->peerWireStatistics(msg);
+        socket->processMessage(msg);
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
 
 //        if(msg->getKind() == TCP_I_TIMED_OUT){
 //            std::cerr << "Creo que debemos intentar de nuevo! Peer :: [ " << this->localPeerId << "]\n";

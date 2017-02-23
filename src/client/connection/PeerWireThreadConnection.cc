@@ -150,7 +150,7 @@ void PeerWireThread::renewKeepAliveTimer() {
 }
 void PeerWireThread::renewTimeoutTimer() {
     this->cancelEvent(&this->timeoutTimer);
-    this->scheduleAt(simTime() + this->btClient->timeoutInterval,
+     this->scheduleAt(simTime() + this->btClient->timeoutInterval,
             &this->timeoutTimer);
 }
 void PeerWireThread::sendPeerWireMsg(cPacket * msg) {

@@ -1,16 +1,17 @@
 
-package br.larc.usp.controller;
+
+package br.larc.usp.simulations.Prueba_AODV.controlador;
 
 //
 // TODO auto-generated module
 //
-simple ClientController
+simple Controller
 {
     parameters:
         @controller(); // used by the Tracker to find all Peers in the simulation
-        @signal[ClientController_EnterTimeSignal];
+        @signal[Controller_EnterTimeSignal];
         @statistic[EnterTime](
-            source=ClientController_EnterTimeSignal;
+            source=Controller_EnterTimeSignal;
             title="Enter Time";
             record=vector;
         );

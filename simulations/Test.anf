@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
   <inputs>
+<<<<<<< HEAD
     <inputs name="/EbitSim/simulations/results/Test-*.vec"/>
     <inputs name="/EbitSim/simulations/results/Test-*.sca"/>
     <inputs name="/EbitSim_MANET/simulations/results/Test-0.sca"/>
+=======
+    <inputs name="/EbitSim_MANET/simulations/results/Test-0.vec"/>
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
   </inputs>
   <datasets>
     <datasets name="All">

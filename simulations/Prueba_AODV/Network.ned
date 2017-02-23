@@ -14,36 +14,45 @@
 // 
 
 package br.larc.usp.simulations.Prueba_AODV;
-
-import inet.nodes.inet.AdhocHost;
+//Importación de paquetes 
+import br.larc.usp.simulations.Prueba_AODV.nodo.PeerEx;
+import br.larc.usp.simulations.Prueba_AODV.controlador.Controller;
 import inet.world.radio.ChannelControl;
-import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
+import inet.nodes.inet.AdhocHost;
+import inet.networklayer.autorouting.ipv4.FlatNetworkConfigurator;
 
 
-network AODV_test
+
+//
+// TODO documentation
+//
+network Network
 {
     parameters:
-        int numHosts;
-        int numFixHosts;
+    @display("bgb=400,300,white;bgg=100,2,grey80");
+    int numPeers = 4; //Número de pares
+    
+    
     submodules:
-
-        fixhost[numFixHosts]: AdhocHost {
-            parameters:
-                //@display("i=device/pocketpc_s;r=50,,#707070");
-                @display("is=vs");
-        }
-        host[numHosts]: AdhocHost {
-            parameters:
-                //@display("i=device/pocketpc_s;r=50,,#707070");
-                @display("is=vs");
+        peer[numPeers]: PeerEx {
+        	IPForward = default(true);
+        	numTcpApps = 1;
+        	@display("is=vs;p=296,71;i=old/x_active");
         }
         channelControl: ChannelControl {
             parameters:
-                @display("p=60,50;i=misc/sun");
+                @display("p=5,8");
         }
-        configurator: IPv4NetworkConfigurator {
-            parameters:
-                config = xml("<config><interface hosts='*' address='145.236.x.x' netmask='255.255.0.0'/></config>");
-                @display("p=140,50;i=block/cogwheel_s");
+        controller: Controller {
+            @display("p=80,50");
         }
+        flatNetworkConfigurator: FlatNetworkConfigurator {
+
+            @display("p=17,134");
+        }
+        tracker: AdhocHost {
+            @display("i=old/x_blank;is=vs;p=2,2");
+        }
+        
 }
+

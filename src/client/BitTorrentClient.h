@@ -205,7 +205,11 @@ public:
     void finishDownload();
     //@}
 private:
+<<<<<<< HEAD
     int idDisplay = -1;
+=======
+
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
     /*!
      * Declare PeerWireThread a friend of  BitTorrentClient, since their
      * behavior are intimately connected.

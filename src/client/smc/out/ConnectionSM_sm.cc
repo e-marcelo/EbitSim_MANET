@@ -263,6 +263,7 @@ void ConnectionMap_Default::remoteClose(ConnectionSMContext& context)
         throw;
     }
     context.getState().Entry(context);
+<<<<<<< HEAD
 
 }
 
@@ -296,6 +297,8 @@ void ConnectionMap_Default::timeout(ConnectionSMContext& context)
 
     context.setState(ConnectionMap::Closed);
     context.getState().Entry(context);
+=======
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
 
 }
 
@@ -484,6 +487,7 @@ void ConnectionMap_HandshakeSent::handshakeMsg(ConnectionSMContext& context, Han
         context.getState().Entry(context);
     }
 
+<<<<<<< HEAD
 }
 
 void ConnectionMap_HandshakeSent::timeout(ConnectionSMContext& context)
@@ -517,6 +521,8 @@ void ConnectionMap_HandshakeSent::timeout(ConnectionSMContext& context)
     context.setState(ConnectionMap::Closed);
     context.getState().Entry(context);
 
+=======
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
 }
 
 void ConnectionMap_WaitHandshake::Entry(ConnectionSMContext& context)
@@ -842,8 +848,12 @@ void ConnectionMap_Connected::timeout(ConnectionSMContext& context)
     context.clearState();
     try
     {
+<<<<<<< HEAD
         ctxt.sendPeerWireMsg(ctxt.getKeepAliveMsg());
         ctxt.renewKeepAliveTimer();
+=======
+        ctxt.renewTimeoutTimer();
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
         if (context.getDebugFlag())
         {
             std::ostream& str = context.getDebugStream();

@@ -345,6 +345,10 @@ ContentManager::ContentManager() :
         false) {
 }
 ContentManager::~ContentManager() {
+<<<<<<< HEAD
+=======
+
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
 // EAM :: #ifdef DEBUG_MSG
     double completePerc = this->clientBitField.getCompletedPercentage();
     std::ostringstream out;
@@ -357,6 +361,7 @@ ContentManager::~ContentManager() {
     delete this->tokenBucket;
 
 // EAM :: #endif
+    delete this->tokenBucket; //<- Posible error
 }
 
 void ContentManager::addEmptyBitField(int peerId) {
@@ -916,8 +921,13 @@ void ContentManager::registerEmittedSignals() {
 }
 // module methods
 void ContentManager::printDebugMsg(std::string s) {
+<<<<<<< HEAD
 // #ifdef DEBUG_MSG
 //   if (this->debugFlag) {
+=======
+ //#ifdef DEBUG_MSG
+   //if (this->debugFlag) {
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
         // debug "header"
         std::cerr << simulation.getEventNumber();
         std::cerr << ";" << simulation.getSimTime();
@@ -925,7 +935,11 @@ void ContentManager::printDebugMsg(std::string s) {
         std::cerr << ";infoHash " << this->infoHash << ";";
         std::cerr << s << "\n";
         std::cerr.flush();
+<<<<<<< HEAD
 //    }
+=======
+    //}
+>>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
 //#endif
 }
 void ContentManager::updateStatusString() {

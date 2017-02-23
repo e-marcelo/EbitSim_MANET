@@ -1,6 +1,6 @@
 
 
-#include "ClientController.h"
+#include "Controller.h"
 
 //EAM :: #include <IPAddressResolver.h>
 #include <IPvXAddressResolver.h>
@@ -8,11 +8,11 @@
 #include <cstring>
 #include <boost/lexical_cast.hpp>
 #include <ctopology.h>
-#include <boost/tokenizer.hpp>
-#include "SwarmManager.h"
+
+//#include "SwarmManager.h"
 #include "UserCommand_m.h"
 
-Define_Module(ClientController);
+Define_Module(Controller);
 
 // helper functions in anonymous workspace
 namespace {
@@ -22,43 +22,38 @@ EnterSwarmCommand createDefaultControlInfo(
         IPvXAddress const& trackerAddress, int trackerPort) {
     // these parameters are default for all announce messages sent
     EnterSwarmCommand enterSwarmCommand;
-    enterSwarmCommand.setTorrentMetadata(torrentMetadata);
-    enterSwarmCommand.setTrackerAddress(trackerAddress);
-    enterSwarmCommand.setTrackerPort(trackerPort);
+//    enterSwarmCommand.setTorrentMetadata(torrentMetadata);
+//    enterSwarmCommand.setTrackerAddress(trackerAddress);
+//    enterSwarmCommand.setTrackerPort(trackerPort);
 
     return enterSwarmCommand;
 }
 
 //! Create the announce message that will be sent to the passed SwarmManager.
 cMessage * createAnnounceMsg(EnterSwarmCommand const& defaultControlInfo,
-        bool seeder, SwarmManager * swarmManager,int idDisplay) {
+        bool seeder, SwarmManager * swarmManager) {
     // create the message and set the control info
     cMessage *msg = new cMessage("Enter Swarm");
     msg->setContextPointer(swarmManager);
     msg->setKind(USER_COMMAND_ENTER_SWARM);
 
-
     // Each new message needs a new control info
     // Update the seeder status in the control info
     EnterSwarmCommand * enterSwarmCommand = defaultControlInfo.dup();
     enterSwarmCommand->setSeeder(seeder);
-    enterSwarmCommand->setIdDisplay(idDisplay);
     msg->setControlInfo(enterSwarmCommand);
     return msg;
 }
 
 //! Schedule the announce messages to all BitTorrent applications.
-void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
+void scheduleStartMessages(Controller * self, simtime_t const& startTime,
         simtime_t const& interarrivalTime, long const numSeeders,
         EnterSwarmCommand const& defaultControlInfo) {
     cTopology topo;
     topo.extractByProperty("peer");
 
     simtime_t enterTime = startTime;
-
-
-//    int idModule;
-
+    /*
     for (int i = 0; i < topo.getNumNodes(); ++i) {
         SwarmManager * swarmManager = check_and_cast<SwarmManager *>(
                 topo.getNode(i)->getModule()->getSubmodule("swarmManager"));
@@ -67,56 +62,6 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
 
         bool seeder = i < numSeeders;
         cMessage *msg = createAnnounceMsg(defaultControlInfo, seeder,
-<<<<<<< HEAD
-                swarmManager,i);
-//        self->scheduleAt(enterTime, msg);
-//        if(!seeder)
-//            self->emitEnterTime(enterTime);
-        // The first peers set to seeders and start imediatelly
-
-
-        if (seeder) {
-              std::string opt;
-              std::string newArg;
-              std::ostringstream numNode;
-              int count = 0;
-              //Construcción del identificador del par (en modo gráfico)
-              opt = std::string("peer[");
-
-              numNode << i;
-              opt.append(numNode.str());
-              opt.append("]");
-
-              std::string pos = simulation.getModuleByPath(opt.c_str())->getDisplayString().str();
-//              idModule = topo.getNode(i)->getModuleId();
-//              std::cerr << "Mi posición :: " << pos;
-//              std::cerr << "Mi posición :: " <<topo.getNode(i)->getModule()->getDisplayString() << "\n";
-              boost::char_separator<char> sep(";");
-              typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-
-              tokenizer mytokenizer(pos,sep);
-
-              for(auto& token: mytokenizer){
-//                  std::cerr << "\t" << token << "\n";
-                  newArg = token;
-                  if(count == 2) //Terminamos de recorrer la cadena al obtener la referencia a la posición actual
-                      break;
-                  count++;
-              }
-              newArg.append(";is=vs;i=old/x_green");
-//            simulation.getModule(idModule)->getDisplayString().parse("is=vs;i=old/x_red");
-              simulation.getModuleByPath(opt.c_str())->getDisplayString().parse(newArg.c_str());
-
-////EAM::            self->scheduleAt(simTime(), msg);
-
-//              topo.getNode(i)->getModule()->getDisplayString().parse();
-
-              self->scheduleAt(simTime(),msg);
-
-//            self->scheduleAt(enterTime,msg);
-              opt.clear();
-              numNode.str("");
-=======
                 swarmManager);
         //self->scheduleAt(enterTime, msg);
         //if(!seeder)
@@ -126,66 +71,60 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
 ////EAM::            self->scheduleAt(simTime(), msg);
 //            //self->scheduleAt(simTime(),msg);
             self->scheduleAt(enterTime,msg);
->>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
 //
         } else {
             self->emitEnterTime(enterTime);
 //            //EAM :: self->scheduleAt(enterTime,msg);
-<<<<<<< HEAD
-            self->scheduleAt(enterTime, msg);
-//            //EAM :: self->scheduleAt(enterTime, msg);
-//            //EAM :: enterTime += exponential(interarrivalTime);
-        }
-=======
             self->scheduleAt(enterTime+i, msg);
 //            //EAM :: self->scheduleAt(enterTime, msg);
 //            //EAM :: enterTime += exponential(interarrivalTime);
         }
 //        enterTime += exponential(interarrivalTime);
->>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
-    }
+    }*/
 }
 }
 // cListener
-void ClientController::receiveSignal(cComponent *source, simsignal_t signalID,
+void Controller::receiveSignal(cComponent *source, simsignal_t signalID,
         long l) {
 
 }
 // public methods
-ClientController::ClientController() :
+Controller::Controller() :
         debugFlag(false) {
 }
 
-ClientController::~ClientController() {
+Controller::~Controller() {
 }
 
-void ClientController::emitEnterTime(simtime_t enterTime) {
+void Controller::emitEnterTime(simtime_t enterTime) {
     emit(this->enterTime_Signal, enterTime);
 }
 
 // Private methods
-int ClientController::numInitStages() const {
+int Controller::numInitStages() const {
     return 4;
 }
 
 // Starting point of the simulation
-void ClientController::initialize(int stage) {
+void Controller::initialize(int stage) {
     if (stage == 0) {
         this->enterTime_Signal = registerSignal(
-                "ClientController_EnterTimeSignal");
+                "Controller_EnterTimeSignal");
     } else if (stage == 3) {
-        // get the parameters
+        int numSeeders = par("numSeeders").longValue();
+        /* get the parameters
         std::string sTrackerAddress = par("trackerAddress").stringValue();
         int trackerPort = par("trackerPort").longValue();
         bool debugFlag = par("debugFlag").boolValue();
-        int numSeeders = par("numSeeders").longValue();
+
         simtime_t startTime = par("startTime").doubleValue();
         cXMLElement * profile = par("profile").xmlValue();
-
+        */
         // verify parameters
         if (numSeeders < 1) {
             throw cException("The number of seeders must be larger than 1");
         }
+        /*
         cXMLElementList contentList = profile->getChildrenByTagName("content");
         if (contentList.empty()) {
             throw cException("List of contents is empty. Check the xml file");
@@ -233,46 +172,38 @@ void ClientController::initialize(int stage) {
         this->numNodesTotal = topo.getNumNodes() - numSeeders;
         std::cerr << "Numero de sanguijuelas :: " << this->numNodesTotal << "\n";
         this->updateStatusString();
+        */
     }
 }
 // Private methods
-void ClientController::printDebugMsg(std::string s) {
+void Controller::printDebugMsg(std::string s) {
     if (this->debugFlag) {
         // debug "header"
         std::cerr << simulation.getEventNumber() << " (T=";
-        std::cerr << simulation.getSimTime() << ")(ClientController) - ";
+        std::cerr << simulation.getSimTime() << ")(Controller) - ";
         //EAM :: std::cerr << "Peer " << this->localPeerId << ": ";
         std::cerr << s << "\n";
     }
 }
-void ClientController::updateStatusString() {
+void Controller::updateStatusString() {
     if (ev.isGUI()) {
 //        std::ostringstream out;
 //        out << "peerId: " << this->localPeerId;
 //        getDisplayString().setTagArg("t", 0, out.str().c_str());
     }
 }
-void ClientController::subscribeToSignals() {
+void Controller::subscribeToSignals() {
     subscribe("ContentManager_BecameSeeder", this);
 }
 
-void ClientController::endUserDownload(cMessage *msg)
+void Controller::endUserDownload(cMessage *msg)
 {
     if(msg->getKind() == 333){ //Tipo de dato con el identificador para terminar la simulación
-<<<<<<< HEAD
-        endPeerDownload++;
-        std::cerr << "[Controlador] Pares que terminan la descarga :: "<< endPeerDownload << "\n";
-        if(endPeerDownload >= numNodesTotal){
-            std::cerr << "[Controlador] Condición de finalización aceptada :: Sanguijuelas = "<< endPeerDownload << "\n";
-            endSimulation();
-        }
-
-=======
         std::string *newSeed = static_cast<std::string *>(msg->getContextPointer());
         if(newSeed != NULL)
             std::cerr << "Datos de la nueva semilla :: " << newSeed <<"\n";
         this->endPeerDownload++;
-        std::cerr << "[clientController]* Pares que reportan descarga completa :: "<< this->endPeerDownload << " \n";
+        std::cerr << "[Controller]* Pares que reportan descarga completa :: "<< this->endPeerDownload << " \n";
         if(this->endPeerDownload >= this->numNodesTotal){
             std::cerr << "*** Termina simulación [Condición de finalización aceptada]! \n";
             endSimulation();
@@ -280,7 +211,6 @@ void ClientController::endUserDownload(cMessage *msg)
         //Enviar a todos la información de la nueva semilla (como en la inicialización, con un código diferente)
         //Envio a todos menos a las semillas previas y la actual -> Revisar el comportamiento del tracker original
         //Lo recibe el swarm y actualizamos la lista de pares no conectados -> prioridad a las semillas
->>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
     }
 }
 
@@ -289,7 +219,7 @@ void ClientController::endUserDownload(cMessage *msg)
 // TODO make creation of Peers dynamic? Research memory consumption gains
 // TODO add stopTimer (to tell when the Client will leave the swarm)
 // TODO add seedTimer (to tell how long the Client will be seeding). Maybe utilize the stopTimer.
-void ClientController::handleMessage(cMessage *msg) {
+void Controller::handleMessage(cMessage *msg) {
     if (msg->arrivedOn("userController")) {
         this->endUserDownload(msg);
     }else{
