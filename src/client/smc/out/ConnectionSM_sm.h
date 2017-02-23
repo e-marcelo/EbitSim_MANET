@@ -112,10 +112,7 @@ public:
 
     virtual void Entry(ConnectionSMContext&);
     virtual void handshakeMsg(ConnectionSMContext& context, Handshake const& hs);
-<<<<<<< HEAD
     virtual void timeout(ConnectionSMContext& context);
-=======
->>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
 };
 
 class ConnectionMap_WaitHandshake :

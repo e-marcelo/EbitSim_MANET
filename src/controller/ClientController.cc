@@ -66,9 +66,7 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
         // The first numSeeders will start immediately
 
         bool seeder = i < numSeeders;
-        cMessage *msg = createAnnounceMsg(defaultControlInfo, seeder,
-<<<<<<< HEAD
-                swarmManager,i);
+        cMessage *msg = createAnnounceMsg(defaultControlInfo, seeder,swarmManager,i);
 //        self->scheduleAt(enterTime, msg);
 //        if(!seeder)
 //            self->emitEnterTime(enterTime);
@@ -116,33 +114,21 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
 //            self->scheduleAt(enterTime,msg);
               opt.clear();
               numNode.str("");
-=======
-                swarmManager);
+
         //self->scheduleAt(enterTime, msg);
         //if(!seeder)
             //self->emitEnterTime(enterTime);
         // The first peers set to seeders and start imediatelly
-        if (seeder) {
-////EAM::            self->scheduleAt(simTime(), msg);
-//            //self->scheduleAt(simTime(),msg);
-            self->scheduleAt(enterTime,msg);
->>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
 //
         } else {
             self->emitEnterTime(enterTime);
 //            //EAM :: self->scheduleAt(enterTime,msg);
-<<<<<<< HEAD
-            self->scheduleAt(enterTime, msg);
-//            //EAM :: self->scheduleAt(enterTime, msg);
-//            //EAM :: enterTime += exponential(interarrivalTime);
-        }
-=======
             self->scheduleAt(enterTime+i, msg);
 //            //EAM :: self->scheduleAt(enterTime, msg);
 //            //EAM :: enterTime += exponential(interarrivalTime);
         }
 //        enterTime += exponential(interarrivalTime);
->>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
+
     }
 }
 }
@@ -259,15 +245,7 @@ void ClientController::subscribeToSignals() {
 void ClientController::endUserDownload(cMessage *msg)
 {
     if(msg->getKind() == 333){ //Tipo de dato con el identificador para terminar la simulación
-<<<<<<< HEAD
-        endPeerDownload++;
-        std::cerr << "[Controlador] Pares que terminan la descarga :: "<< endPeerDownload << "\n";
-        if(endPeerDownload >= numNodesTotal){
-            std::cerr << "[Controlador] Condición de finalización aceptada :: Sanguijuelas = "<< endPeerDownload << "\n";
-            endSimulation();
-        }
 
-=======
         std::string *newSeed = static_cast<std::string *>(msg->getContextPointer());
         if(newSeed != NULL)
             std::cerr << "Datos de la nueva semilla :: " << newSeed <<"\n";
@@ -280,7 +258,7 @@ void ClientController::endUserDownload(cMessage *msg)
         //Enviar a todos la información de la nueva semilla (como en la inicialización, con un código diferente)
         //Envio a todos menos a las semillas previas y la actual -> Revisar el comportamiento del tracker original
         //Lo recibe el swarm y actualizamos la lista de pares no conectados -> prioridad a las semillas
->>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
+
     }
 }
 

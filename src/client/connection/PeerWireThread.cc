@@ -405,7 +405,6 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
         std::cerr << "[A] Wrong type of message :: "<< msgId << "\n";
         delete msg;
         msg = NULL; // consume the message
-<<<<<<< HEAD
 
         std::ostringstream out;
         out << e.what();
@@ -413,12 +412,6 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
         out << " in state " << e.getState();
         std::cerr << "\n[A]" << e.what() << " :: -Transition "<< e.getTransition() <<" in state :: "<< e.getState() <<"\n";
 //        printf("\n Error :: - Transition  in state *** ");
-=======
-        std::cerr << "[A] Wrong type of message :: " << msgId << "\n";
-        //std::ostringstream out;
-        std::cerr << e.what() << " - Transition " << e.getTransition() << " in state " << e.getState() << "\n";
-        //EAM :: printf("\n Error[A] :: - Transition  in state *** ");
->>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
         //EAM :: throw cException(out.str().c_str());
     } catch (statemap::StateUndefinedException &e) {
         std::cerr << "[B] Wrong type of message :: " << msgId << "\n";
@@ -430,13 +423,11 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
 
         delete msg;
         msg = NULL;
-<<<<<<< HEAD
+
         std::cerr << "[B] Wrong type of message :: "<< msgId<< "\n";
         std::cerr << "\n[B]" << e.what() << " :: -Transition "<< msg->getName() <<" :: called\n";
 //        printf("\n Error :: - Transition  in state *** ");
-=======
-        printf("\n Error[B] :: - Transition  in state *** ");
->>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
+
         //throw cException(out.str().c_str());
     } catch (std::invalid_argument &e) {
         delete msg;

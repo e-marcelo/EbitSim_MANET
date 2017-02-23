@@ -210,17 +210,9 @@ Exit {
                 renewKeepAliveTimer(); // sent a PeerWireMsg
             }
     timeout
-<<<<<<< HEAD
-        nil
-            {
-                sendPeerWireMsg(ctxt.getKeepAliveMsg());
-                renewKeepAliveTimer(); // sent a PeerWireMsg
-=======
-       nil
-            {
-                renewTimeoutTimer();
->>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
-            }
+        Closed
+	   {}
+    
     applicationClose
         ClosingConnection
             {}

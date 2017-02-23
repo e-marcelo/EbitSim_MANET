@@ -1,4 +1,4 @@
-file 3318 1487817476                                            
+file 3318 1487871591                                            
 version 2
 run General-0-20170222-20:37:52-12161
 attr configname General
@@ -15,79 +15,78 @@ attr replication #0
 attr resultdir results
 attr runnumber 0
 attr seedset 0
-
 vector 6  AODV_test.fixhost[0].wlan[0].mgmt  dataQueueLen:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "data queue length, vector"
-vector 16  AODV_test.host[0].wlan[0].mgmt  dataQueueLen:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "data queue length, vector"
-vector 29  AODV_test.host[1].wlan[0].mgmt  dataQueueLen:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "data queue length, vector"
-vector 36  AODV_test.fixhost[0].wlan[0].mac  RadioState  ETV
-attr enum  "IDLE=0, RECV=1, SLEEP=3, TRANSMIT=2"
-attr enumname  RadioState
-vector 35  AODV_test.fixhost[0].wlan[0].mac  State  ETV
-attr enum  "BACKOFF=3, DEFER=1, IDLE=0, RECEIVE=8, WAITACK=4, WAITAIFS=2, WAITCTS=6, WAITMULTICAST=5, WAITSIFS=7"
-attr enumname  Ieee80211Mac
-vector 42  AODV_test.host[0].wlan[0].mac  RadioState  ETV
-attr enum  "IDLE=0, RECV=1, SLEEP=3, TRANSMIT=2"
-attr enumname  RadioState
-vector 41  AODV_test.host[0].wlan[0].mac  State  ETV
-attr enum  "BACKOFF=3, DEFER=1, IDLE=0, RECEIVE=8, WAITACK=4, WAITAIFS=2, WAITCTS=6, WAITMULTICAST=5, WAITSIFS=7"
-attr enumname  Ieee80211Mac
-vector 48  AODV_test.host[1].wlan[0].mac  RadioState  ETV
-attr enum  "IDLE=0, RECV=1, SLEEP=3, TRANSMIT=2"
-attr enumname  RadioState
-vector 47  AODV_test.host[1].wlan[0].mac  State  ETV
-attr enum  "BACKOFF=3, DEFER=1, IDLE=0, RECEIVE=8, WAITACK=4, WAITAIFS=2, WAITCTS=6, WAITMULTICAST=5, WAITSIFS=7"
-attr enumname  Ieee80211Mac
-vector 8  AODV_test.fixhost[0].wlan[0].radio  bitrate:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "tx bitrate, vector"
-attr unit  bps
-vector 10  AODV_test.fixhost[0].wlan[0].radio  radioState:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "radio state (enum), vector"
-vector 9  AODV_test.fixhost[0].wlan[0].radio  channelNo:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "channel no, vector"
-vector 18  AODV_test.host[0].wlan[0].radio  bitrate:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "tx bitrate, vector"
-attr unit  bps
-vector 20  AODV_test.host[0].wlan[0].radio  radioState:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "radio state (enum), vector"
-vector 19  AODV_test.host[0].wlan[0].radio  channelNo:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "channel no, vector"
-vector 31  AODV_test.host[1].wlan[0].radio  bitrate:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "tx bitrate, vector"
-attr unit  bps
-vector 33  AODV_test.host[1].wlan[0].radio  radioState:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "radio state (enum), vector"
-vector 32  AODV_test.host[1].wlan[0].radio  channelNo:vector  ETV
-attr interpolationmode  sample-hold
-attr title  "channel no, vector"
+attr interpolationmode sample-hold
+attr title "data queue length, vector"
 6	3084 8 0 0 0 0 1 0 0 0 0
-8	3092 15 0 0 0 0 1 54000000 54000000 54000000 2.916e+15
-9	3107 8 0 0 0 0 1 0 0 0 0
-10	3115 9 0 0 0 0 1 0 0 0 0
+vector 16  AODV_test.host[0].wlan[0].mgmt  dataQueueLen:vector  ETV
+attr interpolationmode sample-hold
+attr title "data queue length, vector"
 16	3124 9 0 0 0 0 1 0 0 0 0
-18	3133 16 0 0 0 0 1 54000000 54000000 54000000 2.916e+15
-19	3149 9 0 0 0 0 1 0 0 0 0
-20	3158 9 0 0 0 0 1 0 0 0 0
+vector 29  AODV_test.host[1].wlan[0].mgmt  dataQueueLen:vector  ETV
+attr interpolationmode sample-hold
+attr title "data queue length, vector"
 29	3167 9 0 0 0 0 1 0 0 0 0
-31	3176 16 0 0 0 0 1 54000000 54000000 54000000 2.916e+15
-32	3192 9 0 0 0 0 1 0 0 0 0
-33	3201 9 0 0 0 0 1 0 0 0 0
-35	3210 18 0 0 0 0 2 0 0 0 0
+vector 36  AODV_test.fixhost[0].wlan[0].mac  RadioState  ETV
+attr enum "IDLE=0, RECV=1, SLEEP=3, TRANSMIT=2"
+attr enumname RadioState
 36	3228 18 0 0 0 0 2 0 0 0 0
-41	3246 18 0 0 0 0 2 0 0 0 0
+vector 35  AODV_test.fixhost[0].wlan[0].mac  State  ETV
+attr enum "BACKOFF=3, DEFER=1, IDLE=0, RECEIVE=8, WAITACK=4, WAITAIFS=2, WAITCTS=6, WAITMULTICAST=5, WAITSIFS=7"
+attr enumname Ieee80211Mac
+35	3210 18 0 0 0 0 2 0 0 0 0
+vector 42  AODV_test.host[0].wlan[0].mac  RadioState  ETV
+attr enum "IDLE=0, RECV=1, SLEEP=3, TRANSMIT=2"
+attr enumname RadioState
 42	3264 18 0 0 0 0 2 0 0 0 0
-47	3282 18 0 0 0 0 2 0 0 0 0
+vector 41  AODV_test.host[0].wlan[0].mac  State  ETV
+attr enum "BACKOFF=3, DEFER=1, IDLE=0, RECEIVE=8, WAITACK=4, WAITAIFS=2, WAITCTS=6, WAITMULTICAST=5, WAITSIFS=7"
+attr enumname Ieee80211Mac
+41	3246 18 0 0 0 0 2 0 0 0 0
+vector 48  AODV_test.host[1].wlan[0].mac  RadioState  ETV
+attr enum "IDLE=0, RECV=1, SLEEP=3, TRANSMIT=2"
+attr enumname RadioState
 48	3300 18 0 0 0 0 2 0 0 0 0
+vector 47  AODV_test.host[1].wlan[0].mac  State  ETV
+attr enum "BACKOFF=3, DEFER=1, IDLE=0, RECEIVE=8, WAITACK=4, WAITAIFS=2, WAITCTS=6, WAITMULTICAST=5, WAITSIFS=7"
+attr enumname Ieee80211Mac
+47	3282 18 0 0 0 0 2 0 0 0 0
+vector 8  AODV_test.fixhost[0].wlan[0].radio  bitrate:vector  ETV
+attr interpolationmode sample-hold
+attr title "tx bitrate, vector"
+attr unit bps
+8	3092 15 0 0 0 0 1 54000000 54000000 54000000 2.916e+15
+vector 10  AODV_test.fixhost[0].wlan[0].radio  radioState:vector  ETV
+attr interpolationmode sample-hold
+attr title "radio state (enum), vector"
+10	3115 9 0 0 0 0 1 0 0 0 0
+vector 9  AODV_test.fixhost[0].wlan[0].radio  channelNo:vector  ETV
+attr interpolationmode sample-hold
+attr title "channel no, vector"
+9	3107 8 0 0 0 0 1 0 0 0 0
+vector 18  AODV_test.host[0].wlan[0].radio  bitrate:vector  ETV
+attr interpolationmode sample-hold
+attr title "tx bitrate, vector"
+attr unit bps
+18	3133 16 0 0 0 0 1 54000000 54000000 54000000 2.916e+15
+vector 20  AODV_test.host[0].wlan[0].radio  radioState:vector  ETV
+attr interpolationmode sample-hold
+attr title "radio state (enum), vector"
+20	3158 9 0 0 0 0 1 0 0 0 0
+vector 19  AODV_test.host[0].wlan[0].radio  channelNo:vector  ETV
+attr interpolationmode sample-hold
+attr title "channel no, vector"
+19	3149 9 0 0 0 0 1 0 0 0 0
+vector 31  AODV_test.host[1].wlan[0].radio  bitrate:vector  ETV
+attr interpolationmode sample-hold
+attr title "tx bitrate, vector"
+attr unit bps
+31	3176 16 0 0 0 0 1 54000000 54000000 54000000 2.916e+15
+vector 33  AODV_test.host[1].wlan[0].radio  radioState:vector  ETV
+attr interpolationmode sample-hold
+attr title "radio state (enum), vector"
+33	3201 9 0 0 0 0 1 0 0 0 0
+vector 32  AODV_test.host[1].wlan[0].radio  channelNo:vector  ETV
+attr interpolationmode sample-hold
+attr title "channel no, vector"
+32	3192 9 0 0 0 0 1 0 0 0 0

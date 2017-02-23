@@ -364,13 +364,10 @@ void SwarmManager::finishedDownload(int infoHash) {
 //EAM    socketCallback->sendAnnounce(A_COMPLETED);
 //EAM    std::cerr << "SwarmManager :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
   //EAM ::bitTorrentClient->finishDownload();
-<<<<<<< HEAD
-//  std::cerr << "Became a seeder :: " << this->bitTorrentClient->localPeerId << "\n";
-//    emit(this->seederSignal, &data); Retomar señales
-=======
+
   std::cerr << "\n\t--->Became a seeder :: " <<  this->localPeerId << "\n";
 //Retomar ::    emit(this->seederSignal, &data); Retomar señales
->>>>>>> bf6c1c16f9b827bce19ea9ae57ca1a9d7e51e990
+
 }
 
 // Private methods
