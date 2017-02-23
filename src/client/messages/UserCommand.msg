@@ -89,6 +89,7 @@ class UserCommand {
 class EnterSwarmCommand extends UserCommand {
     TorrentMetadata torrentMetadata;
     bool seeder;
+    int idDisplay;
     IPvXAddress trackerAddress;
     int trackerPort;
 }

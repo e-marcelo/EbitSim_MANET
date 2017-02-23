@@ -8,6 +8,8 @@
 #include "controller/ClientController.h"
 #include "UserCommand_m.h"
 
+#include <boost/tokenizer.hpp>
+
 #include <string.h>
 #include <algorithm>
 #include <iostream>
@@ -184,9 +186,9 @@ void BitTorrentClient::unchokePeer(int infoHash, int peerId) {
 // Methods used by the ContentManager
 void BitTorrentClient::closeConnection(int infoHash, int peerId) const {
     Enter_Method("closeConnection(infoHash: %d, peerId: %d)", infoHash, peerId);
-
-    this->getPeerStatus(infoHash, peerId).getThread()->sendApplicationMessage(
-        APP_CLOSE);
+//
+//    this->getPeerStatus(infoHash, peerId).getThread()->sendApplicationMessage(
+//        APP_CLOSE); //<---
 }
 void BitTorrentClient::finishedDownload(int infoHash) {
     Enter_Method("finishedDownload(infoHash: %d)", infoHash);
@@ -256,7 +258,7 @@ int BitTorrentClient::getLocalPeerId() const {
     return this->localPeerId;
 }
 void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
-    int numOfSubPieces, int subPieceSize, bool newSwarmSeeding) {
+    int numOfSubPieces, int subPieceSize, bool newSwarmSeeding, int idDisplay) {
     Enter_Method("addSwarm(infoHash: %d, %s)", infoHash,
         (newSwarmSeeding ? "seeding" : "leeching"));
     assert(!this->swarmMap.count(infoHash)); // Swarm must not exist <- Cuidar la validación
@@ -300,9 +302,15 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     swarm.closing = false;
     swarm.choker = static_cast<Choker*>(choker);
     swarm.contentManager = static_cast<ContentManager*>(contentManager);
+    //Referencia al identificador gráfico del nodo en la GUI
+    this->idDisplay = idDisplay;
     //EAM :: std::cerr << "[***] Pares en la lista" << peers.size() << "\n";
     //Iniciamos la descarga, obviando la consulta que previamente se realizaba consultando al Tracker.
     if (peers.size()) {
+        std::cerr << "***[Inicio] Lista peers :: " << peers.size() << "\n";
+//        std::list<PeerConnInfo> listPeers;
+//
+//        std::memcpy(&peers,&listPeers,peers.size());
         this->addUnconnectedPeers(infoHash, peers);
     }
 }
@@ -496,6 +504,7 @@ void BitTorrentClient::setSnubbed(bool snubbed, int infoHash, int peerId) {
 void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
     const PeerMap & peerMap = swarm.peerMap;
     // only make active connections if not seeding
+    std::cerr << "Soy el par ::" << this->localPeerId << "\n";
     if (!(swarm.seeding || swarm.closing)) {
         UnconnectedList & unconnectedList = swarm.unconnectedList;
 
@@ -520,13 +529,17 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
                 this->activeConnectedPeers.insert(
                     std::make_pair(infoHash, peerId));
             }
-            unconnectedList.erase(it);
+            peers_swap.push_back(peer);
+            unconnectedList.erase(it);// Evitamos eliminar la lista de pares que se requieren posteriormente
+            std::cerr<< "Tamaño de la lista :: " << unconnectedList.size() << "\n";
+            //Tamaño de la lista
         }
+
         // Either the active slots are full or the unconnected list is empty
         // If more than half of the active slots is unoccupied, ask for more peers
-        //*EAM :: if (swarm.numActive < this->numActiveConn / 2) {
-        //*EAM ::    this->swarmManager->askMorePeers(infoHash);
-        //*EAM :: }
+        if (swarm.numActive < this->numActiveConn / 2) {
+            askMoreUnconnectedPeers(infoHash);
+        }
     }
 }
 /*!
@@ -539,7 +552,7 @@ void BitTorrentClient::connect(int infoHash, PeerConnInfo const& peer) {
     boost::tie(peerId, ip, port) = peer;
 
     TCPSocket * socket = new TCPSocket();
-    //EAM :: Nuevas sentencias
+    //EAM :: Nueva sentencia
     socket->readDataTransferModePar(*this);
     //EAM* :: socket->setDataTransferMode(TCP_TRANSFER_OBJECT);
     //EAM :: socket->setDataTransferMode(TCPDataTransferMode::TCP_TRANSFER_OBJECT);
@@ -639,7 +652,7 @@ PeerStatus const& BitTorrentClient::getPeerStatus(int infoHash,
 //}
 
 void BitTorrentClient::peerWireStatistics(cMessage const*msg, bool sending =
-    true) {
+    false) {
     if (dynamic_cast<PeerWireMsg const*>(msg)) {
         PeerWireMsg const* peerWireMsg = static_cast<PeerWireMsg const*>(msg);
         int messageId = peerWireMsg->getMessageId();
@@ -915,6 +928,7 @@ void BitTorrentClient::initialize(int stage) {
             opt.append(numNode.str());
             opt.append("]");
             peerId = simulation.getModuleByPath(opt.c_str())->getId();
+
             if (peerIdActual != peerId){
                 PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),port);
                 // the size of the peerList minus self
@@ -923,22 +937,33 @@ void BitTorrentClient::initialize(int stage) {
             opt.clear();
             numNode.str("");
         }
-
+        //Lista de pares no seleccionados
+        int tam = peers_aux.size();
         // random shuffle the return list || Generador por defecto
         std::random_shuffle(peers_aux.begin(), peers_aux.end(), intrand);
         // throw away the extra pointers.
         if (numberOfPeers > numWant) {
+            for(int i = numWant; i<tam; i++ )
+                peers_extra.push_back(peers_aux.at(i));
             peers_aux.resize(numWant);
         }
-        //EAM :: int i = 0;
-        //Es necesario utilizar una asignación al tipo de dato que utilizan los prototipos de función de EbitSim
+        std::cerr << "***[Inicio] Lista extra :: " << peers_extra.size() << "\n";
+//        getPeerUnconnected(peers_aux, peers);
         BOOST_FOREACH(PeerConnInfo peer, peers_aux){
-            //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
-            peers.push_back(peer);
-            //EAM :: i++;
+                //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
+                peers.push_back(peer);
+                //EAM :: i++;
         }
-        //Destruimos el vector auxiliar
-        peers_aux.~vector();
+
+//        if(peerIdActual == 6){
+//            std::cerr << "Lista de pares a contactar :: \t";
+//            presentElementsList(peers);
+//            std::cerr << "Lista de pares en reserva :: \t";
+//            presentElementsList(peers_extra);
+//        }
+
+        //Destruimos el vector auxiliar <- Evitar hacer el trabajo del recolector de basura (error al cerrar la simulación)
+//        peers_aux.~vector();
 
     }
 }
@@ -953,6 +978,90 @@ void BitTorrentClient::finishDownload()
     data->setKind(333);
     sendDirect(data, clientController, "userController");
 
+    //Cambiando icono para marcar a las semillas
+    //Variables locales para el cambio de icono
+    std::string opt;
+    std::string newArg;
+    std::ostringstream numNode;
+    int count = 0;
+
+    //Contrucción de la cadena que identifica al par en la interfaz gráfica
+    opt = std::string("peer[");
+    numNode << this->idDisplay;
+    opt.append(numNode.str());
+    opt.append("]");
+
+
+    std::string pos = simulation.getModuleByPath(opt.c_str())->getDisplayString().str();
+    //              idModule = topo.getNode(i)->getModuleId();
+
+    //Utilizamos la misma posición del nodo para realizar el cambio de representación gráfica
+    boost::char_separator<char> sep(";");
+    typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+
+    tokenizer mytokenizer(pos,sep);
+    for(auto& token: mytokenizer){
+    //                  std::cerr << "\t" << token << "\n";
+        newArg = token;
+        if(count == 2) //Terminamos de recorrer la cadena al obtener la referencia a la posición actual
+            break;
+        count++;
+    }
+    //Cambio de representación gráfica para identificar a las semillas en la simulación
+    newArg.append(";is=vs;i=old/x_green");
+    simulation.getModuleByPath(opt.c_str())->getDisplayString().parse(newArg.c_str());
+}
+
+void BitTorrentClient::getPeerUnconnected(std::vector<PeerConnInfo> vec, std::list<PeerConnInfo> peers)
+{
+    //EAM :: int i = 0;
+    //Es necesario utilizar una asignación al tipo de dato que utilizan los prototipos de función de EbitSim
+    BOOST_FOREACH(PeerConnInfo peer, vec){
+        //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
+        peers.push_back(peer);
+        //EAM :: i++;
+    }
+}
+
+void BitTorrentClient::presentElementsList(std::list<PeerConnInfo> peers)
+{
+    BOOST_FOREACH(PeerConnInfo peer, peers){
+        std::cerr << boost::get<0>(peer) << " |\t";
+    }
+    std::cerr << "\n";
+}
+
+void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
+{
+    Enter_Method("askMoreUnconnectedPeers(%d)", infoHash);
+    #ifdef DEBUG_MSG
+        this->printDebugMsg("Ask for more peers for swarm " + toStr(infoHash));
+    #endif
+    //Es posible actualizar la lista de pares disponibles con los pares que se convierten en semillas*
+    if(opt_peers){
+        std::cerr << "*** Lista extra :: " << peers_extra.size() << "\n";
+        //Lista con los pares designados al inicio de la simulación
+        std::copy(peers.begin(),peers.end(),
+                std::back_insert_iterator<std::list<PeerConnInfo>>(peers_swap));
+        //Agregamos pares no seleccionados al inicio de la simulación
+        if (peers_extra.size()){
+            peers_swap.clear();
+            this->addUnconnectedPeers(infoHash, peers_extra);
+        }
+
+    }else{
+
+        std::cerr << "*** Lista peers :: " << peers.size() << "\n";
+        std::copy(peers_extra.begin(),peers_extra.end(),
+                            std::back_insert_iterator<std::list<PeerConnInfo>>(peers_swap));
+        if (peers.size()){
+            peers_swap.clear();
+            this->addUnconnectedPeers(infoHash, peers);
+            //Lista con los pares designados al inicio de la simulación
+        }
+
+    }
+    opt_peers = !opt_peers;
 
 }
 
@@ -982,15 +1091,20 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
             }
         }
 
-        if(msg->getKind() == TCP_I_TIMED_OUT){
-            std::cerr << "Creo que debemos intentar de nuevo! Peer :: [ " << this->getId() << "]\n";
-            //EAM :: delete msg;
-        }else{
-            // statistics about the PeerWireMsgs
-            //EAM :: this->peerWireStatistics(msg,false);
-            this->peerWireStatistics(msg,true);
-            socket->processMessage(msg);
-        }
+        // statistics about the PeerWireMsgs
+        this->peerWireStatistics(msg);
+        socket->processMessage(msg);
+        socket->getState();
+
+//        if(msg->getKind() == TCP_I_TIMED_OUT){
+//            std::cerr << "Creo que debemos intentar de nuevo! Peer :: [ " << this->localPeerId << "]\n";
+//            //EAM :: delete msg;
+//        }else{
+//            // statistics about the PeerWireMsgs
+//            //EAM :: this->peerWireStatistics(msg,false);
+//            this->peerWireStatistics(msg,true);
+//            socket->processMessage(msg);
+//        }
     } else {
         if (msg == &this->endOfProcessingTimer) {
             (*this->threadInProcessingIt)->finishProcessing();
@@ -1002,6 +1116,7 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
                 static_cast<PeerWireThread *>(msg->getContextPointer());
             this->removeThread(thread);
             delete msg;
+
         } else {
             // PeerWireThread self-messages
             PeerWireThread *thread =

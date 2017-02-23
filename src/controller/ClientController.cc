@@ -8,7 +8,7 @@
 #include <cstring>
 #include <boost/lexical_cast.hpp>
 #include <ctopology.h>
-
+#include <boost/tokenizer.hpp>
 #include "SwarmManager.h"
 #include "UserCommand_m.h"
 
@@ -31,16 +31,18 @@ EnterSwarmCommand createDefaultControlInfo(
 
 //! Create the announce message that will be sent to the passed SwarmManager.
 cMessage * createAnnounceMsg(EnterSwarmCommand const& defaultControlInfo,
-        bool seeder, SwarmManager * swarmManager) {
+        bool seeder, SwarmManager * swarmManager,int idDisplay) {
     // create the message and set the control info
     cMessage *msg = new cMessage("Enter Swarm");
     msg->setContextPointer(swarmManager);
     msg->setKind(USER_COMMAND_ENTER_SWARM);
 
+
     // Each new message needs a new control info
     // Update the seeder status in the control info
     EnterSwarmCommand * enterSwarmCommand = defaultControlInfo.dup();
     enterSwarmCommand->setSeeder(seeder);
+    enterSwarmCommand->setIdDisplay(idDisplay);
     msg->setControlInfo(enterSwarmCommand);
     return msg;
 }
@@ -54,6 +56,9 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
 
     simtime_t enterTime = startTime;
 
+
+//    int idModule;
+
     for (int i = 0; i < topo.getNumNodes(); ++i) {
         SwarmManager * swarmManager = check_and_cast<SwarmManager *>(
                 topo.getNode(i)->getModule()->getSubmodule("swarmManager"));
@@ -62,23 +67,62 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
 
         bool seeder = i < numSeeders;
         cMessage *msg = createAnnounceMsg(defaultControlInfo, seeder,
-                swarmManager);
-        self->scheduleAt(enterTime, msg);
-        if(!seeder)
-            self->emitEnterTime(enterTime);
-        // The first peers set to seeders and start imediatelly
-//        if (seeder) {
-////EAM::            self->scheduleAt(simTime(), msg);
-//            //self->scheduleAt(simTime(),msg);
-//            self->scheduleAt(enterTime,msg);
-//
-//        } else {
+                swarmManager,i);
+//        self->scheduleAt(enterTime, msg);
+//        if(!seeder)
 //            self->emitEnterTime(enterTime);
+        // The first peers set to seeders and start imediatelly
+
+
+        if (seeder) {
+              std::string opt;
+              std::string newArg;
+              std::ostringstream numNode;
+              int count = 0;
+              //Construcción del identificador del par (en modo gráfico)
+              opt = std::string("peer[");
+
+              numNode << i;
+              opt.append(numNode.str());
+              opt.append("]");
+
+              std::string pos = simulation.getModuleByPath(opt.c_str())->getDisplayString().str();
+//              idModule = topo.getNode(i)->getModuleId();
+//              std::cerr << "Mi posición :: " << pos;
+//              std::cerr << "Mi posición :: " <<topo.getNode(i)->getModule()->getDisplayString() << "\n";
+              boost::char_separator<char> sep(";");
+              typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+
+              tokenizer mytokenizer(pos,sep);
+
+              for(auto& token: mytokenizer){
+//                  std::cerr << "\t" << token << "\n";
+                  newArg = token;
+                  if(count == 2) //Terminamos de recorrer la cadena al obtener la referencia a la posición actual
+                      break;
+                  count++;
+              }
+              newArg.append(";is=vs;i=old/x_green");
+//            simulation.getModule(idModule)->getDisplayString().parse("is=vs;i=old/x_red");
+              simulation.getModuleByPath(opt.c_str())->getDisplayString().parse(newArg.c_str());
+
+////EAM::            self->scheduleAt(simTime(), msg);
+
+//              topo.getNode(i)->getModule()->getDisplayString().parse();
+
+              self->scheduleAt(simTime(),msg);
+
+//            self->scheduleAt(enterTime,msg);
+              opt.clear();
+              numNode.str("");
+//
+        } else {
+            self->emitEnterTime(enterTime);
 //            //EAM :: self->scheduleAt(enterTime,msg);
-//            self->scheduleAt(enterTime, msg);
+            self->scheduleAt(enterTime, msg);
 //            //EAM :: self->scheduleAt(enterTime, msg);
 //            //EAM :: enterTime += exponential(interarrivalTime);
-//        }
+        }
     }
 }
 }
@@ -194,10 +238,13 @@ void ClientController::subscribeToSignals() {
 void ClientController::endUserDownload(cMessage *msg)
 {
     if(msg->getKind() == 333){ //Tipo de dato con el identificador para terminar la simulación
+        endPeerDownload++;
+        std::cerr << "[Controlador] Pares que terminan la descarga :: "<< endPeerDownload << "\n";
         if(endPeerDownload >= numNodesTotal){
+            std::cerr << "[Controlador] Condición de finalización aceptada :: Sanguijuelas = "<< endPeerDownload << "\n";
             endSimulation();
         }
-        endPeerDownload++;
+
     }
 }
 

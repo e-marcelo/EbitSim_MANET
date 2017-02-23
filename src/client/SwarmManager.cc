@@ -364,18 +364,24 @@ void SwarmManager::finishedDownload(int infoHash) {
 //EAM    socketCallback->sendAnnounce(A_COMPLETED);
 //EAM    std::cerr << "SwarmManager :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
   //EAM ::bitTorrentClient->finishDownload();
-  std::cerr << "Became a seeder :: " << this->bitTorrentClient->getId() << "\n";
-//Retomar ::    emit(this->seederSignal, &data); Retomar señales
+//  std::cerr << "Became a seeder :: " << this->bitTorrentClient->localPeerId << "\n";
+//    emit(this->seederSignal, &data); Retomar señales
 }
 
 // Private methods
 // Tracker communication methods
 void SwarmManager::enterSwarm(TorrentMetadata const& torrent, bool seeder,
-    IPvXAddress const& trackerAddress, int trackerPort) {
+    IPvXAddress const& trackerAddress, int trackerPort,int idDisplay) {
 
     //Evitamos contactar al tracker y en su lugar utilizamos una lista con la información completa (semillas y pares)
     // The swarm must be new
     assert(!this->callbacksByInfoHash.count(torrent.infoHash)); // <-- [:)]
+
+//    if(seeder){
+//        cDisplayString &disp = getDisplayString();
+//        disp.parse("is=vs;i=old/x_red");
+////        this->getParentModule()->getParentModule()->getDisplayString().setTagArg("i",1,"red");
+//    }
     //EAM :: printf("ID peer :: %d\n",this->bitTorrentClient->getLocalPeerId());
 
     // Create the socket and the callback objects
@@ -397,7 +403,7 @@ void SwarmManager::enterSwarm(TorrentMetadata const& torrent, bool seeder,
 
     //El controlador define que infoHash se utilizará
     this->bitTorrentClient->createSwarm(torrent.infoHash, torrent.numOfPieces,
-        torrent.numOfSubPieces, torrent.subPieceSize, seeder);
+        torrent.numOfSubPieces, torrent.subPieceSize, seeder, idDisplay);
     emit(this->enterSwarmSignal, simTime());
     emit(this->emittedPeerId_Signal, this->localPeerId);
 }
@@ -418,9 +424,10 @@ void SwarmManager::treatUserCommand(cMessage * msg) {
     if (msg->getKind() == USER_COMMAND_ENTER_SWARM) {
         EnterSwarmCommand * enterSwarmMsg = check_and_cast<EnterSwarmCommand *>(
             controlInfo);
+//        std::cerr << "\nSoy el par [" << this->bitTorrentClient->localPeerId << "] ->" << enterSwarmMsg->getIdDisplay()<< "\n";
         this->enterSwarm(enterSwarmMsg->getTorrentMetadata(),
             enterSwarmMsg->getSeeder(), enterSwarmMsg->getTrackerAddress(),
-            enterSwarmMsg->getTrackerPort());
+            enterSwarmMsg->getTrackerPort(),enterSwarmMsg->getIdDisplay());
     } else {
         throw cException("Bad user command");
     }

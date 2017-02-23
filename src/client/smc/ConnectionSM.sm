@@ -147,6 +147,9 @@ Entry {
             {
                 sendPeerWireMsg(ctxt.getBitFieldMsg());
             }
+    timeout
+        Closed
+	   {}
 }
 
 WaitHandshake
@@ -171,10 +174,11 @@ Entry {
                 sendPeerWireMsg(ctxt.getHandshake());
                 sendPeerWireMsg(ctxt.getBitFieldMsg());
             }
+    
 }
 Connected
 Entry {
-	printDebugMsg("connSM - Connected");
+    printDebugMsg("connSM - Connected");
     startMachines();
     connected();
     startHandshakeTimers();
@@ -206,8 +210,11 @@ Exit {
                 renewKeepAliveTimer(); // sent a PeerWireMsg
             }
     timeout
-        ClosingConnection
-            {}
+        nil
+            {
+                sendPeerWireMsg(ctxt.getKeepAliveMsg());
+                renewKeepAliveTimer(); // sent a PeerWireMsg
+            }
     applicationClose
         ClosingConnection
             {}
@@ -284,5 +291,8 @@ Default
     			stopHandshakeTimers();
     			closeLocalConnection();
             }
+    timeout
+        Closed
+	   {}
 }
 %%

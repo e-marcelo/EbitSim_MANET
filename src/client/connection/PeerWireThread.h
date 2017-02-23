@@ -86,6 +86,7 @@ class BitTorrentClient;
 class Choker;
 class ContentManager;
 
+
 class PeerWireThread: public TCPServerThreadBase {
 public:
     // own methods
@@ -291,6 +292,7 @@ private:
     cMessage uploadRateTimer;
     //@}
 private:
+    int error_count = 0;
     //!@name Message processing
     //@{
     //! Cancel all the messages in the queue.

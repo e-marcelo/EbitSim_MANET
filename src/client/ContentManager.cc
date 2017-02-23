@@ -345,7 +345,6 @@ ContentManager::ContentManager() :
         false) {
 }
 ContentManager::~ContentManager() {
-    delete this->tokenBucket;
 // EAM :: #ifdef DEBUG_MSG
     double completePerc = this->clientBitField.getCompletedPercentage();
     std::ostringstream out;
@@ -354,8 +353,9 @@ ContentManager::~ContentManager() {
         out << ". Missing pieces - ";
         out << this->clientBitField.unavailablePieces();
     }
-
     this->printDebugMsg(out.str());
+    delete this->tokenBucket;
+
 // EAM :: #endif
 }
 
@@ -653,6 +653,8 @@ void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
 #ifdef DEBUG_MSG
                 this->printDebugMsg("Became a seeder");
 #endif
+
+                std::cerr << "- Became a seeder :: " << this->localPeerId << "\n";
                 // warn the tracker
                 this->bitTorrentClient->finishedDownload(this->infoHash);
             }
@@ -914,8 +916,8 @@ void ContentManager::registerEmittedSignals() {
 }
 // module methods
 void ContentManager::printDebugMsg(std::string s) {
- #ifdef DEBUG_MSG
-   if (this->debugFlag) {
+// #ifdef DEBUG_MSG
+//   if (this->debugFlag) {
         // debug "header"
         std::cerr << simulation.getEventNumber();
         std::cerr << ";" << simulation.getSimTime();
@@ -923,8 +925,8 @@ void ContentManager::printDebugMsg(std::string s) {
         std::cerr << ";infoHash " << this->infoHash << ";";
         std::cerr << s << "\n";
         std::cerr.flush();
-    }
-#endif
+//    }
+//#endif
 }
 void ContentManager::updateStatusString() {
     if (ev.isGUI()) {

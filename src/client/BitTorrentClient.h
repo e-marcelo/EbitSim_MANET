@@ -36,6 +36,7 @@ typedef std::vector<PeerStatus const*> PeerVector;
 typedef boost::tuple<int, IPvXAddress, int> PeerConnInfo;
 //! List of unconnected Peers
 typedef std::list<PeerConnInfo> UnconnectedList;
+//typedef std::list<PeerConnInfo> failureList;
 //! Map of peer entries with peerId as key
 typedef std::map<int, PeerStatus> PeerMap;
 //! Swarm (numActive, numPassive, PeerMap, UnconnectedList, seeding)
@@ -68,8 +69,10 @@ typedef SwarmMap::const_iterator SwarmMapConstIt;
  */
 class BitTorrentClient: public TCPSrvHostApp {
 public:
+    void askMoreUnconnectedPeers(int infoHash);
     TorrentMetadataBTM const& getTorrentMetaData(std::string contentName);
-
+    //! The peerId of this Client.
+    int localPeerId;
     BitTorrentClient();
     //! Delete the sockets and threads
     virtual ~BitTorrentClient();
@@ -191,7 +194,7 @@ public:
      * @param newSwarmSeeding[in] True if this Client is seeding for this swarm.
      */
     void createSwarm(int infoHash, int numOfPieces, int numOfSubPieces,
-        int subPieceSize, bool newSwarmSeeding);
+        int subPieceSize, bool newSwarmSeeding,int idDisplay);
     /*!
      * Delete the swarm from the Client.
      *
@@ -202,6 +205,7 @@ public:
     void finishDownload();
     //@}
 private:
+    int idDisplay = -1;
     /*!
      * Declare PeerWireThread a friend of  BitTorrentClient, since their
      * behavior are intimately connected.
@@ -245,6 +249,7 @@ private:
     void setSnubbed(bool snubbed, int infoHash, int peerId);
     //@}
 private:
+    bool opt_peers = true;
     //!@name Pointers to other modules
     //@{
     SwarmManager *swarmManager;
@@ -297,8 +302,7 @@ private:
     IPvXAddress localIp;
     //! The port of this Client.
     int localPort;
-    //! The peerId of this Client.
-    int localPeerId;
+
     //! Set to true to print debug messages.
     bool debugFlag;
     //! Set to true to print debug messages for the swarm modules.
@@ -356,8 +360,12 @@ private:
     // get list of Peers returned by the tracker and tell the
     // BitTorrentClient to connect with them.
     std::list<PeerConnInfo> peers;
+    std::list<PeerConnInfo> peers_extra;
+    std::list<PeerConnInfo> peers_swap;
     std::vector<PeerConnInfo> peers_aux;
     // Private Methods
+    void getPeerUnconnected(std::vector <PeerConnInfo> vec, std::list<PeerConnInfo> peers);
+    void presentElementsList(std::list<PeerConnInfo> peers);
     //! TODO document this
     void attemptActiveConnections(Swarm & swarm, int infoHash);
     //! Open a TCP connection with this Peer.

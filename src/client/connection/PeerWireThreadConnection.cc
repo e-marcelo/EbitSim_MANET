@@ -174,9 +174,9 @@ void PeerWireThread::sendPeerWireMsg(cPacket * msg) {
         throw std::logic_error("Wrong type of message");
     }
 
-    this->btClient->peerWireStatistics(msg, true);
 
     if (this->getSocket()->getState() != TCPSocket::CONNECTED) {
+
         // tried to send a message, but the connection is not established.
         // log this event and delete the message
 #ifdef DEBUG_MSG
@@ -187,6 +187,8 @@ void PeerWireThread::sendPeerWireMsg(cPacket * msg) {
 #endif
         delete msg;
     } else {
+        this->btClient->peerWireStatistics(msg, true);
+
 #ifdef DEBUG_MSG
         std::ostringstream out;
         out << msg->getName();

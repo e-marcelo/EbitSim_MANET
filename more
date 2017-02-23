@@ -1,0 +1,125 @@
+./src/client/messages/UserCommand_m.cc
+./src/client/messages/Application_m.cc
+    e->insert(APP_SEND_PIECE_MSG, "APP_SEND_PIECE_MSG");
+./src/client/messages/PeerWireMsgBundle_m.cc
+./src/client/messages/PeerWire_m.cc
+./src/client/Choker.cc
+./src/client/smc/out/UploadSM_sm.cc
+void UploadSMState::sendPieceMsg(UploadSMContext& context)
+void UploadMap_Default::sendPieceMsg(UploadSMContext& context)
+        str << "ENTER TRANSITION: UploadMap::Default::sendPieceMsg()"
+        ctxt.printDebugMsg("sendPieceMsg out of place");
+            str << "EXIT TRANSITION : UploadMap::Default::sendPieceMsg()"
+void UploadMap_InterestingUnchoking::sendPieceMsg(UploadSMContext& context)
+        str << "ENTER TRANSITION: UploadMap::InterestingUnchoking::sendPieceMsg()"
+            str << "EXIT TRANSITION : UploadMap::InterestingUnchoking::sendPieceMsg()"
+./src/client/smc/out/ConnectionSM_sm.cc
+        ctxt.sendPeerWireMsg(ctxt.getHandshake());
+            ctxt.sendPeerWireMsg(ctxt.getBitFieldMsg());
+            ctxt.sendPeerWireMsg(ctxt.getHandshake());
+            ctxt.sendPeerWireMsg(ctxt.getHandshake());
+            ctxt.sendPeerWireMsg(ctxt.getBitFieldMsg());
+        ctxt.sendPeerWireMsg(ctxt.getKeepAliveMsg());
+        ctxt.sendPeerWireMsg(msg);
+        ctxt.sendPeerWireMsg(ctxt.getKeepAliveMsg());
+./src/client/smc/out/DownloadSM_sm.cc
+./src/client/BitTorrentClient.cc
+        peer.getThread()->sendApplicationMessage(APP_CHOKE_PEER);
+        peer.getThread()->sendApplicationMessage(APP_UNCHOKE_PEER);
+    this->getPeerStatus(infoHash, peerId).getThread()->sendApplicationMessage(
+    this->getPeerStatus(infoHash, peerId).getThread()->sendApplicationMessage(
+    this->getPeerStatus(infoHash, peerId).getThread()->sendApplicationMessage(
+void BitTorrentClient::sendHaveMessages(int infoHash, int pieceIndex) const {
+    Enter_Method("sendHaveMessage(pieceIndex: %d)", pieceIndex);
+    // Send have message to all peers from the swarm connected with the Client
+        (it->second).getThread()->sendPeerWireMsg(haveMsg);
+void BitTorrentClient::sendPieceMessage(int infoHash, int peerId) const {
+    Enter_Method("sendPieceMessage(infoHash: %d, peerId: %d)", infoHash,
+    this->getPeerStatus(infoHash, peerId).getThread()->sendApplicationMessage(
+        APP_SEND_PIECE_MSG);
+        thread->sendApplicationMessage(APP_CLOSE);
+void BitTorrentClient::peerWireStatistics(cMessage const*msg, bool sending =
+        if (sending) {
+            if (sending) {
+            // (3) If the iterator is begin(), send it to end()
+    sendDirect(data, clientController, "userController");
+./src/client/ContentManager.cc
+    RequestQueueMap sendQueues;
+        if (!this->sendQueues.count(peerId)) {
+        RequestQueue & peerQueue = this->sendQueues.at(peerId);
+        this->tryToSend();
+     * Cancel all blocks in the peer pending and send queues.
+        RequestQueueMapIt sendIt = this->sendQueues.find(peerId);
+        if (sendIt != this->sendQueues.end()) {
+            out << " Ready to send: ";
+            // Erase the corresponding send queue
+            RequestQueue & sendQueue = sendIt->second;
+            while (!sendQueue.empty()) {
+                Request * pieceRequest = sendQueue.front();
+                sendQueue.pop();
+            this->sendQueues.erase(sendIt);
+            this->tryToSend();
+     * Try to send as many messages as possible, one requester at a time, to
+    void tryToSend() {
+                // Move the request from the requestQueue to the sendQueue
+                this->sendQueues[peerId].push(pieceRequest);
+                    + " ready to send to peer " + toStr(peerId);
+                this->contentManager->bitTorrentClient->sendPieceMessage(
+    Enter_Method("sendClientBitFieldMsg()");
+ * If a piece is completed with this pieceMsg, then schedule the sending of a
+            // schedule the sending of the HaveMsg to all Peers.
+            this->bitTorrentClient->sendHaveMessages(this->infoHash,
+    // when one of the download marks is reached, send the corresponding signal
+        // send signal warning this ContentManager became a seeder
+./src/client/other/BitField.cc
+./src/client/other/DataRateRollingAverage.cc
+./src/client/other/RarestPieceCounter.cc
+./src/client/other/PeerStatus.cc
+./src/client/connection/PeerWireThreadUpload.cc
+./src/client/connection/PeerWireThreadDownload.cc
+./src/client/connection/PeerWireThread.cc
+    this->sendApplicationMessage(APP_TCP_LOCAL_CLOSE);
+    this->sendApplicationMessage(APP_TCP_REMOTE_CLOSE);
+    this->sendPeerWireMessage(msg);
+        this->sendApplicationMessage(kind);
+void PeerWireThread::sendApplicationMessage(int id) {
+    CASE(APP_SEND_PIECE_MSG);
+        CASE_APP_UPLOAD(APP_SEND_PIECE_MSG, sendPieceMsg());
+void PeerWireThread::sendPeerWireMessage(cMessage * msg) {
+./src/client/connection/PeerWireThreadConnection.cc
+                "Trying to send a handshake with peerId or infoHash undefined.");
+void PeerWireThread::sendPeerWireMsg(cPacket * msg) {
+        // Set the size of the packet, then send it. Suppose that the messages
+        // tried to send a message, but the connection is not established.
+        out << "Tried to send message \"" << msg->getName();
+        // send the message to the connected Peer.
+        this->getSocket()->send(msg);
+./src/client/SwarmManager.cc
+        // If stopping, don't send the response to the peer.
+            //EAM :: std::cerr << "SwarmManager :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
+            // Send the scheduled message directly to the swarm manager module
+     * Send the announce if the conditions are met. Called directly or when one
+    void sendAnnounce(AnnounceType type) {
+            bool sendAnnounce = false;
+            // if the minimum timer is not scheduled, send the announce
+            sendAnnounce = (type != A_NORMAL)
+            if (sendAnnounce && !this->pending) {
+                // Don't send the next announce until this one has been responded
+                // Connect the socket and send a new announce request
+                this->socket->send(announceRequest);
+                this->parent->printDebugMsg("Don't send the announce");
+//    socketCallback->sendAnnounce(A_NORMAL);
+//EAM    socketCallback->sendAnnounce(A_COMPLETED);
+//EAM    std::cerr << "SwarmManager :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
+    //EAM :: socketCallback->sendAnnounce(A_STARTED);
+//EAM    this->callbacksByInfoHash.at(infoHash)->sendAnnounce(A_STOPPED);
+        socketCallback->sendAnnounce(A_NORMAL);
+./src/controller/ClientController.cc
+        // Send the scheduled message directly to the swarm manager module
+        sendDirect(msg, swarmManager, "userCommand");
+./src/tracker/messages/AnnounceResponseMsg_m.cc
+./src/tracker/messages/AnnounceRequestMsg_m.cc
+./src/tracker/other/PeerInfo.cc
+./src/tracker/connection/PeerConnectionThread.cc
+        this->sock->send(response);
+./src/tracker/TrackerApp.cc
