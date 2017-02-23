@@ -202,6 +202,7 @@ public:
     void finishDownload();
     //@}
 private:
+
     /*!
      * Declare PeerWireThread a friend of  BitTorrentClient, since their
      * behavior are intimately connected.

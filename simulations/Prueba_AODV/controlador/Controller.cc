@@ -1,6 +1,6 @@
 
 
-#include "ClientController.h"
+#include "Controller.h"
 
 //EAM :: #include <IPAddressResolver.h>
 #include <IPvXAddressResolver.h>
@@ -9,10 +9,10 @@
 #include <boost/lexical_cast.hpp>
 #include <ctopology.h>
 
-#include "SwarmManager.h"
+//#include "SwarmManager.h"
 #include "UserCommand_m.h"
 
-Define_Module(ClientController);
+Define_Module(Controller);
 
 // helper functions in anonymous workspace
 namespace {
@@ -22,9 +22,9 @@ EnterSwarmCommand createDefaultControlInfo(
         IPvXAddress const& trackerAddress, int trackerPort) {
     // these parameters are default for all announce messages sent
     EnterSwarmCommand enterSwarmCommand;
-    enterSwarmCommand.setTorrentMetadata(torrentMetadata);
-    enterSwarmCommand.setTrackerAddress(trackerAddress);
-    enterSwarmCommand.setTrackerPort(trackerPort);
+//    enterSwarmCommand.setTorrentMetadata(torrentMetadata);
+//    enterSwarmCommand.setTrackerAddress(trackerAddress);
+//    enterSwarmCommand.setTrackerPort(trackerPort);
 
     return enterSwarmCommand;
 }
@@ -46,14 +46,14 @@ cMessage * createAnnounceMsg(EnterSwarmCommand const& defaultControlInfo,
 }
 
 //! Schedule the announce messages to all BitTorrent applications.
-void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
+void scheduleStartMessages(Controller * self, simtime_t const& startTime,
         simtime_t const& interarrivalTime, long const numSeeders,
         EnterSwarmCommand const& defaultControlInfo) {
     cTopology topo;
     topo.extractByProperty("peer");
 
     simtime_t enterTime = startTime;
-
+    /*
     for (int i = 0; i < topo.getNumNodes(); ++i) {
         SwarmManager * swarmManager = check_and_cast<SwarmManager *>(
                 topo.getNode(i)->getModule()->getSubmodule("swarmManager"));
@@ -80,49 +80,51 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
 //            //EAM :: enterTime += exponential(interarrivalTime);
         }
 //        enterTime += exponential(interarrivalTime);
-    }
+    }*/
 }
 }
 // cListener
-void ClientController::receiveSignal(cComponent *source, simsignal_t signalID,
+void Controller::receiveSignal(cComponent *source, simsignal_t signalID,
         long l) {
 
 }
 // public methods
-ClientController::ClientController() :
+Controller::Controller() :
         debugFlag(false) {
 }
 
-ClientController::~ClientController() {
+Controller::~Controller() {
 }
 
-void ClientController::emitEnterTime(simtime_t enterTime) {
+void Controller::emitEnterTime(simtime_t enterTime) {
     emit(this->enterTime_Signal, enterTime);
 }
 
 // Private methods
-int ClientController::numInitStages() const {
+int Controller::numInitStages() const {
     return 4;
 }
 
 // Starting point of the simulation
-void ClientController::initialize(int stage) {
+void Controller::initialize(int stage) {
     if (stage == 0) {
         this->enterTime_Signal = registerSignal(
-                "ClientController_EnterTimeSignal");
+                "Controller_EnterTimeSignal");
     } else if (stage == 3) {
-        // get the parameters
+        int numSeeders = par("numSeeders").longValue();
+        /* get the parameters
         std::string sTrackerAddress = par("trackerAddress").stringValue();
         int trackerPort = par("trackerPort").longValue();
         bool debugFlag = par("debugFlag").boolValue();
-        int numSeeders = par("numSeeders").longValue();
+
         simtime_t startTime = par("startTime").doubleValue();
         cXMLElement * profile = par("profile").xmlValue();
-
+        */
         // verify parameters
         if (numSeeders < 1) {
             throw cException("The number of seeders must be larger than 1");
         }
+        /*
         cXMLElementList contentList = profile->getChildrenByTagName("content");
         if (contentList.empty()) {
             throw cException("List of contents is empty. Check the xml file");
@@ -170,37 +172,38 @@ void ClientController::initialize(int stage) {
         this->numNodesTotal = topo.getNumNodes() - numSeeders;
         std::cerr << "Numero de sanguijuelas :: " << this->numNodesTotal << "\n";
         this->updateStatusString();
+        */
     }
 }
 // Private methods
-void ClientController::printDebugMsg(std::string s) {
+void Controller::printDebugMsg(std::string s) {
     if (this->debugFlag) {
         // debug "header"
         std::cerr << simulation.getEventNumber() << " (T=";
-        std::cerr << simulation.getSimTime() << ")(ClientController) - ";
+        std::cerr << simulation.getSimTime() << ")(Controller) - ";
         //EAM :: std::cerr << "Peer " << this->localPeerId << ": ";
         std::cerr << s << "\n";
     }
 }
-void ClientController::updateStatusString() {
+void Controller::updateStatusString() {
     if (ev.isGUI()) {
 //        std::ostringstream out;
 //        out << "peerId: " << this->localPeerId;
 //        getDisplayString().setTagArg("t", 0, out.str().c_str());
     }
 }
-void ClientController::subscribeToSignals() {
+void Controller::subscribeToSignals() {
     subscribe("ContentManager_BecameSeeder", this);
 }
 
-void ClientController::endUserDownload(cMessage *msg)
+void Controller::endUserDownload(cMessage *msg)
 {
     if(msg->getKind() == 333){ //Tipo de dato con el identificador para terminar la simulación
         std::string *newSeed = static_cast<std::string *>(msg->getContextPointer());
         if(newSeed != NULL)
             std::cerr << "Datos de la nueva semilla :: " << newSeed <<"\n";
         this->endPeerDownload++;
-        std::cerr << "[clientController]* Pares que reportan descarga completa :: "<< this->endPeerDownload << " \n";
+        std::cerr << "[Controller]* Pares que reportan descarga completa :: "<< this->endPeerDownload << " \n";
         if(this->endPeerDownload >= this->numNodesTotal){
             std::cerr << "*** Termina simulación [Condición de finalización aceptada]! \n";
             endSimulation();
@@ -216,7 +219,7 @@ void ClientController::endUserDownload(cMessage *msg)
 // TODO make creation of Peers dynamic? Research memory consumption gains
 // TODO add stopTimer (to tell when the Client will leave the swarm)
 // TODO add seedTimer (to tell how long the Client will be seeding). Maybe utilize the stopTimer.
-void ClientController::handleMessage(cMessage *msg) {
+void Controller::handleMessage(cMessage *msg) {
     if (msg->arrivedOn("userController")) {
         this->endUserDownload(msg);
     }else{

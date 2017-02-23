@@ -81,7 +81,12 @@ BitTorrentClient::~BitTorrentClient() {
 // Method used by the SwarmManager::SwarmModules
 void BitTorrentClient::addUnconnectedPeers(int infoHash,
     UnconnectedList & peers) {
-
+    /*The macro should be put at the top of every module member function
+     * that may be called from other modules. This macro arranges to
+     * temporarily switch the context to the called module (the old context
+     * will be restored automatically when the method returns),
+     * and also lets the graphical user interface animate the method call.
+     */
     Enter_Method("addUnconnectedPeers(infoHash: %d, qtty: %d)", infoHash,peers.size());
     Swarm & swarm = this->getSwarm(infoHash);
 
@@ -530,7 +535,7 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
         // If more than half of the active slots is unoccupied, ask for more peers
         //*EAM :: if (swarm.numActive < this->numActiveConn / 2) {
         //*EAM ::    this->swarmManager->askMorePeers(infoHash);
-        //*EAM :: }
+        //*EAM :: } *** Lista de pares no seleccionados al azar!!!
     }
 }
 /*!
@@ -905,13 +910,11 @@ void BitTorrentClient::initialize(int stage) {
         //Arreglo de pares presentes en la simulación
         // Test if Tracker has this content -> especificamos el hash del contenido digital a compartir
         this->numberOfPeers = par("numberOfPeers");
-
+        int peerId;
         std::string opt;
         std::ostringstream numNode;
-        int peerId;
-        int port = 6881;
 
-        int peerIdActual = this->getParentModule()->getParentModule()->getId();
+
         // get all the pointers to the PeerInfo objects, except for self
         for(int i=0; i< this->numberOfPeers; i++){
             opt = std::string("peer[");
@@ -919,8 +922,8 @@ void BitTorrentClient::initialize(int stage) {
             opt.append(numNode.str());
             opt.append("]");
             peerId = simulation.getModuleByPath(opt.c_str())->getId();
-            if (peerIdActual != peerId){
-                PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),port);
+            if (this->localPeerId != peerId){
+                PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort);
                 // the size of the peerList minus self
                 this->peers_aux.push_back(peer);
             }
@@ -941,8 +944,8 @@ void BitTorrentClient::initialize(int stage) {
             peers.push_back(peer);
             //EAM :: i++;
         }
-        //Destruimos el vector auxiliar
-        peers_aux.~vector();
+        //Destruimos el vector auxiliar :( [Error]
+        //peers_aux.~vector();
 
     }
 }
@@ -953,7 +956,10 @@ void BitTorrentClient::finishDownload()
 
     ClientController * clientController = check_and_cast<ClientController *>(topo.getNode(0)->getModule());
     //topo.getNode(0)->getModule()->getSubmodule("clientController"));
-    cMessage *data = new cMessage("end");
+    std::ostringstream seed;
+    seed << this->localPeerId << "-" << this->localIp << "-" << this->localPort;
+
+    cMessage *data = new cMessage(seed.str().c_str());
     data->setKind(333);
     sendDirect(data, clientController, "userController");
 
