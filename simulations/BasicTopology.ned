@@ -85,15 +85,15 @@ network BasicTopology extends BasicNetwork
         @statistic[EnterSwarm](source=SwarmManager_EnterSwarm; title="Enter Swarm Time"; record=vector; );
         @statistic[LeaveSwarm](source=SwarmManager_LeaveSwarm; title="Leave Swarm Time"; record=vector; );
         @statistic[SwarmEmittedPeerId](source=SwarmManager_EmittedPeerId; title="Peer Swarm Signal Emitted"; record=vector; );
-//
-//                @signal[ContentManager_BecameSeeder];
-//                @signal[ContentManager_PieceDownloadTime];
-//                @signal[ContentManager_PieceDownloaded];
-//                @signal[ContentManager_TotalBytesDownloaded];
-//                @signal[ContentManager_TotalBytesUploaded];
-//                @signal[ContentManager_25_percentDownloadTime];
-//                @signal[ContentManager_50_percentDownloadTime];
-//                @signal[ContentManager_75_percentDownloadTime];
+
+                @signal[ContentManager_BecameSeeder];
+                @signal[ContentManager_PieceDownloadTime];
+                @signal[ContentManager_PieceDownloaded];
+                @signal[ContentManager_TotalBytesDownloaded];
+                @signal[ContentManager_TotalBytesUploaded];
+                @signal[ContentManager_25_percentDownloadTime];
+                @signal[ContentManager_50_percentDownloadTime];
+                @signal[ContentManager_75_percentDownloadTime];
         @signal[ContentManager_100_percentDownloadTime];
         @statistic[DownloadComplete](source=ContentManager_100_percentDownloadTime; title="Download Complete"; unit=s; record=vector,histogram);
         @signal[ContentManager_EmittedPeerId];

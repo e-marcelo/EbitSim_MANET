@@ -253,7 +253,7 @@ void ClientController::endUserDownload(cMessage *msg)
         std::cerr << "[clientController]* Pares que reportan descarga completa :: "<< this->endPeerDownload << " \n";
         if(this->endPeerDownload >= this->numNodesTotal){
             std::cerr << "*** Termina simulación [Condición de finalización aceptada]! \n";
-            endSimulation();
+            endSimulation(); //Esperamos que el histograma se guarde por defecto (en el tiempo establecido)
         }
         //Enviar a todos la información de la nueva semilla (como en la inicialización, con un código diferente)
         //Envio a todos menos a las semillas previas y la actual -> Revisar el comportamiento del tracker original
