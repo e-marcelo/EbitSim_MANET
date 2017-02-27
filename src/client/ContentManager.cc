@@ -357,7 +357,7 @@ ContentManager::~ContentManager() {
     delete this->tokenBucket;
 
 // EAM :: #endif
-    delete this->tokenBucket; //<- Posible error
+//    delete this->tokenBucket; //<- Posible error
 }
 
 void ContentManager::addEmptyBitField(int peerId) {
@@ -655,7 +655,7 @@ void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
                 this->printDebugMsg("Became a seeder");
 #endif
 
-                std::cerr << "- Became a seeder :: " << this->localPeerId << "\n";
+//                std::cerr << "- Became a seeder :: " << this->localPeerId << "\n";
                 // warn the tracker
                 this->bitTorrentClient->finishedDownload(this->infoHash);
             }

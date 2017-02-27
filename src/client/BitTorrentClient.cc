@@ -187,8 +187,7 @@ void BitTorrentClient::unchokePeer(int infoHash, int peerId) {
 void BitTorrentClient::closeConnection(int infoHash, int peerId) const {
     Enter_Method("closeConnection(infoHash: %d, peerId: %d)", infoHash, peerId);
 //
-//    this->getPeerStatus(infoHash, peerId).getThread()->sendApplicationMessage(
-//        APP_CLOSE); //<---
+    this->getPeerStatus(infoHash, peerId).getThread()->sendApplicationMessage(APP_CLOSE); //<---
 }
 void BitTorrentClient::finishedDownload(int infoHash) {
     Enter_Method("finishedDownload(infoHash: %d)", infoHash);
@@ -302,14 +301,16 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     swarm.closing = false;
     swarm.choker = static_cast<Choker*>(choker);
     swarm.contentManager = static_cast<ContentManager*>(contentManager);
+    //Identificador del contenido a compartir
+    this->infoHash_ = infoHash;
     //Referencia al identificador gráfico del nodo en la GUI
     this->idDisplay = idDisplay;
     //EAM :: std::cerr << "[***] Pares en la lista" << peers.size() << "\n";
     //Iniciamos la descarga, obviando la consulta que previamente se realizaba consultando al Tracker.
+
     if (peers.size()) {
-        std::cerr << "***[Inicio] Lista peers :: " << peers.size() << "\n";
+//        std::cerr << "***[Enjambre] Lista peers :: " << peers.size() << "\n";
 //        std::list<PeerConnInfo> listPeers;
-//
 //        std::memcpy(&peers,&listPeers,peers.size());
         this->addUnconnectedPeers(infoHash, peers);
     }
@@ -504,7 +505,7 @@ void BitTorrentClient::setSnubbed(bool snubbed, int infoHash, int peerId) {
 void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
     const PeerMap & peerMap = swarm.peerMap;
     // only make active connections if not seeding
-    std::cerr << "Soy el par ::" << this->localPeerId << "\n";
+//    std::cerr << "Soy el par ::" << this->localPeerId << "\n";
     if (!(swarm.seeding || swarm.closing)) {
         UnconnectedList & unconnectedList = swarm.unconnectedList;
 
@@ -515,6 +516,9 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
             for (int i = intrand(unconnectedList.size()); i > 0; --i) {
                 ++it;
             }
+//            if(unconnectedList.size() == 2){
+//                std::cerr << "Lista casi vacia :: " << this->localPeerId << "\n";
+//            }
             PeerConnInfo const& peer = *it;
             int peerId = peer.get<0>();
             bool notConnected = !peerMap.count(peerId);
@@ -529,15 +533,16 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
                 this->activeConnectedPeers.insert(
                     std::make_pair(infoHash, peerId));
             }
-            peers_swap.push_back(peer);
+//          peers_swap.push_back(peer);
             unconnectedList.erase(it);// Evitamos eliminar la lista de pares que se requieren posteriormente
-            std::cerr<< "Tamaño de la lista :: " << unconnectedList.size() << "\n";
+
+//            std::cerr<< "Tamaño de la lista :: " << unconnectedList.size() << "\n";
             //Tamaño de la lista
         }
 
         // Either the active slots are full or the unconnected list is empty
         // If more than half of the active slots is unoccupied, ask for more peers
-        if (swarm.numActive < this->numActiveConn / 2) {
+        if (swarm.numActive < this->numActiveConn / 2/*unconnectedList.empty()*/) {
             askMoreUnconnectedPeers(infoHash);
         }
     }
@@ -777,6 +782,7 @@ void BitTorrentClient::removeThread(PeerWireThread *thread) {
     int peerId = thread->remotePeerId;
 
     SwarmMap::iterator it = this->swarmMap.find(infoHash);
+    Swarm & swarm = it->second;
 
     // The connection was established, so decrement the connection counter
     if (it != this->swarmMap.end()) {
@@ -791,6 +797,7 @@ void BitTorrentClient::removeThread(PeerWireThread *thread) {
             --swarm.numPassive;
         }
     }
+
 
     // remove socket from the map and delete the thread.
     TCPSrvHostApp::removeThread(thread);
@@ -918,9 +925,9 @@ void BitTorrentClient::initialize(int stage) {
         std::string opt;
         std::ostringstream numNode;
         int peerId;
-        int port = 6881;
 
-        int peerIdActual = this->getParentModule()->getParentModule()->getId();
+
+
         // get all the pointers to the PeerInfo objects, except for self
         for(int i=0; i< this->numberOfPeers; i++){
             opt = std::string("peer[");
@@ -929,31 +936,17 @@ void BitTorrentClient::initialize(int stage) {
             opt.append("]");
             peerId = simulation.getModuleByPath(opt.c_str())->getId();
 
-            if (peerIdActual != peerId){
-                PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),port);
+            if (this->localPeerId != peerId){
+                PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort);
                 // the size of the peerList minus self
                 this->peers_aux.push_back(peer);
             }
             opt.clear();
             numNode.str("");
         }
-        //Lista de pares no seleccionados
-        int tam = peers_aux.size();
-        // random shuffle the return list || Generador por defecto
-        std::random_shuffle(peers_aux.begin(), peers_aux.end(), intrand);
-        // throw away the extra pointers.
-        if (numberOfPeers > numWant) {
-            for(int i = numWant; i<tam; i++ )
-                peers_extra.push_back(peers_aux.at(i));
-            peers_aux.resize(numWant);
-        }
-        std::cerr << "***[Inicio] Lista extra :: " << peers_extra.size() << "\n";
-//        getPeerUnconnected(peers_aux, peers);
-        BOOST_FOREACH(PeerConnInfo peer, peers_aux){
-                //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
-                peers.push_back(peer);
-                //EAM :: i++;
-        }
+
+        //Lista con pares aleatorios
+        selectListPeersRandom();
 
 //        if(peerIdActual == 6){
 //            std::cerr << "Lista de pares a contactar :: \t";
@@ -1037,31 +1030,68 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
     #ifdef DEBUG_MSG
         this->printDebugMsg("Ask for more peers for swarm " + toStr(infoHash));
     #endif
-    //Es posible actualizar la lista de pares disponibles con los pares que se convierten en semillas*
-    if(opt_peers){
-        std::cerr << "*** Lista extra :: " << peers_extra.size() << "\n";
-        //Lista con los pares designados al inicio de la simulación
-        std::copy(peers.begin(),peers.end(),
-                std::back_insert_iterator<std::list<PeerConnInfo>>(peers_swap));
-        //Agregamos pares no seleccionados al inicio de la simulación
-        if (peers_extra.size()){
-            peers_swap.clear();
-            this->addUnconnectedPeers(infoHash, peers_extra);
-        }
+//    //Es posible actualizar la lista de pares disponibles con los pares que se convierten en semillas*
+//    if(opt_peers){
+//        std::cerr << "*** Lista extra :: " << peers_extra.size() << "\n";
+//        //Lista con los pares designados al inicio de la simulación
+//        std::copy(peers.begin(),peers.end(),
+//                std::back_insert_iterator<std::list<PeerConnInfo>>(peers_swap));
+//        //Agregamos pares no seleccionados al inicio de la simulación
+//        if (peers_extra.size()){
+//            peers_swap.clear();
+//            this->addUnconnectedPeers(infoHash, peers_extra);
+//        }
+//
+//    }else{
+//
+//        std::cerr << "*** Lista peers :: " << peers.size() << "\n";
+//        std::copy(peers_extra.begin(),peers_extra.end(),
+//                            std::back_insert_iterator<std::list<PeerConnInfo>>(peers_swap));
+//        if (peers.size()){
+//            peers_swap.clear();
+//            this->addUnconnectedPeers(infoHash, peers);
+//            //Lista con los pares designados al inicio de la simulación
+//        }
+//
+//    }
+//    opt_peers = !opt_peers;
+      selectListPeersRandom();
+      if(this->peers.size()){
+//          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
+          addUnconnectedPeers(infoHash, this->peers);
+      }
+}
 
+void BitTorrentClient::selectListPeersRandom()
+{
+    // random shuffle the return list || Generador por defecto
+    std::random_shuffle(peers_aux.begin(), peers_aux.end(), intrand);
+    // throw away the extra pointers.
+    //Limpiamos contenedor
+    peers_swap.clear();
+    //Es posible que requiera una validación (al menos 1 par debe ser solicitado y menos del tamaño de los lista peers_aux)
+    if(this->numWant < this->numberOfPeers ){
+        for(int i = 0; i<(this->numWant); i++ ){
+            peers_swap.push_back(peers_aux.at(i));
+        }
     }else{
-
-        std::cerr << "*** Lista peers :: " << peers.size() << "\n";
-        std::copy(peers_extra.begin(),peers_extra.end(),
-                            std::back_insert_iterator<std::list<PeerConnInfo>>(peers_swap));
-        if (peers.size()){
-            peers_swap.clear();
-            this->addUnconnectedPeers(infoHash, peers);
-            //Lista con los pares designados al inicio de la simulación
+        BOOST_FOREACH(PeerConnInfo peer, peers_aux){
+           //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
+            peers_swap.push_back(peer);
+           //EAM :: i++;
         }
-
     }
-    opt_peers = !opt_peers;
+    //Cambio en el orden anterior
+    std::random_shuffle(peers_swap.begin(), peers_swap.end(), intrand);
+    //Limpiamos contenedor
+    peers.clear();
+    //Asignamos los pares solicitados
+    BOOST_FOREACH(PeerConnInfo peer, peers_swap){
+       //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
+       peers.push_back(peer);
+       //EAM :: i++;
+    }
+//    std::cerr << "***[Inicio] Lista de pares :: " << peers.size() << "\n";
 
 }
 
@@ -1076,17 +1106,17 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
                 socket = new TCPSocket(msg);
                 socket->readDataTransferModePar(*this);
                 //EAM* :: socket->setDataTransferMode(TCP_TRANSFER_OBJECT);
-
                 this->createThread(socket, -1, -1);
             } else {
                 // ignore message
-                std::ostringstream out;
-                out << "Message " << msg->getName()
-                    << " don't belong to any socket";
+//                std::ostringstream out;
+//                out << "Message " << msg->getName()
+//                    << " don't belong to any socket";
 
                 delete msg;
                 msg = NULL;
-                printf("\nError lógico.");
+                std::cerr << "\nError lógico"; //<- Acción no contemplada
+                //Solicitamos más pares para contactar
                 //throw std::logic_error(out.str());
             }
         }
@@ -1095,12 +1125,12 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
 //        this->peerWireStatistics(msg);
 //        socket->processMessage(msg);
 //        socket->getState();
-        std::cerr << msg <<" <-- ***\n";
+//        std::cerr << msg <<" <-- ***\n";
         if(msg != NULL){
-            if(msg->getKind() == TCP_I_TIMED_OUT || msg->getKind() == TCP_I_CONNECTION_REFUSED || msg->getKind() == TCP_I_CONNECTION_RESET){
-                std::cerr << "Error TCP detectado ! Peer :: [ " << this->localPeerId << "]\n";
+            if(!(msg->getKind() == TCP_I_TIMED_OUT || msg->getKind() == TCP_I_CONNECTION_REFUSED || msg->getKind() == TCP_I_CONNECTION_RESET)){
+//                std::cerr << "Error TCP detectado ! Peer :: [ " << this->localPeerId << "]\n";
                 //            //EAM :: delete msg;
-            }else{
+//            }else{
 //                // statistics about the PeerWireMsgs
                 //            //EAM :: this->peerWireStatistics(msg,false);
                 this->peerWireStatistics(msg);

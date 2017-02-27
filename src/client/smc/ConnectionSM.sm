@@ -126,6 +126,9 @@ Exit
     tcpPassiveConnection
         WaitHandshake
             {}
+	localClose
+        LocalClosed
+            {}
 }
 
 HandshakeSent
@@ -148,8 +151,8 @@ Entry {
                 sendPeerWireMsg(ctxt.getBitFieldMsg());
             }
     timeout
-        Closed
-	   {}
+     	ClosingConnection  
+        {}
 }
 
 WaitHandshake
@@ -174,11 +177,13 @@ Entry {
                 sendPeerWireMsg(ctxt.getHandshake());
                 sendPeerWireMsg(ctxt.getBitFieldMsg());
             }
-    
+    timeout
+    	ClosingConnection  
+         {}
 }
 Connected
 Entry {
-    printDebugMsg("connSM - Connected");
+	printDebugMsg("connSM - Connected");
     startMachines();
     connected();
     startHandshakeTimers();
@@ -210,9 +215,11 @@ Exit {
                 renewKeepAliveTimer(); // sent a PeerWireMsg
             }
     timeout
-        Closed
-	   {}
-    
+        nil
+            {
+                sendPeerWireMsg(ctxt.getKeepAliveMsg());
+                renewKeepAliveTimer(); // sent a PeerWireMsg
+            }
     applicationClose
         ClosingConnection
             {}
@@ -249,6 +256,9 @@ Entry {
 	remoteClose
         Closed
             {}
+    timeout //Cambio por atender *
+    	nil
+            {}
 }
 
 RemoteClosed
@@ -268,7 +278,7 @@ Entry {
 Closed
 Entry {
     printDebugMsg("connSM - Closed");
-    removeFromSwarm();
+    removeFromSwarm();// <-- Comporamiento no deseado durante la descarga
 }
 {
 }
@@ -289,8 +299,5 @@ Default
     			stopHandshakeTimers();
     			closeLocalConnection();
             }
-    timeout
-        Closed
-	   {}
 }
 %%

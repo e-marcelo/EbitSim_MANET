@@ -251,7 +251,9 @@ private:
     void setSnubbed(bool snubbed, int infoHash, int peerId);
     //@}
 private:
-    bool opt_peers = true;
+    void selectListPeersRandom();
+//    bool opt_peers = true;
+    int infoHash_ = -1;
     //!@name Pointers to other modules
     //@{
     SwarmManager *swarmManager;
@@ -362,8 +364,8 @@ private:
     // get list of Peers returned by the tracker and tell the
     // BitTorrentClient to connect with them.
     std::list<PeerConnInfo> peers;
-    std::list<PeerConnInfo> peers_extra;
-    std::list<PeerConnInfo> peers_swap;
+
+    std::vector<PeerConnInfo> peers_swap;
     std::vector<PeerConnInfo> peers_aux;
     // Private Methods
     void getPeerUnconnected(std::vector <PeerConnInfo> vec, std::list<PeerConnInfo> peers);

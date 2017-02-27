@@ -86,7 +86,6 @@ public:
     virtual void incomingPeerWireMsg(ConnectionSMContext& context);
     virtual void keepAliveTimer(ConnectionSMContext& context);
     virtual void remoteClose(ConnectionSMContext& context);
-    virtual void timeout(ConnectionSMContext& context);
 };
 
 class ConnectionMap_Unconnected :
@@ -98,6 +97,7 @@ public:
     {};
 
     virtual void Exit(ConnectionSMContext&);
+    virtual void localClose(ConnectionSMContext& context);
     virtual void tcpActiveConnection(ConnectionSMContext& context);
     virtual void tcpPassiveConnection(ConnectionSMContext& context);
 };
@@ -125,6 +125,7 @@ public:
 
     virtual void Entry(ConnectionSMContext&);
     virtual void handshakeMsg(ConnectionSMContext& context, Handshake const& hs);
+    virtual void timeout(ConnectionSMContext& context);
 };
 
 class ConnectionMap_Connected :
@@ -169,6 +170,7 @@ public:
     virtual void Entry(ConnectionSMContext&);
     virtual void applicationClose(ConnectionSMContext& context);
     virtual void remoteClose(ConnectionSMContext& context);
+    virtual void timeout(ConnectionSMContext& context);
 };
 
 class ConnectionMap_RemoteClosed :

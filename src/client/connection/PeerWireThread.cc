@@ -86,25 +86,25 @@ void PeerWireThread::established() {
 //Redefinimos comportamiento para hacer algo ante el error en el comportamiento del socket ***
 void PeerWireThread::failure(int code) {
 //#ifdef DEBUG_MSG
-//    std::ostringstream out;
-//    out << "Connection failure - ";
-    switch (code) {
-    case TCP_I_CONNECTION_REFUSED:
-        std::cerr << "[PeerWireThread] TCP connection failure :: refused\n";
-//        out << "refused";
-        break;
-    case TCP_I_CONNECTION_RESET:
-        std::cerr << "[PeerWireThread] TCP connection failure :: reset\n";
-//        out << "reset";
-        break;
-    case TCP_I_TIMED_OUT:
-        std::cerr << "[PeerWireThread] TCP connection failure :: time out :: "<< this->btClient->localPeerId << " ---> " << this->getSocket()->getRemoteAddress() <<"\n";
-        //out << "Basura -> timed out";
-//        finishProcessing();
-        //Puedo solicitar más pares
-//        btClient->swarmManager->askMorePeers(20);
-        break;
-    }
+////    std::ostringstream out;
+////    out << "Connection failure - ";
+//    switch (code) {
+//    case TCP_I_CONNECTION_REFUSED:
+//        std::cerr << "[PeerWireThread] TCP connection failure :: refused\n";
+////        out << "refused";
+//        break;
+//    case TCP_I_CONNECTION_RESET:
+//        std::cerr << "[PeerWireThread] TCP connection failure :: reset\n";
+////        out << "reset";
+//        break;
+//    case TCP_I_TIMED_OUT:
+//        std::cerr << "[PeerWireThread] TCP connection failure :: time out :: "<< this->btClient->localPeerId << " ---> " << this->getSocket()->getRemoteAddress() <<"\n";
+//        //out << "Basura -> timed out";
+////        finishProcessing();
+//        //Puedo solicitar más pares
+////        btClient->swarmManager->askMorePeers(20);
+//        break;
+//    }
 //    this->printDebugMsg(out.str());
 //#endif
     //EAM :: throw std::logic_error
@@ -115,6 +115,12 @@ void PeerWireThread::failure(int code) {
 //        this->btClient->askMoreUnconnectedPeers(this->infoHash);
 //        this->error_count = 0;
 //    }
+//    selectListPeersRandom();
+//                    if(this->peers.size()){
+//    //                        std::cerr << "[Error lógico] Nueva lista de pares :: " << this->peers.size()<< "\n";
+//                            addUnconnectedPeers(this->infoHash_, this->peers);
+//
+//                    }
     //Terminamos la ejecución del hilo de procesamiento
     this->terminating = true;
     finishProcessing();
@@ -402,30 +408,30 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
         delete msg;
         msg = NULL; // consume the message
     } catch (statemap::TransitionUndefinedException & e) {
-        std::cerr << "[A] Wrong type of message :: "<< msgId << "\n";
+//        std::cerr << "[A] Wrong type of message :: "<< msgId << "\n";
         delete msg;
         msg = NULL; // consume the message
-
-        std::ostringstream out;
-        out << e.what();
-        out << " - Transition " << e.getTransition();
-        out << " in state " << e.getState();
-        std::cerr << "\n[A]" << e.what() << " :: -Transition "<< e.getTransition() <<" in state :: "<< e.getState() <<"\n";
+//
+//        std::ostringstream out;
+//        out << e.what();
+//        out << " - Transition " << e.getTransition();
+//        out << " in state " << e.getState();
+        std::cerr << "\n * " << msgId << " | "<< e.what() << " | -Transition "<< e.getTransition() <<" in state -> "<< e.getState() <<"\n";
 //        printf("\n Error :: - Transition  in state *** ");
         //EAM :: throw cException(out.str().c_str());
     } catch (statemap::StateUndefinedException &e) {
-        std::cerr << "[B] Wrong type of message :: " << msgId << "\n";
-        std::cerr << e.what() << " - Transition " <<  msg->getName() << " called " << "\n";
-        std::ostringstream out;
-        out << e.what();
-        out << " - Transition " << msg->getName();
-        out << " called";
+//        std::cerr << "[B] Wrong type of message :: " << msgId << "\n";
+//        std::cerr << e.what() << " - Transition " <<  msg->getName() << " called " << "\n";
+//        std::ostringstream out;
+//        out << e.what();
+//        out << " - Transition " << msg->getName();
+//        out << " called";
 
         delete msg;
         msg = NULL;
 
-        std::cerr << "[B] Wrong type of message :: "<< msgId<< "\n";
-        std::cerr << "\n[B]" << e.what() << " :: -Transition "<< msg->getName() <<" :: called\n";
+        std::cerr << "** Wrong type of message :: "<< msgId<< " ??? [ " << e.what() << " ]";
+//        std::cerr << "\n[B]" << e.what() << " :: -Transition "<< msg->getName() <<" :: called\n";
 //        printf("\n Error :: - Transition  in state *** ");
 
         //throw cException(out.str().c_str());
@@ -433,7 +439,8 @@ void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
         delete msg;
         msg = NULL; // consume the message
         //throw std::logic_error
-        printf("Passed wrong argument to the state machine.");
+        std::cerr << "Passed wrong argument to the state machine.";
+//        printf("Passed wrong argument to the state machine.");
     }
 }
 void PeerWireThread::sendPeerWireMessage(cMessage * msg) {

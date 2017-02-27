@@ -365,7 +365,7 @@ void SwarmManager::finishedDownload(int infoHash) {
 //EAM    std::cerr << "SwarmManager :: socketCallback->sendAnnounce(A_COMPLETED) [-]  \n";
   //EAM ::bitTorrentClient->finishDownload();
 
-  std::cerr << "\n\t--->Became a seeder :: " <<  this->localPeerId << "\n";
+//  std::cerr << "\n\t--->Became a seeder :: " <<  this->localPeerId << "\n";
 //Retomar ::    emit(this->seederSignal, &data); Retomar señales
 
 }

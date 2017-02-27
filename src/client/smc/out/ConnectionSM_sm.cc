@@ -266,14 +266,22 @@ void ConnectionMap_Default::remoteClose(ConnectionSMContext& context)
 
 }
 
-void ConnectionMap_Default::timeout(ConnectionSMContext& context)
+void ConnectionMap_Unconnected::Exit(ConnectionSMContext& context)
+
+{
+    PeerWireThread& ctxt = context.getOwner();
+
+    ctxt.startHandshakeTimers();
+}
+
+void ConnectionMap_Unconnected::localClose(ConnectionSMContext& context)
 {
 
     if (context.getDebugFlag())
     {
         std::ostream& str = context.getDebugStream();
 
-        str << "LEAVING STATE   : ConnectionMap::Default"
+        str << "LEAVING STATE   : ConnectionMap::Unconnected"
                 << std::endl;
     }
 
@@ -282,7 +290,7 @@ void ConnectionMap_Default::timeout(ConnectionSMContext& context)
     {
         std::ostream& str = context.getDebugStream();
 
-        str << "ENTER TRANSITION: ConnectionMap::Default::timeout()"
+        str << "ENTER TRANSITION: ConnectionMap::Unconnected::localClose()"
             << std::endl;
     }
 
@@ -290,21 +298,13 @@ void ConnectionMap_Default::timeout(ConnectionSMContext& context)
     {
         std::ostream& str = context.getDebugStream();
 
-        str << "EXIT TRANSITION : ConnectionMap::Default::timeout()"
+        str << "EXIT TRANSITION : ConnectionMap::Unconnected::localClose()"
             << std::endl;
     }
 
-    context.setState(ConnectionMap::Closed);
+    context.setState(ConnectionMap::LocalClosed);
     context.getState().Entry(context);
 
-}
-
-void ConnectionMap_Unconnected::Exit(ConnectionSMContext& context)
-
-{
-    PeerWireThread& ctxt = context.getOwner();
-
-    ctxt.startHandshakeTimers();
 }
 
 void ConnectionMap_Unconnected::tcpActiveConnection(ConnectionSMContext& context)
@@ -514,7 +514,7 @@ void ConnectionMap_HandshakeSent::timeout(ConnectionSMContext& context)
             << std::endl;
     }
 
-    context.setState(ConnectionMap::Closed);
+    context.setState(ConnectionMap::ClosingConnection);
     context.getState().Entry(context);
 
 }
@@ -628,6 +628,39 @@ void ConnectionMap_WaitHandshake::handshakeMsg(ConnectionSMContext& context, Han
         }
         context.getState().Entry(context);
     }
+
+}
+
+void ConnectionMap_WaitHandshake::timeout(ConnectionSMContext& context)
+{
+
+    if (context.getDebugFlag())
+    {
+        std::ostream& str = context.getDebugStream();
+
+        str << "LEAVING STATE   : ConnectionMap::WaitHandshake"
+                << std::endl;
+    }
+
+    context.getState().Exit(context);
+    if (context.getDebugFlag())
+    {
+        std::ostream& str = context.getDebugStream();
+
+        str << "ENTER TRANSITION: ConnectionMap::WaitHandshake::timeout()"
+            << std::endl;
+    }
+
+    if (context.getDebugFlag())
+    {
+        std::ostream& str = context.getDebugStream();
+
+        str << "EXIT TRANSITION : ConnectionMap::WaitHandshake::timeout()"
+            << std::endl;
+    }
+
+    context.setState(ConnectionMap::ClosingConnection);
+    context.getState().Entry(context);
 
 }
 
@@ -819,6 +852,7 @@ void ConnectionMap_Connected::outgoingPeerWireMsg(ConnectionSMContext& context, 
 
 void ConnectionMap_Connected::timeout(ConnectionSMContext& context)
 {
+    PeerWireThread& ctxt = context.getOwner();
 
     if (context.getDebugFlag())
     {
@@ -828,7 +862,8 @@ void ConnectionMap_Connected::timeout(ConnectionSMContext& context)
                 << std::endl;
     }
 
-    context.getState().Exit(context);
+    ConnectionSMState& endState = context.getState();
+
     if (context.getDebugFlag())
     {
         std::ostream& str = context.getDebugStream();
@@ -837,16 +872,26 @@ void ConnectionMap_Connected::timeout(ConnectionSMContext& context)
             << std::endl;
     }
 
-    if (context.getDebugFlag())
+    context.clearState();
+    try
     {
-        std::ostream& str = context.getDebugStream();
+        ctxt.sendPeerWireMsg(ctxt.getKeepAliveMsg());
+        ctxt.renewKeepAliveTimer();
+        if (context.getDebugFlag())
+        {
+            std::ostream& str = context.getDebugStream();
 
-        str << "EXIT TRANSITION : ConnectionMap::Connected::timeout()"
-            << std::endl;
+            str << "EXIT TRANSITION : ConnectionMap::Connected::timeout()"
+                << std::endl;
+        }
+
+        context.setState(endState);
     }
-
-    context.setState(ConnectionMap::Closed);
-    context.getState().Entry(context);
+    catch (...)
+    {
+        context.setState(endState);
+        throw;
+    }
 
 }
 
@@ -1024,6 +1069,36 @@ void ConnectionMap_LocalClosed::remoteClose(ConnectionSMContext& context)
 
     context.setState(ConnectionMap::Closed);
     context.getState().Entry(context);
+
+}
+
+void ConnectionMap_LocalClosed::timeout(ConnectionSMContext& context)
+{
+
+    if (context.getDebugFlag())
+    {
+        std::ostream& str = context.getDebugStream();
+
+        str << "LEAVING STATE   : ConnectionMap::LocalClosed"
+                << std::endl;
+    }
+
+    if (context.getDebugFlag())
+    {
+        std::ostream& str = context.getDebugStream();
+
+        str << "ENTER TRANSITION: ConnectionMap::LocalClosed::timeout()"
+            << std::endl;
+    }
+
+    if (context.getDebugFlag())
+    {
+        std::ostream& str = context.getDebugStream();
+
+        str << "EXIT TRANSITION : ConnectionMap::LocalClosed::timeout()"
+            << std::endl;
+    }
+
 
 }
 
