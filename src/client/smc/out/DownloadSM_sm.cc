@@ -305,6 +305,7 @@ void DownloadMap_Default::haveMsg(DownloadSMContext& context, HaveMsg const& msg
     }
     catch (...)
     {
+        std::cerr << "DownloadSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -443,6 +444,7 @@ void DownloadMap_NotInterestedChoked::bitFieldMsg(DownloadSMContext& context, Bi
     }
     catch (...)
     {
+        std::cerr << "+DownloadSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -676,6 +678,7 @@ void DownloadMap_InterestedChoked::pieceMsg(DownloadSMContext& context, PieceMsg
     }
     catch (...)
     {
+        std::cerr << "**DownloadSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -719,6 +722,7 @@ void DownloadMap_InterestedChoked::unchokeMsg(DownloadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "+++DownloadSM, exception \n";
         context.setState(DownloadMap::InterestedUnchoked);
         throw;
     }
@@ -805,6 +809,7 @@ void DownloadMap_NotInterestedUnchoked::peerInteresting(DownloadSMContext& conte
     }
     catch (...)
     {
+        std::cerr << "---DownloadSM, exception \n";
         context.setState(DownloadMap::InterestedUnchoked);
         throw;
     }
@@ -850,6 +855,7 @@ void DownloadMap_NotInterestedUnchoked::pieceMsg(DownloadSMContext& context, Pie
     }
     catch (...)
     {
+        std::cerr << "+-DownloadSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -942,6 +948,7 @@ void DownloadMap_InterestedUnchoked::chokeMsg(DownloadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "+-+-DownloadSM, exception \n";
         context.setState(DownloadMap::InterestedChoked);
         throw;
     }
@@ -988,6 +995,7 @@ void DownloadMap_InterestedUnchoked::downloadRateTimer(DownloadSMContext& contex
     }
     catch (...)
     {
+        std::cerr << "+-+-+-+--DownloadSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -1079,6 +1087,7 @@ void DownloadMap_InterestedUnchoked::pieceMsg(DownloadSMContext& context, PieceM
     }
     catch (...)
     {
+        std::cerr << "/// DownloadSM, exception \n";
         context.setState(endState);
         throw;
     }

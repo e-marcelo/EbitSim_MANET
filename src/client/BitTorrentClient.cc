@@ -505,6 +505,7 @@ void BitTorrentClient::setSnubbed(bool snubbed, int infoHash, int peerId) {
 void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
     const PeerMap & peerMap = swarm.peerMap;
     // only make active connections if not seeding
+    //¿Cómo alterar la condición del número de slots activos?
 //    std::cerr << "Soy el par ::" << this->localPeerId << "\n";
     if (!(swarm.seeding || swarm.closing)) {
         UnconnectedList & unconnectedList = swarm.unconnectedList;
@@ -1147,6 +1148,7 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
             PeerWireThread * thread =
                 static_cast<PeerWireThread *>(msg->getContextPointer());
             this->removeThread(thread);
+
             delete msg;
 
         } else {

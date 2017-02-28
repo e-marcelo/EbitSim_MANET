@@ -197,6 +197,7 @@ void UploadMap_Default::sendPieceMsg(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "UploadSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -240,6 +241,7 @@ void UploadMap_Default::stopMachine(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "+UploadSM, exception \n";
         context.setState(UploadMap::Stopped);
         throw;
     }
@@ -324,6 +326,7 @@ void UploadMap_Stopped::Default(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "*UploadSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -409,6 +412,7 @@ void UploadMap_NotInterestingChoking::interestedMsg(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "**UploadSM, exception \n";
         context.setState(UploadMap::InterestingChoking);
         throw;
     }
@@ -453,6 +457,7 @@ void UploadMap_NotInterestingChoking::unchokePeer(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "***UploadSM, exception \n";
         context.setState(UploadMap::NotInterestingUnchoking);
         throw;
     }
@@ -505,6 +510,7 @@ void UploadMap_InterestingChoking::notInterestedMsg(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "---UploadSM, exception \n";
         context.setState(UploadMap::NotInterestingChoking);
         throw;
     }
@@ -550,6 +556,7 @@ void UploadMap_InterestingChoking::requestMsg(UploadSMContext& context, RequestM
     }
     catch (...)
     {
+        std::cerr << "+++UploadSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -593,6 +600,7 @@ void UploadMap_InterestingChoking::unchokePeer(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "*-UploadSM, exception \n";
         context.setState(UploadMap::InterestingUnchoking);
         throw;
     }
@@ -645,6 +653,7 @@ void UploadMap_NotInterestingUnchoking::chokePeer(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "/*-UploadSM, exception \n";
         context.setState(UploadMap::NotInterestingChoking);
         throw;
     }
@@ -690,6 +699,7 @@ void UploadMap_NotInterestingUnchoking::interestedMsg(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "+-+-UploadSM, exception \n";
         context.setState(UploadMap::InterestingUnchoking);
         throw;
     }
@@ -753,6 +763,7 @@ void UploadMap_InterestingUnchoking::cancelMsg(UploadSMContext& context, CancelM
     }
     catch (...)
     {
+        std::cerr << "///UploadSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -796,6 +807,7 @@ void UploadMap_InterestingUnchoking::chokePeer(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "++++UploadSM, exception \n";
         context.setState(UploadMap::InterestingChoking);
         throw;
     }
@@ -841,6 +853,7 @@ void UploadMap_InterestingUnchoking::notInterestedMsg(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "&&UploadSM, exception \n";
         context.setState(UploadMap::NotInterestingUnchoking);
         throw;
     }
@@ -886,6 +899,7 @@ void UploadMap_InterestingUnchoking::requestMsg(UploadSMContext& context, Reques
     }
     catch (...)
     {
+        std::cerr << "!!UploadSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -930,6 +944,7 @@ void UploadMap_InterestingUnchoking::sendPieceMsg(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "||UploadSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -973,6 +988,7 @@ void UploadMap_InterestingUnchoking::stopMachine(UploadSMContext& context)
     }
     catch (...)
     {
+        std::cerr << "¿¿UploadSM, exception \n";
         context.setState(UploadMap::Stopped);
         throw;
     }

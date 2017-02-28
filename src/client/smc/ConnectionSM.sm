@@ -127,7 +127,7 @@ Exit
         WaitHandshake
             {}
 	localClose
-        LocalClosed
+        nil
             {}
 }
 
@@ -151,7 +151,7 @@ Entry {
                 sendPeerWireMsg(ctxt.getBitFieldMsg());
             }
     timeout
-     	ClosingConnection  
+     	nil  
         {}
 }
 
@@ -178,7 +178,7 @@ Entry {
                 sendPeerWireMsg(ctxt.getBitFieldMsg());
             }
     timeout
-    	ClosingConnection  
+    	nil  
          {}
 }
 Connected
@@ -215,11 +215,8 @@ Exit {
                 renewKeepAliveTimer(); // sent a PeerWireMsg
             }
     timeout
-        nil
-            {
-                sendPeerWireMsg(ctxt.getKeepAliveMsg());
-                renewKeepAliveTimer(); // sent a PeerWireMsg
-            }
+        ClosingConnection  
+        {}
     applicationClose
         ClosingConnection
             {}
@@ -258,7 +255,7 @@ Entry {
             {}
     timeout //Cambio por atender *
     	nil
-            {}
+        {}
 }
 
 RemoteClosed

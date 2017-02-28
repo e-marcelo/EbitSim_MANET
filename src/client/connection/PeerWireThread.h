@@ -229,6 +229,7 @@ public:
     std::string getThreadId();
     void printDebugMsg(std::string s);
 private:
+    int askMorePeers = 0;
     //!@name BitTorrent State Machines
     //@{
     ConnectionSMContext connectionSm;

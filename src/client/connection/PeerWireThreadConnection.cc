@@ -200,7 +200,9 @@ void PeerWireThread::sendPeerWireMsg(cPacket * msg) {
         this->btClient->take(msg);
         // send the message to the connected Peer.
         //EAM :: this->getSocket()->setDataTransferMode(TCP_TRANSFER_OBJECT);
-        this->getSocket()->send(msg);
+
+        if(this->getSocket()->getState() != TCPSocket::SOCKERROR && this->getSocket()->getState() != TCPSocket::LOCALLY_CLOSED && this->getSocket()->getState() != TCPSocket::PEER_CLOSED && this->getSocket()->getState() != TCPSocket::CLOSED)
+            this->getSocket()->send(msg);
     }
 }
 void PeerWireThread::startHandshakeTimers() {
