@@ -341,7 +341,6 @@ void ConnectionMap_Unconnected::tcpActiveConnection(ConnectionSMContext& context
     }
     catch (...)
     {
-        std::cerr << "ConnectionSM, exception \n";
         context.setState(ConnectionMap::HandshakeSent);
         throw;
     }
@@ -476,7 +475,6 @@ void ConnectionMap_HandshakeSent::handshakeMsg(ConnectionSMContext& context, Han
         }
         catch (...)
         {
-            std::cerr << "*ConnectionSM, exception \n";
             context.setState(ConnectionMap::Connected);
             throw;
         }
@@ -586,7 +584,6 @@ void ConnectionMap_WaitHandshake::handshakeMsg(ConnectionSMContext& context, Han
         }
         catch (...)
         {
-            std::cerr << "***ConnectionSM, exception \n";
             context.setState(ConnectionMap::Connected);
             throw;
         }
@@ -620,7 +617,6 @@ void ConnectionMap_WaitHandshake::handshakeMsg(ConnectionSMContext& context, Han
         }
         catch (...)
         {
-            std::cerr << "+ConnectionSM, exception \n";
             context.setState(ConnectionMap::Connected);
             throw;
         }
@@ -794,7 +790,6 @@ void ConnectionMap_Connected::keepAliveTimer(ConnectionSMContext& context)
     }
     catch (...)
     {
-        std::cerr << "++ConnectionSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -840,7 +835,6 @@ void ConnectionMap_Connected::outgoingPeerWireMsg(ConnectionSMContext& context, 
     }
     catch (...)
     {
-        std::cerr << "-ConnectionSM, exception \n";
         context.setState(endState);
         throw;
     }
@@ -849,6 +843,7 @@ void ConnectionMap_Connected::outgoingPeerWireMsg(ConnectionSMContext& context, 
 
 void ConnectionMap_Connected::timeout(ConnectionSMContext& context)
 {
+    PeerWireThread& ctxt = context.getOwner();
 
     if (context.getDebugFlag())
     {
@@ -858,7 +853,8 @@ void ConnectionMap_Connected::timeout(ConnectionSMContext& context)
                 << std::endl;
     }
 
-    context.getState().Exit(context);
+    ConnectionSMState& endState = context.getState();
+
     if (context.getDebugFlag())
     {
         std::ostream& str = context.getDebugStream();
@@ -867,16 +863,26 @@ void ConnectionMap_Connected::timeout(ConnectionSMContext& context)
             << std::endl;
     }
 
-    if (context.getDebugFlag())
+    context.clearState();
+    try
     {
-        std::ostream& str = context.getDebugStream();
+        ctxt.sendPeerWireMsg(ctxt.getKeepAliveMsg());
+        ctxt.renewKeepAliveTimer();
+        if (context.getDebugFlag())
+        {
+            std::ostream& str = context.getDebugStream();
 
-        str << "EXIT TRANSITION : ConnectionMap::Connected::timeout()"
-            << std::endl;
+            str << "EXIT TRANSITION : ConnectionMap::Connected::timeout()"
+                << std::endl;
+        }
+
+        context.setState(endState);
     }
-
-    context.setState(ConnectionMap::ClosingConnection);
-    context.getState().Entry(context);
+    catch (...)
+    {
+        context.setState(endState);
+        throw;
+    }
 
 }
 
