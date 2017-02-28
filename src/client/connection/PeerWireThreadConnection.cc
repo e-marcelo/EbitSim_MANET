@@ -177,7 +177,14 @@ void PeerWireThread::sendPeerWireMsg(cPacket * msg) {
     this->btClient->peerWireStatistics(msg, true);
 
     if (this->getSocket()->getState() != TCPSocket::CONNECTED) {
+        this->askMorePeers++;
+        std::cerr << "[" <<this->btClient->localPeerId<<"] -"<< "Socket is not connected - (" << this->askMorePeers << ")\n";
+        //Cuando la mitad de las conexiones propuestas fallan, se solicita una nueva lista de candidatos
 
+        if(this->askMorePeers > (this->btClient->numActiveConn / 2)){
+              this->btClient->askMoreUnconnectedPeers(this->infoHash);
+              this->askMorePeers = 0;
+        }
         // tried to send a message, but the connection is not established.
         // log this event and delete the message
 #ifdef DEBUG_MSG
@@ -201,7 +208,7 @@ void PeerWireThread::sendPeerWireMsg(cPacket * msg) {
         // send the message to the connected Peer.
         //EAM :: this->getSocket()->setDataTransferMode(TCP_TRANSFER_OBJECT);
 
-        if(this->getSocket()->getState() != TCPSocket::SOCKERROR && this->getSocket()->getState() != TCPSocket::LOCALLY_CLOSED && this->getSocket()->getState() != TCPSocket::PEER_CLOSED && this->getSocket()->getState() != TCPSocket::CLOSED)
+        if(this->getSocket()->getState() == TCPSocket::CONNECTED)
             this->getSocket()->send(msg);
     }
 }

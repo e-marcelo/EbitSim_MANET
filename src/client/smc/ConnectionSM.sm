@@ -214,12 +214,17 @@ Exit {
                 sendPeerWireMsg(ctxt.getKeepAliveMsg());
                 renewKeepAliveTimer(); // sent a PeerWireMsg
             }
-    timeout
+	timeout
         nil
             {
                 sendPeerWireMsg(ctxt.getKeepAliveMsg());
                 renewKeepAliveTimer(); // sent a PeerWireMsg
             }
+            
+          //Posible cambio
+         //LocalClosed
+           // {
+            //}
     applicationClose
         ClosingConnection
             {}

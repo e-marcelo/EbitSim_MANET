@@ -66,6 +66,7 @@ void PeerWireThread::dataArrived(cMessage *msg, bool urgent) {
     std::string out = std::string(msg->getName()) + "\" arrived";
     this->printDebugMsg(out);
 #endif
+//    std::cerr << msg->getName() << " | " << msg <<" ***\n"; //<- Dato interesante
     this->sendPeerWireMessage(msg);
 }
 void PeerWireThread::established() {
@@ -123,10 +124,10 @@ void PeerWireThread::failure(int code) {
 //                    }
     //Terminamos la ejecución del hilo de procesamiento
     this->askMorePeers++;
-//    this->terminating = true;
-//    finishProcessing();
+    this->terminating = true;
+    finishProcessing();
 //    //Preguntamos por más pares en el enjambre
-    if(askMorePeers > (this->btClient->numberOfPeers / 2)){
+    if(askMorePeers > (this->btClient->numActiveConn / 2) /*(this->btClient->numWant / 2)*/){
         this->btClient->askMoreUnconnectedPeers(this->infoHash);
         this->askMorePeers = 0;
     }
@@ -135,6 +136,7 @@ void PeerWireThread::failure(int code) {
 void PeerWireThread::init(TCPSrvHostApp* hostmodule, TCPSocket* socket) {
     // call parent method
     TCPServerThreadBase::init(hostmodule, socket);
+
     //EAM :: socket->readDataTransferModePar(*this);
     //EAM* :: socket->setDataTransferMode(TCP_TRANSFER_OBJECT);
     this->btClient = dynamic_cast<BitTorrentClient*>(this->hostmod);

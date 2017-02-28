@@ -462,7 +462,8 @@ void ConnectionMap_HandshakeSent::handshakeMsg(ConnectionSMContext& context, Han
         context.clearState();
         try
         {
-            ctxt.sendPeerWireMsg(ctxt.getBitFieldMsg());
+            if(ctxt.getSocket()->getState() == TCPSocket::CONNECTED) //Nueva validación
+                ctxt.sendPeerWireMsg(ctxt.getBitFieldMsg());
             if (context.getDebugFlag())
             {
                 std::ostream& str = context.getDebugStream();
@@ -571,7 +572,8 @@ void ConnectionMap_WaitHandshake::handshakeMsg(ConnectionSMContext& context, Han
         context.clearState();
         try
         {
-            ctxt.sendPeerWireMsg(ctxt.getHandshake());
+            if(ctxt.getSocket()->getState() == TCPSocket::CONNECTED) //Nueva validación
+                ctxt.sendPeerWireMsg(ctxt.getHandshake());
             if (context.getDebugFlag())
             {
                 std::ostream& str = context.getDebugStream();
@@ -603,8 +605,10 @@ void ConnectionMap_WaitHandshake::handshakeMsg(ConnectionSMContext& context, Han
         context.clearState();
         try
         {
-            ctxt.sendPeerWireMsg(ctxt.getHandshake());
-            ctxt.sendPeerWireMsg(ctxt.getBitFieldMsg());
+            if(ctxt.getSocket()->getState() == TCPSocket::CONNECTED){ //Nueva validación
+                ctxt.sendPeerWireMsg(ctxt.getHandshake());
+                ctxt.sendPeerWireMsg(ctxt.getBitFieldMsg());
+            }
             if (context.getDebugFlag())
             {
                 std::ostream& str = context.getDebugStream();
