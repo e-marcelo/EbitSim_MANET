@@ -478,8 +478,8 @@ void BitTorrentClient::processNextThread() {
             simtime_t processingTime =
                 (*this->threadInProcessingIt)->startProcessing();
             emit(this->processingTime_Signal, processingTime);
-//            this->scheduleAt(simTime() + processingTime, //Evitamos el retardo para iniciar el procesamiento de la pieza
-            this->scheduleAt(simTime(),
+            this->scheduleAt(simTime() + processingTime, //Evitamos el retardo para iniciar el procesamiento de la pieza
+//            this->scheduleAt(simTime()+1,
                 &this->endOfProcessingTimer);
 #ifdef DEBUG_MSG
         } else {

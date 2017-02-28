@@ -208,7 +208,7 @@ void PeerWireThread::sendPeerWireMsg(cPacket * msg) {
         // send the message to the connected Peer.
         //EAM :: this->getSocket()->setDataTransferMode(TCP_TRANSFER_OBJECT);
 
-        if(this->getSocket()->getState() == TCPSocket::CONNECTED)
+        if(this->getSocket()->getState() == TCPSocket::CONNECTED && (msg->getBitLength() > 0)) //Procuramos enviar algo una vez establecida la conexión!!!
             this->getSocket()->send(msg);
     }
 }

@@ -217,7 +217,7 @@ Exit {
 	timeout
         nil
             {
-                sendPeerWireMsg(ctxt.getKeepAliveMsg());
+                //sendPeerWireMsg(ctxt.getKeepAliveMsg());
                 renewKeepAliveTimer(); // sent a PeerWireMsg
             }
             
