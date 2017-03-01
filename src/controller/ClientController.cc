@@ -123,7 +123,7 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
         } else {
             self->emitEnterTime(enterTime);
 //            //EAM :: self->scheduleAt(enterTime,msg);
-            self->scheduleAt(enterTime, msg); //<-- Con movilidad todos los pares inician al mismo tiempo (no podemos perder la oportunidad de compartir y obtener contenido)
+            self->scheduleAt(enterTime+1, msg); //<-- Con movilidad todos los pares inician al mismo tiempo (no podemos perder la oportunidad de compartir y obtener contenido)
 //            //EAM :: self->scheduleAt(enterTime, msg);
 //            //EAM :: enterTime += exponential(interarrivalTime);
         }
