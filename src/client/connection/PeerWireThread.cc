@@ -124,8 +124,8 @@ void PeerWireThread::failure(int code) {
 //                    }
     //Terminamos la ejecución del hilo de procesamiento
     this->askMorePeers++;
-//    this->terminating = true;
-//    finishProcessing();
+    this->terminating = true;
+    finishProcessing();
 //    //Preguntamos por más pares en el enjambre
 //    if(askMorePeers > (this->btClient->numActiveConn / 2) /*(this->btClient->numWant / 2)*/){
 //        this->btClient->askMoreUnconnectedPeers(this->infoHash);

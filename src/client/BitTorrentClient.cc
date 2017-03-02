@@ -305,8 +305,20 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     this->infoHash_ = infoHash;
     //Referencia al identificador gráfico del nodo en la GUI
     this->idDisplay = idDisplay;
+    this->seed = newSwarmSeeding;
     //EAM :: std::cerr << "[***] Pares en la lista" << peers.size() << "\n";
     //Iniciamos la descarga, obviando la consulta que previamente se realizaba consultando al Tracker.
+
+    this->opt = std::string("peer[");
+    this->numNode << this->idDisplay;
+    this->opt.append(numNode.str());
+    this->opt.append("]");
+
+    selectListPeersRandom(); //Selección por cuadrantes, no al azar!!!
+  /***  if(this->peers.size()){
+//          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
+        addUnconnectedPeers(infoHash, this->peers);
+    }
 
     if (peers.size()) {
 //        std::cerr << "***[Enjambre] Lista peers :: " << peers.size() << "\n";
@@ -314,6 +326,7 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
 //        std::memcpy(&peers,&listPeers,peers.size());
         this->addUnconnectedPeers(infoHash, peers);
     }
+    ***/
 }
 void BitTorrentClient::deleteSwarm(int infoHash) {
     Enter_Method("removeSwarm(infoHash: %d)", infoHash);
@@ -478,8 +491,8 @@ void BitTorrentClient::processNextThread() {
             simtime_t processingTime =
                 (*this->threadInProcessingIt)->startProcessing();
             emit(this->processingTime_Signal, processingTime);
-            this->scheduleAt(simTime() + processingTime, //Evitamos el retardo para iniciar el procesamiento de la pieza
-//            this->scheduleAt(simTime()+1,
+//            this->scheduleAt(simTime() + processingTime, //Evitamos el retardo para iniciar el procesamiento de la pieza
+            this->scheduleAt(simTime(),
                 &this->endOfProcessingTimer);
 #ifdef DEBUG_MSG
         } else {
@@ -874,6 +887,9 @@ void BitTorrentClient::initialize(int stage) {
         this->numActiveConn = par("numberOfActivePeers");
         this->numPassiveConn = par("numberOfPassivePeers");
         this->numWant = par("numWant");
+        this->sizeX = par("sizeX");
+        this->sizeY = par("sizeY");
+
         IPvXAddressResolver resolver;
         this->localIp = resolver.addressOf(getParentModule()->getParentModule(),
                 IPvXAddressResolver::ADDR_PREFER_IPv4);
@@ -924,31 +940,31 @@ void BitTorrentClient::initialize(int stage) {
         // Test if Tracker has this content -> especificamos el hash del contenido digital a compartir
         this->numberOfPeers = par("numberOfPeers");
 
-        std::string opt;
-        std::ostringstream numNode;
-        int peerId;
-
-
-
-        // get all the pointers to the PeerInfo objects, except for self
-        for(int i=0; i< this->numberOfPeers; i++){
-            opt = std::string("peer[");
-            numNode << i;
-            opt.append(numNode.str());
-            opt.append("]");
-            peerId = simulation.getModuleByPath(opt.c_str())->getId();
-
-            if (this->localPeerId != peerId){
-                PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort);
-                // the size of the peerList minus self
-                this->peers_aux.push_back(peer);
-            }
-            opt.clear();
-            numNode.str("");
-        }
+//        std::string opt;
+//        std::ostringstream numNode;
+//        int peerId;
+//
+//
+//
+//        // get all the pointers to the PeerInfo objects, except for self
+//        for(int i=0; i< this->numberOfPeers; i++){
+//            opt = std::string("peer[");
+//            numNode << i;
+//            opt.append(numNode.str());
+//            opt.append("]");
+//            peerId = simulation.getModuleByPath(opt.c_str())->getId();
+//
+//            if (this->localPeerId != peerId){
+//                PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort);
+//                // the size of the peerList minus self
+//                this->peers_aux.push_back(peer);
+//            }
+//            opt.clear();
+//            numNode.str("");
+//        }
 
         //Lista con pares aleatorios
-        selectListPeersRandom();
+//        selectListPeersRandom();
 
 //        if(peerIdActual == 6){
 //            std::cerr << "Lista de pares a contactar :: \t";
@@ -975,19 +991,16 @@ void BitTorrentClient::finishDownload()
 
     //Cambiando icono para marcar a las semillas
     //Variables locales para el cambio de icono
-    std::string opt;
-    std::string newArg;
-    std::ostringstream numNode;
-    int count = 0;
+
 
     //Contrucción de la cadena que identifica al par en la interfaz gráfica
-    opt = std::string("peer[");
-    numNode << this->idDisplay;
-    opt.append(numNode.str());
-    opt.append("]");
+//    this->opt = std::string("peer[");
+//    this->numNode << this->idDisplay;
+//    this->opt.append(numNode.str());
+//    this->opt.append("]");
 
 
-    std::string pos = simulation.getModuleByPath(opt.c_str())->getDisplayString().str();
+    std::string pos = simulation.getModuleByPath(this->opt.c_str())->getDisplayString().str();
     //              idModule = topo.getNode(i)->getModuleId();
 
     //Utilizamos la misma posición del nodo para realizar el cambio de representación gráfica
@@ -1057,42 +1070,144 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
 //
 //    }
 //    opt_peers = !opt_peers;
-      selectListPeersRandom();
-      if(this->peers.size()){
-//          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
-          addUnconnectedPeers(infoHash, this->peers);
-      }
+
 }
 
 void BitTorrentClient::selectListPeersRandom()
 {
-    // random shuffle the return list || Generador por defecto
-    std::random_shuffle(peers_aux.begin(), peers_aux.end(), intrand);
-    // throw away the extra pointers.
-    //Limpiamos contenedor
-    peers_swap.clear();
-    //Es posible que requiera una validación (al menos 1 par debe ser solicitado y menos del tamaño de los lista peers_aux)
-    if(this->numWant < this->numberOfPeers ){
-        for(int i = 0; i<(this->numWant); i++ ){
-            peers_swap.push_back(peers_aux.at(i));
-        }
+
+    //1.- Definir en que cuadrante se encuentra el par
+
+    //Contrucción de la cadena que identifica al par en la interfaz gráfica
+
+
+
+
+    std::string pos = simulation.getModuleByPath(this->opt.c_str())->getDisplayString().str();
+
+
+    boost::char_separator<char> sep(";");
+    typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+
+
+    tokenizer mytokenizer(pos,sep);
+    for(auto& token: mytokenizer){
+           this->newArg = token;
+           if(this->count == 2 || this->seed) //Terminamos de recorrer la cadena al obtener la referencia a la posición actual
+               break;
+           this->count++;
+    }
+    this->count = 0;
+
+    boost::char_separator<char> sepA("=");
+
+
+    tokenizer mytokenizerA(newArg,sepA);
+
+    for(auto& token: mytokenizerA){
+           pos = token;
+    }
+
+    boost::char_separator<char> sepB(",");
+
+
+    tokenizer mytokenizerB(pos,sepB);
+
+     for(auto& token: mytokenizerB){
+            if(this->count == 0){
+                this->newArg = token;
+                this->peerX = std::atoi(newArg.c_str());
+            }else{
+                this->newArg = token;
+                this->peerY = std::atoi(newArg.c_str());
+            }
+            this->count++;
+     }
+     this->count = 0;
+
+    std::cerr << "Nodo :: " << this->idDisplay << " | Posición :: " <<  this->peerX << ", " << this->peerY <<"\n";
+
+    if(this->peerX > (this->sizeX/2) || this->peerY < (this->sizeY/2)){ //Cuadrante 1
+        std::cerr << "Soy del cuadrante 1\n";
     }else{
-        BOOST_FOREACH(PeerConnInfo peer, peers_aux){
-           //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
-            peers_swap.push_back(peer);
-           //EAM :: i++;
+        if(this->peerX < (this->sizeX/2) || this->peerY < (this->sizeY/2)){//Cuadrante 2
+            std::cerr << "Soy del cuadrante 2\n";
+        }else{
+            if(this->peerX < (this->sizeX/2) || this->peerY > (this->sizeY/2)){//Cuadrante 3
+                std::cerr << "Soy del cuadrante 3\n";
+            }else{
+                if(this->peerX > (this->sizeX/2) || this->peerY > (this->sizeY/2)){//Cuadrante 4
+                    std::cerr << "Soy del cuadrante 4\n";
+                }else{//Punto medio, selección aleatoria
+                    std::cerr << "No se de que cuadrante soy!!!\n";
+                }
+
+            }
         }
+
     }
-    //Cambio en el orden anterior
-    std::random_shuffle(peers_swap.begin(), peers_swap.end(), intrand);
-    //Limpiamos contenedor
-    peers.clear();
-    //Asignamos los pares solicitados
-    BOOST_FOREACH(PeerConnInfo peer, peers_swap){
-       //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
-       peers.push_back(peer);
-       //EAM :: i++;
-    }
+
+    //2.- Iterar sobre todos los nodos y determinar a que cuadrante corresponde (es posible ser más eficiente -> clientController)
+
+    std::string opt;
+    std::ostringstream numNode;
+    int peerId;
+
+
+
+    // get all the pointers to the PeerInfo objects, except for self
+    for(int i=0; i< this->numberOfPeers; i++){
+            opt = std::string("peer[");
+            numNode << i;
+            opt.append(numNode.str());
+            opt.append("]");
+            peerId = simulation.getModuleByPath(opt.c_str())->getId();
+
+            if (this->localPeerId != peerId){ //Insertamos en lista los pares del cuadrante correspondiente
+                //Calculamos la ubicación de cada par (sin considerar al par que solicita la lista)
+//                PeerConnInfo peer = boost::make_tuple(peerId, IPvXAddressResolver().resolve(opt.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort);
+                // the size of the peerList minus self
+//                this->peers_aux.push_back(peer);
+            }
+            opt.clear();
+            numNode.str("");
+     }
+
+
+
+    //3.- Seleccionar pares en el cuadrante correspondiente a cada par
+
+    //4.- Validar cuando no existan más pares en el cuadrante solicitado o cuando se presente el caso del "punto medio"
+
+    //5.- Retornar y notificar (impresión en consola) el retorno de la lista generada
+
+    // random shuffle the return list || Generador por defecto
+//    std::random_shuffle(peers_aux.begin(), peers_aux.end(), intrand);
+//    // throw away the extra pointers.
+//    //Limpiamos contenedor
+//    peers_swap.clear();
+//    //Es posible que requiera una validación (al menos 1 par debe ser solicitado y menos del tamaño de los lista peers_aux)
+//    if(this->numWant < this->numberOfPeers ){
+//        for(int i = 0; i<(this->numWant); i++ ){
+//            peers_swap.push_back(peers_aux.at(i));
+//        }
+//    }else{
+//        BOOST_FOREACH(PeerConnInfo peer, peers_aux){
+//           //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
+//            peers_swap.push_back(peer);
+//           //EAM :: i++;
+//        }
+//    }
+//    //Cambio en el orden anterior
+//    std::random_shuffle(peers_swap.begin(), peers_swap.end(), intrand);
+//    //Limpiamos contenedor
+//    peers.clear();
+//    //Asignamos los pares solicitados
+//    BOOST_FOREACH(PeerConnInfo peer, peers_swap){
+//       //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
+//       peers.push_back(peer);
+//       //EAM :: i++;
+//    }
 //    std::cerr << "***[Inicio] Lista de pares :: " << peers.size() << "\n";
 
 }

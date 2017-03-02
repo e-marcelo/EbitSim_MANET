@@ -47,7 +47,7 @@ network BasicTopology extends BasicNetwork
         //double playgroundSizeY;
 		//Área de simulación
         //@display("bgb=1000,1000,white;bgg=100,2,grey80");
-        @display("bgb=460,220,white;bgg=100,2,grey80");
+        @display("bgb=1000,1000,white;bgg=100,2,grey80");
         @signal[BitTorrentClient_DownloadComplete_Test];
         @statistic[DownloadComplete_Test](source=BitTorrentClient_DownloadComplete_Test; title="Tiempo de desacarga (prueba)"; record=vector);
         @signal[BitTorrentClient_PeerWireBytesSent];

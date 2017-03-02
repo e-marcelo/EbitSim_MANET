@@ -207,7 +207,13 @@ public:
 private:
 
     int idDisplay = -1;
-
+    int peerX = -1;
+    int peerY = -1;
+    bool seed = false;
+    std::string opt;
+    std::string newArg;
+    std::ostringstream numNode;
+    int count = 0;
     /*!
      * Declare PeerWireThread a friend of  BitTorrentClient, since their
      * behavior are intimately connected.
@@ -319,6 +325,8 @@ private:
     //! TODO document this
     int numPassiveConn;
     int numWant;
+    int sizeX;
+    int sizeY;
     //!@name Signals and helper variables
     //@{
     unsigned int prevNumUnconnected;
