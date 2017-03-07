@@ -209,8 +209,9 @@ private:
     int idDisplay = -1;
     int peerX = -1;
     int peerY = -1;
+    int cuadrante = -1;
     bool seed = false;
-    std::string opt;
+    std::string optlocal;
     std::string newArg;
     std::ostringstream numNode;
     int count = 0;

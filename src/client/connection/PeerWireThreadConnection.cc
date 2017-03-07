@@ -181,10 +181,10 @@ void PeerWireThread::sendPeerWireMsg(cPacket * msg) {
         std::cerr << "[" <<this->btClient->localPeerId<<"] -"<< "Socket is not connected - (" << this->askMorePeers << ")\n";
         //Cuando la mitad de las conexiones propuestas fallan, se solicita una nueva lista de candidatos
 
-        if(this->askMorePeers > (this->btClient->numActiveConn / 2)){
-              this->btClient->askMoreUnconnectedPeers(this->infoHash);
-              this->askMorePeers = 0;
-        }
+//        if(this->askMorePeers > (this->btClient->numActiveConn / 2)){
+//              this->btClient->askMoreUnconnectedPeers(this->infoHash);
+//              this->askMorePeers = 0;
+//        }
         // tried to send a message, but the connection is not established.
         // log this event and delete the message
 #ifdef DEBUG_MSG

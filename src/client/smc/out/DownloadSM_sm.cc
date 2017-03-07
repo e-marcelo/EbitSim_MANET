@@ -292,8 +292,7 @@ void DownloadMap_Default::haveMsg(DownloadSMContext& context, HaveMsg const& msg
     context.clearState();
     try
     {
-        if(ctxt.getSocket()->getState() == TCPSocket::CONNECTED) //Nueva validación
-            ctxt.processHaveMsg(msg);
+        ctxt.processHaveMsg(msg);
         if (context.getDebugFlag())
         {
             std::ostream& str = context.getDebugStream();

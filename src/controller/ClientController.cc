@@ -75,9 +75,10 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
 
         if (seeder) {
               std::string opt;
-              std::string newArg;
+              //std::string newArg;
               std::ostringstream numNode;
-              int count = 0;
+/*
+              int count = 0;*/
               //Construcción del identificador del par (en modo gráfico)
               opt = std::string("peer[");
 
@@ -86,24 +87,33 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
               opt.append("]");
 
               std::string pos = simulation.getModuleByPath(opt.c_str())->getDisplayString().str();
+              pos.append(";i=old/x_green");
+//              simulation.getModuleByPath(opt.c_str())->getDisplayString().parse(";i=old/x_green");
 //              idModule = topo.getNode(i)->getModuleId();
-//              std::cerr << "Mi posición :: " << pos;
-//              std::cerr << "Mi posición :: " <<topo.getNode(i)->getModule()->getDisplayString() << "\n";
+//              std::cerr << "-* Mi posición :: " << simulation.getModuleByPath(opt.c_str())->getProperties()->info().c_str();
+/*
+              std::cerr << "-* Mi posición :: " << pos.c_str() <<"\n";
               boost::char_separator<char> sep(";");
               typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-
               tokenizer mytokenizer(pos,sep);
 
               for(auto& token: mytokenizer){
-//                  std::cerr << "\t" << token << "\n";
-                  newArg = token;
-                  if(count == 2) //Terminamos de recorrer la cadena al obtener la referencia a la posición actual
+//                  std::cerr << "\n\t + " << token << "\n";
+                  if(count == 3){
+                      newArg = token;
                       break;
+                  }
                   count++;
+
               }
-              newArg.append(";is=vs;i=old/x_green");
+//              pos = newArg.c_str();
+
+//              std::cerr << "- Mi posición :: " <<pos.c_str() <<newArg.c_str() << "\n";
 //            simulation.getModule(idModule)->getDisplayString().parse("is=vs;i=old/x_red");
-              simulation.getModuleByPath(opt.c_str())->getDisplayString().parse(newArg.c_str());
+//              opt.append(";i=old/x_red");
+              */
+              simulation.getModuleByPath(opt.c_str())->getDisplayString().parse(pos.c_str());
+              //std::cerr << "-X* Mi posición :: " << simulation.getModuleByPath(opt.c_str())->getDisplayString().str() <<"\n";
 
 ////EAM::            self->scheduleAt(simTime(), msg);
 
@@ -123,7 +133,7 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
         } else {
             self->emitEnterTime(enterTime);
 //            //EAM :: self->scheduleAt(enterTime,msg);
-            self->scheduleAt(enterTime, msg); //<-- Con movilidad todos los pares inician al mismo tiempo (no podemos perder la oportunidad de compartir y obtener contenido)
+            self->scheduleAt(enterTime+1, msg); //<-- Con movilidad todos los pares inician al mismo tiempo (no podemos perder la oportunidad de compartir y obtener contenido)
 //            //EAM :: self->scheduleAt(enterTime, msg);
 //            //EAM :: enterTime += exponential(interarrivalTime);
         }
