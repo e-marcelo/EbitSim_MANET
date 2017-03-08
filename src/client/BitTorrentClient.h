@@ -206,15 +206,6 @@ public:
     //@}
 private:
 
-    int idDisplay = -1;
-    int peerX = -1;
-    int peerY = -1;
-    int cuadrante = -1;
-    bool seed = false;
-    std::string optlocal;
-    std::string newArg;
-    std::ostringstream numNode;
-    int count = 0;
     /*!
      * Declare PeerWireThread a friend of  BitTorrentClient, since their
      * behavior are intimately connected.
@@ -258,6 +249,16 @@ private:
     void setSnubbed(bool snubbed, int infoHash, int peerId);
     //@}
 private:
+    std::string strCurrentNode;
+    std::string strArgNode;
+    std::ostringstream optNumtoStr;
+    int count;
+    int peerX;
+    int peerY;
+    int localIdDisplay = -1;
+    bool seed;
+    int communicationRange;
+    void currentPosition(const char* peer, int *x, int *y);
     void selectListPeersRandom();
 //    bool opt_peers = true;
     int infoHash_ = -1;
