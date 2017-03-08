@@ -573,9 +573,11 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
 
         // Either the active slots are full or the unconnected list is empty
         // If more than half of the active slots is unoccupied, ask for more peers
-//        if (swarm.numActive < this->numActiveConn / 2/*unconnectedList.empty()*/) {
-//            askMoreUnconnectedPeers(infoHash);
-//        }
+        if (swarm.numActive < this->numActiveConn / 2/*unconnectedList.empty()*/) {
+//            std::cerr<< "[PeerList-1] :: " << this->strCurrentNode << "\n";
+            askMoreUnconnectedPeers(infoHash);
+//            std::cerr<< "[PeerList-2] :: "<< this->strCurrentNode << " | " << unconnectedList.size() << "\n";
+        }
     }
 }
 /*!
@@ -1070,10 +1072,10 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
       if(this->peers.size()){
         //          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
 //          peers.unique();
-          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->localIdDisplay << ", agregando :: "<< peers.size()<<"\n";
+          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << ", agregando :: "<< peers.size()<<"\n";
           addUnconnectedPeers(infoHash, this->peers);
       }else{
-          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->localIdDisplay << " aislado :(\n";
+          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << " aislado :(\n";
       }
 
 //    //Es posible actualizar la lista de pares disponibles con los pares que se convierten en semillas*
