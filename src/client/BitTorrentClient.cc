@@ -507,8 +507,8 @@ void BitTorrentClient::processNextThread() {
             simtime_t processingTime =
                 (*this->threadInProcessingIt)->startProcessing();
             emit(this->processingTime_Signal, processingTime);
-            this->scheduleAt(simTime() + processingTime, //Evitamos el retardo para iniciar el procesamiento de la pieza
-            //this->scheduleAt(simTime(),
+            //this->scheduleAt(simTime() + processingTime, //Evitamos el retardo para iniciar el procesamiento de la pieza
+            this->scheduleAt(simTime(),
                 &this->endOfProcessingTimer);
 #ifdef DEBUG_MSG
         } else {
@@ -573,9 +573,13 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
 
         // Either the active slots are full or the unconnected list is empty
         // If more than half of the active slots is unoccupied, ask for more peers
-        if (swarm.numActive < this->numActiveConn / 2/*unconnectedList.empty()*/) {
+        if (swarm.numActive < this->numActiveConn/2/*unconnectedList.empty()*/) {
 //            std::cerr<< "[PeerList-1] :: " << this->strCurrentNode << "\n";
-            askMoreUnconnectedPeers(infoHash);
+             //Como calendarizar invocación de más pares?
+            cMessage * askMsg = new cMessage("AskMorePeers");
+            askMsg->setContextPointer(this);
+            std::cerr<< "[PeerList-1] :: " << this->strCurrentNode << " :: Calendarizando en 1h!\n";
+            this->scheduleAt(simTime()+3600, askMsg);
 //            std::cerr<< "[PeerList-2] :: "<< this->strCurrentNode << " | " << unconnectedList.size() << "\n";
         }
     }
@@ -1076,6 +1080,10 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
           addUnconnectedPeers(infoHash, this->peers);
       }else{
           std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << " aislado :(\n";
+          cMessage * askMsg = new cMessage("AskMorePeers");
+          askMsg->setContextPointer(this);
+          std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 30 minutos!\n";
+          this->scheduleAt(simTime()+1500, askMsg);
       }
 
 //    //Es posible actualizar la lista de pares disponibles con los pares que se convierten en semillas*
@@ -1279,6 +1287,9 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
 
             delete msg;
 
+        } else if (msg->isName("AskMorePeers")) {
+            askMoreUnconnectedPeers(this->infoHash_);
+            delete msg;
         } else {
             // PeerWireThread self-messages
             PeerWireThread *thread =
