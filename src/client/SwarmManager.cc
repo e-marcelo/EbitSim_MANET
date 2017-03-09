@@ -460,10 +460,10 @@ void SwarmManager::printDebugMsg(std::string s) {
 //EAM :: #ifdef DEBUG_MSG
   //EAM ::   if (this->debugFlag) {
         //EAM ::  debug "header"
-        std::cerr << "\n"<< simulation.getEventNumber();
-        std::cerr << ";" << simulation.getSimTime();
-        std::cerr << ";(smanager);Peer " << this->localPeerId << ";";
-        std::cerr << s << "\n";
+//        std::cerr << "\n"<< simulation.getEventNumber();
+//        std::cerr << ";" << simulation.getSimTime();
+//        std::cerr << ";(smanager); " << this->localPeerId << ";";
+//        std::cerr << s << "\n";
     //EAM :: }
 //EAM :: #endif
 }
@@ -492,6 +492,7 @@ void SwarmManager::initialize() {
     }
     this->bitTorrentClient = check_and_cast<BitTorrentClient*>(
         bitTorrentClient);
+
 
     // Make the peerId equal to the module id, which is unique throughout the simulation.
     this->localPeerId = this->getParentModule()->getParentModule()->getId();

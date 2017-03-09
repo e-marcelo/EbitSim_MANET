@@ -225,6 +225,9 @@ Exit {
     applicationClose
         ClosingConnection
             {}
+	localClose
+        LocalClosed
+            {}	            
 }
 
 ClosingConnection

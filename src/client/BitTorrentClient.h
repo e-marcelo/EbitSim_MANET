@@ -9,7 +9,7 @@
 using boost::tuple;
 using boost::make_tuple;
 using boost::tie;
-
+#include "BitField.h"
 #include "PeerStatus.h"
 
 //Torrent adaptación
@@ -29,6 +29,8 @@ class SwarmManager;
 
 class Choker;
 class ContentManager;
+class BitFieldMsg;
+
 
 //! Vector of PeerStatus pointers.
 typedef std::vector<PeerStatus const*> PeerVector;
@@ -206,6 +208,9 @@ public:
     //@}
 private:
 
+    BitFieldMsg* bitFieldMsgCurrent = NULL;
+    BitFieldMsg* bitFieldMsgPrev = NULL;
+    bool askMore = false;
     /*!
      * Declare PeerWireThread a friend of  BitTorrentClient, since their
      * behavior are intimately connected.
@@ -303,6 +308,7 @@ private:
     simtime_t snubbedInterval;
     //! The time, in seconds, to occur a message timeout.
     simtime_t timeoutInterval;
+    simtime_t timerAskMorePeers;
     //! The time, in seconds, to occur a keep-alive timeout.
     simtime_t keepAliveInterval;
     //! The time, in seconds, to occur a download rate timeout.
@@ -416,6 +422,8 @@ private:
     //@{
     //! Register all signals this module is going to emit.
     void registerEmittedSignals();
+
+    void updateBitField();
     //@}
 
 protected:

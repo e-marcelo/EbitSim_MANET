@@ -84,6 +84,13 @@ BitTorrentClient::~BitTorrentClient() {
 void BitTorrentClient::addUnconnectedPeers(int infoHash,
     UnconnectedList & peers) {
 
+    if(!this->askMore){ //Solo una vez es necesario ejecutar el temporizador
+        cMessage * askMoreMsg = new cMessage("AskMorePeersTemp");
+        askMoreMsg->setContextPointer(this);
+        std::cerr<< "[Temporizador] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
+        this->scheduleAt(simTime()+this->timerAskMorePeers, askMoreMsg);
+        this->askMore = true;
+    }
     Enter_Method("addUnconnectedPeers(infoHash: %d, qtty: %d)", infoHash,peers.size());
     Swarm & swarm = this->getSwarm(infoHash);
 
@@ -118,7 +125,10 @@ void BitTorrentClient::addUnconnectedPeers(int infoHash,
             this->prevNumUnconnected = unconnectedList.size();
             emit(this->numUnconnected_Signal, this->prevNumUnconnected);
         }
+        this->bitFieldMsgPrev = swarm.contentManager->getClientBitFieldMsg();
     }
+
+
 }
 
 // Methods used by the Choker
@@ -193,10 +203,10 @@ void BitTorrentClient::finishedDownload(int infoHash) {
     Enter_Method("finishedDownload(infoHash: %d)", infoHash);
     Swarm & swarm = this->getSwarm(infoHash);
     swarm.seeding = true;
-    swarm.choker->par("seeder") = true; //Evitamos cerrar conexion
-    swarm.contentManager->par("seeder") = true; //Evitamos cerrar conexion
+    swarm.choker->par("seeder") = true; //No Evitamos cerrar conexion
+    swarm.contentManager->par("seeder") = true; //No Evitamos cerrar conexion
     // no more active downloads
-    swarm.unconnectedList.clear(); //Evitamos cerrar conexion
+    swarm.unconnectedList.clear(); //No Evitamos cerrar conexion***
     this->swarmManager->finishedDownload(infoHash);
     emit(this->numDownloadComplete_Signal,simTime());
     finishDownload();
@@ -317,13 +327,21 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     if(!newSwarmSeeding){ //Sino es semilla, el par actual solo adquiere pares de tu cuadrante
          selectListPeersRandom(); //Selección por cuadrantes, no al azar!!!
          if(this->peers.size()){
-               std::cerr << "***[Enjambre] Lista de pares, nodo :: " << this->localIdDisplay << " -> " <<this->peers.size() <<  "\n";
+                std::cerr << "***[Enjambre] Lista de pares, nodo :: " << this->strCurrentNode << " -> " <<this->peers.size() <<  "\n";
         //          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
                 addUnconnectedPeers(infoHash, this->peers);
          }else{
-                std::cerr << "***[Enjambre] Lista de pares vacia, nodo :: " << this->localIdDisplay << " aislado :(\n";
+                std::cerr << "***[Enjambre] Lista de pares vacia, nodo :: " << this->strCurrentNode << " aislado :(\n";
+                cMessage * askMsg = new cMessage("AskMorePeers");
+                askMsg->setContextPointer(this);
+                std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 30 minutos!\n";
+                this->scheduleAt(simTime()+1500, askMsg);
          }
     }
+
+    //Inicialización del bitField previo
+    this->bitFieldMsgPrev = swarm.contentManager->getClientBitFieldMsg();
+
     //else{
 //        this->numWant = this->numberOfPeers; // Todos los nodos de mi cuadrante (para evitar errores en la conexion)
 //        selectListPeersRandom(); //Selección por cuadrantes, no al azar!!!
@@ -349,18 +367,18 @@ void BitTorrentClient::deleteSwarm(int infoHash) {
 #ifdef DEBUG_MSG
     this->printDebugMsg("Leaving swarm");
 #endif
-    Swarm & swarm = this->getSwarm(infoHash);
-    // Since it is not possible to delete the swarm before closing the threads,
-    // set the closing flag to true and delete the swarm when all peers disconnect.
-    swarm.closing = true;
-    swarm.unconnectedList.clear();
-
-    // close the connection with all the peers
-    typedef std::pair<int, PeerStatus> map_t;
-    BOOST_FOREACH(map_t const& peer, swarm.peerMap) {
-        PeerWireThread * thread = peer.second.getThread();
-        thread->sendApplicationMessage(APP_CLOSE);
-    }
+//    Swarm & swarm = this->getSwarm(infoHash);
+//    // Since it is not possible to delete the swarm before closing the threads,
+//    // set the closing flag to true and delete the swarm when all peers disconnect.
+//    swarm.closing = true;
+//    swarm.unconnectedList.clear();
+//
+//    // close the connection with all the peers
+//    typedef std::pair<int, PeerStatus> map_t;
+//    BOOST_FOREACH(map_t const& peer, swarm.peerMap) {
+//        PeerWireThread * thread = peer.second.getThread();
+//        thread->sendApplicationMessage(APP_CLOSE);
+//    }
 }
 
 // Methods used by the PeerWireThread
@@ -506,7 +524,8 @@ void BitTorrentClient::processNextThread() {
             this->threadInProcessingIt = nextThreadIt;
             simtime_t processingTime =
                 (*this->threadInProcessingIt)->startProcessing();
-            emit(this->processingTime_Signal, processingTime);
+//            emit(this->processingTime_Signal, processingTime);
+            emit(this->processingTime_Signal,simTime());
             //this->scheduleAt(simTime() + processingTime, //Evitamos el retardo para iniciar el procesamiento de la pieza
             this->scheduleAt(simTime(),
                 &this->endOfProcessingTimer);
@@ -582,7 +601,11 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
             this->scheduleAt(simTime()+3600, askMsg);
 //            std::cerr<< "[PeerList-2] :: "<< this->strCurrentNode << " | " << unconnectedList.size() << "\n";
         }
+
+        //Inicialización del bitField previo
+        this->bitFieldMsgPrev = swarm.contentManager->getClientBitFieldMsg();
     }
+
 }
 /*!
  * The Peer address is acquired from the Tracker.
@@ -901,6 +924,7 @@ void BitTorrentClient::initialize(int stage) {
         // get parameters from the modules
         this->snubbedInterval = par("snubbedInterval");
         this->timeoutInterval = par("timeoutInterval");
+        this->timerAskMorePeers = par("timerAskMorePeers");
         this->keepAliveInterval = par("keepAliveInterval");
         //        this->oldUnchokeInterval = par("oldUnchokeInterval");
         this->downloadRateInterval = par("downloadRateInterval");
@@ -1002,6 +1026,11 @@ void BitTorrentClient::initialize(int stage) {
 }
 void BitTorrentClient::finishDownload()
 {
+
+    std::cerr << "\n"<< simulation.getEventNumber();
+    std::cerr << ";" << simulation.getSimTime();
+    std::cerr << ";(bitTorrentClient); " << this->strCurrentNode << ";\n";
+
     cTopology topo;
     topo.extractByProperty("controller");
 
@@ -1082,8 +1111,8 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
           std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << " aislado :(\n";
           cMessage * askMsg = new cMessage("AskMorePeers");
           askMsg->setContextPointer(this);
-          std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 30 minutos!\n";
-          this->scheduleAt(simTime()+1500, askMsg);
+          std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 1:30 minutos!\n";
+          this->scheduleAt(simTime()+5100, askMsg);
       }
 
 //    //Es posible actualizar la lista de pares disponibles con los pares que se convierten en semillas*
@@ -1167,6 +1196,9 @@ void BitTorrentClient::currentPosition(const char* peer, int *x, int *y) {
 void BitTorrentClient::selectListPeersRandom()
 {
 
+    //Lista nueva
+    this->peers_swap.clear();
+
     //1.- Definir en que cuadrante se encuentra el par
     //Contrucción de la cadena que identifica al par en la interfaz gráfica
     currentPosition(this->strCurrentNode.c_str(),&(this->peerX),&(this->peerY)); //Coordenada (x,y) del nodo actual
@@ -1232,6 +1264,12 @@ void BitTorrentClient::selectListPeersRandom()
     }
 }
 
+void BitTorrentClient::updateBitField()
+{
+    Swarm & swarm = this->getSwarm(this->infoHash_);
+    this->bitFieldMsgPrev = swarm.contentManager->getClientBitFieldMsg();
+}
+
 void BitTorrentClient::handleMessage(cMessage* msg) {
     if (!msg->isSelfMessage()) {
         // message arrived after the processing time, process as it normally would
@@ -1290,7 +1328,46 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
         } else if (msg->isName("AskMorePeers")) {
             askMoreUnconnectedPeers(this->infoHash_);
             delete msg;
-        } else {
+        } else if(msg->isName("AskMorePeersTemp")){
+            Swarm & swarm = this->getSwarm(this->infoHash_);
+            if(!swarm.seeding){//Sino eres semilla es necesario seguir solicitando piezas
+                //Calendarizando el siguiente mensaje del temporizador
+                cMessage * askMoreMsg = new cMessage("AskMorePeersTemp");
+                askMoreMsg->setContextPointer(this);
+                std::cerr<< "[Temporizador-handleMessage] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
+
+                this->bitFieldMsgCurrent = swarm.contentManager->getClientBitFieldMsg();
+                if(this->bitFieldMsgCurrent != NULL && this->bitFieldMsgPrev !=NULL){
+                    if(this->bitFieldMsgCurrent->getByteLength() != this->bitFieldMsgPrev->getByteLength()){
+                        this->bitFieldMsgPrev = this->bitFieldMsgCurrent;
+                        std::cerr<< "[Temporizador_1-handleMessage] :: (BitField ha cambiado) "<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
+                    }else{
+                        std::cerr<< "[Temporizador_2-handleMessage] :: (BitField no cambio)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
+                        this->allThreads.clear();
+                        this->socketMap.deleteSockets();
+                        swarm.numActive = 0;
+                        swarm.numPassive = 0;
+                        swarm.seeding = false;
+                        swarm.closing = false;
+                        this->askMoreUnconnectedPeers(this->infoHash_);
+                    }
+                }else{
+                    //Preguntamos de todos modos!
+                    this->allThreads.clear();
+                    this->socketMap.deleteSockets();
+                    swarm.numActive = 0;
+                    swarm.numPassive = 0;
+                    swarm.seeding = false;
+                    swarm.closing = false;
+                    std::cerr<< "[Temporizador_3-handleMessage] :: (BitField NULL)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
+                    this->askMoreUnconnectedPeers(this->infoHash_);
+                }
+
+                this->scheduleAt(simTime()+this->timerAskMorePeers, askMoreMsg);
+
+            }
+            delete msg;
+        }else{
             // PeerWireThread self-messages
             PeerWireThread *thread =
                 static_cast<PeerWireThread *>(msg->getContextPointer());

@@ -141,6 +141,7 @@ public:
     virtual void applicationClose(ConnectionSMContext& context);
     virtual void incomingPeerWireMsg(ConnectionSMContext& context);
     virtual void keepAliveTimer(ConnectionSMContext& context);
+    virtual void localClose(ConnectionSMContext& context);
     virtual void outgoingPeerWireMsg(ConnectionSMContext& context, cPacket * msg);
     virtual void timeout(ConnectionSMContext& context);
 };

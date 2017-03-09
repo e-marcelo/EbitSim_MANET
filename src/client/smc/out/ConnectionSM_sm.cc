@@ -796,6 +796,39 @@ void ConnectionMap_Connected::keepAliveTimer(ConnectionSMContext& context)
 
 }
 
+void ConnectionMap_Connected::localClose(ConnectionSMContext& context)
+{
+
+    if (context.getDebugFlag())
+    {
+        std::ostream& str = context.getDebugStream();
+
+        str << "LEAVING STATE   : ConnectionMap::Connected"
+                << std::endl;
+    }
+
+    context.getState().Exit(context);
+    if (context.getDebugFlag())
+    {
+        std::ostream& str = context.getDebugStream();
+
+        str << "ENTER TRANSITION: ConnectionMap::Connected::localClose()"
+            << std::endl;
+    }
+
+    if (context.getDebugFlag())
+    {
+        std::ostream& str = context.getDebugStream();
+
+        str << "EXIT TRANSITION : ConnectionMap::Connected::localClose()"
+            << std::endl;
+    }
+
+    context.setState(ConnectionMap::LocalClosed);
+    context.getState().Entry(context);
+
+}
+
 void ConnectionMap_Connected::outgoingPeerWireMsg(ConnectionSMContext& context, cPacket * msg)
 {
     PeerWireThread& ctxt = context.getOwner();
