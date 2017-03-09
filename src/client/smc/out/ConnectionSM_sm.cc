@@ -807,7 +807,6 @@ void ConnectionMap_Connected::localClose(ConnectionSMContext& context)
                 << std::endl;
     }
 
-    context.getState().Exit(context);
     if (context.getDebugFlag())
     {
         std::ostream& str = context.getDebugStream();
@@ -824,8 +823,6 @@ void ConnectionMap_Connected::localClose(ConnectionSMContext& context)
             << std::endl;
     }
 
-    context.setState(ConnectionMap::LocalClosed);
-    context.getState().Entry(context);
 
 }
 

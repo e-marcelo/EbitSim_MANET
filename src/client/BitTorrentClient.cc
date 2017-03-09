@@ -1343,8 +1343,8 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
                         std::cerr<< "[Temporizador_1-handleMessage] :: (BitField ha cambiado) "<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
                     }else{
                         std::cerr<< "[Temporizador_2-handleMessage] :: (BitField no cambio)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
-                        this->allThreads.clear();
-                        this->socketMap.deleteSockets();
+                        //this->allThreads.clear();
+                        //this->socketMap.deleteSockets();
                         swarm.numActive = 0;
                         swarm.numPassive = 0;
                         swarm.seeding = false;
@@ -1353,8 +1353,8 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
                     }
                 }else{
                     //Preguntamos de todos modos!
-                    this->allThreads.clear();
-                    this->socketMap.deleteSockets();
+                    //this->allThreads.clear();
+                    //this->socketMap.deleteSockets();
                     swarm.numActive = 0;
                     swarm.numPassive = 0;
                     swarm.seeding = false;
