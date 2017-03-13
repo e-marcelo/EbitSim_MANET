@@ -178,16 +178,16 @@ void PeerWireThread::sendPeerWireMsg(cPacket * msg) {
 
     if (this->getSocket()->getState() != TCPSocket::CONNECTED) {
         this->askMorePeers++;
-        std::cerr << this->btClient->strCurrentNode << " - Socket is not connected - (" << this->askMorePeers << ")\n";
+//        std::cerr << this->btClient->strCurrentNode << " - Socket is not connected - (" << this->askMorePeers << ")\n";
 
         //Cuando la mitad de las conexiones propuestas fallan, se solicita una nueva lista de candidatos
 
         if(this->askMorePeers > (this->btClient->numActiveConn)){
-            std::cerr << "***[PeerWireThreadConnection] Lista de pares extra, nodo :: " << this->btClient->strCurrentNode << " \n";
+//            std::cerr << "***[PeerWireThreadConnection] Lista de pares extra, nodo :: " << this->btClient->strCurrentNode << " \n";
             finishProcessing();
             cMessage * askMsg = new cMessage("AskMorePeers");
             askMsg->setContextPointer(this);
-            std::cerr<< "[PeerWireThreadConnection] :: " << this->btClient->strCurrentNode << " :: Busqueda de inmediato!\n";
+//            std::cerr<< "[PeerWireThreadConnection] :: " << this->btClient->strCurrentNode << " :: Busqueda de inmediato!\n";
             this->scheduleAt(simTime(), askMsg);
             this->btClient->updateBitField();
             this->askMorePeers = 0;
