@@ -203,8 +203,8 @@ void BitTorrentClient::finishedDownload(int infoHash) {
     Enter_Method("finishedDownload(infoHash: %d)", infoHash);
     Swarm & swarm = this->getSwarm(infoHash);
     swarm.seeding = true;
-    swarm.choker->par("seeder") = true; //No Evitamos cerrar conexion
-    swarm.contentManager->par("seeder") = true; //No Evitamos cerrar conexion
+    swarm.choker->par("seeder") = true; //
+    swarm.contentManager->par("seeder") = true; //
     // no more active downloads
     swarm.unconnectedList.clear(); //No Evitamos cerrar conexion***
     this->swarmManager->finishedDownload(infoHash);

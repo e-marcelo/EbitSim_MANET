@@ -151,7 +151,7 @@ std::vector<int> RarestPieceCounter::getRarestPieces(
     std::set<int>::const_iterator it = pieces.begin();
     // will store <count, index> pairs
     std::list<std::pair<int, int> > orderedList;
-
+    bool draw = false;
     // create list that will be ordered by piece quantity
     for (; it != pieces.end(); ++it) {
         orderedList.push_back(std::make_pair(this->pieceCount[*it], *it));
@@ -183,6 +183,8 @@ std::vector<int> RarestPieceCounter::getRarestPieces(
                 // start a new group
                 lastGroupCount = it->first;
                 retGroupBegin = i;
+            }else{ //Empate
+                draw = true;
             }
 
             returnedPieces.push_back(it->second);
@@ -195,10 +197,24 @@ std::vector<int> RarestPieceCounter::getRarestPieces(
         }
     }
 
+
     int front = returnedPieces.front();
     int back = returnedPieces.back();
     int size = returnedPieces.size();
 
+    if(draw){
+        /**
+              *  @brief  Add data to the end of the %vector.
+              *  @param  __x  Data to be added.
+              *
+              *  This is a typical stack operation.  The function creates an
+              *  element at the end of the %vector and assigns the given data
+              *  to it.  Due to the nature of a %vector this operation can be
+              *  done in constant time if the %vector has preallocated space
+              *  available.
+              */
+        returnedPieces.push_back(-369); //Identificador de empate al final de la lista
+    }
     return returnedPieces;
 }
 /*!
@@ -220,3 +236,4 @@ void RarestPieceCounter::removeBitField(BitField const& bitField) {
 size_t RarestPieceCounter::size() const {
     return this->pieceCount.size();
 }
+

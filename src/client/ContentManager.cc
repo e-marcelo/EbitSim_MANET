@@ -390,6 +390,7 @@ void ContentManager::addPeerBitField(BitField const& bitField, int peerId) {
         // peer interesting
         this->bitTorrentClient->peerInteresting(this->infoHash, peerId);
     } else if (bitField.full()) {
+        this->seeder = true;
         // if this client is not interested in a seeder, that means it is
         // also a seeder and this connection has no use, so it is dropped.
         this->bitTorrentClient->closeConnection(this->infoHash, peerId);
@@ -658,6 +659,7 @@ void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
 //                std::cerr << "- Became a seeder :: " << this->localPeerId << "\n";
                 // warn the tracker
                 this->bitTorrentClient->finishedDownload(this->infoHash);
+                this->seeder = true;
             }
 
             this->updateStatusString();
@@ -687,11 +689,13 @@ void ContentManager::processHaveMsg(int pieceIndex, int peerId) {
 
     // Last piece resulted in the Peer becoming a seeder
     if (peerBitField.full()) {
+
 #ifdef DEBUG_MSG
         std::string out;
         std::string peerIdStr = toStr(peerId);
 #endif
         if (this->clientBitField.full()) {
+            this->seeder  = true;
 #ifdef DEBUG_MSG
             out = "Both the Client and Peer " + peerIdStr + " are seeders.";
 #endif
@@ -699,7 +703,7 @@ void ContentManager::processHaveMsg(int pieceIndex, int peerId) {
             this->bitTorrentClient->closeConnection(this->infoHash, peerId);
 #ifdef DEBUG_MSG
         } else {
-            out = "Peer " + peerIdStr + " became a seeder.";
+            out = "Peer " + peerIdStr + " became a .";
 #endif
         }
 #ifdef DEBUG_MSG
@@ -759,6 +763,9 @@ void ContentManager::getInterestingPieces(cPacketQueue * const bundle,
         return;
     }
 
+    //Lista auxiliar con las piezas a descargar
+    orderedListRarestPieces.clear();
+
     // Ignore all pieces previously requested (including the ones requested by
     // this peerId because they were already added to the bundle).
     BitField allRequestBitField = this->clientBitField; // get a copy
@@ -774,12 +781,37 @@ void ContentManager::getInterestingPieces(cPacketQueue * const bundle,
         // get the rarest pieces among the interesting ones.
         std::vector<int> const& rarest =
             this->rarestPieceCounter.getRarestPieces(intPieces, numberOfPieces);
+
         BOOST_FOREACH (int pieceIndex, rarest) {
+            orderedListRarestPieces.push_back(pieceIndex);
+        }
+        //Verificamos si existe condición de empate
+        if(!orderedListRarestPieces.empty()){
+            //Condición de empate en el último elemento
+            if(orderedListRarestPieces.back() == -369){
+                /**
+                   *  Returns a read-only (constant) reference to the data at the
+                   *  last element of the %vector.
+                   */
+                //Eliminamos el identificador que indica la condición de empate
+                orderedListRarestPieces.pop_back();
+
+                if(!this->seeder)//Para el caso de la sanguijuela
+                    orderedListRarestPieces.sort(std::greater<int>()); //descending
+                else//Para el caso de la semilla
+                    orderedListRarestPieces.sort(); //ascending
+
+            }
+        }
+        BOOST_FOREACH (int pieceIndex, orderedListRarestPieces) {
             // Return the incomplete piece, or create a new one
             // similar to operator[], but without the default constructor
             // http://cplusplus.com/reference/stl/map/operator[]/
-
             // Try to find the piece in the missing blocks. If not found, create it
+
+            if(pieceIndex < 0) //Evitamos que la estampa de identificación provoque errores graves en la descarga
+                continue;
+
             typedef std::map<int, PieceBlocks>::iterator map_it;
             map_it lb = this->missingBlocks.lower_bound(pieceIndex);
             if (lb == this->missingBlocks.end() || lb->first != pieceIndex) {
@@ -857,6 +889,7 @@ void ContentManager::generateDownloadStatistics(int pieceIndex) {
 
         // send signal warning this ContentManager became a seeder
         emit(this->becameSeeder_Signal, this->infoHash);
+        this->seeder = true;
     }
 
     if (emitCompletionSignal) {
@@ -890,6 +923,7 @@ void ContentManager::verifyInterestOnAllPeers() {
             this->printDebugMsg(out);
 #endif
             this->bitTorrentClient->closeConnection(this->infoHash, peerId);
+
         } else if (!this->isPeerInteresting(peerId)) {
             // not interesting anymore
             this->interestingPeers.erase(currentPeerIt);
@@ -930,6 +964,7 @@ void ContentManager::updateStatusString() {
     if (ev.isGUI()) {
         std::ostringstream out;
         if (this->clientBitField.full()) {
+            this->seeder = true;
             out << "Seeder";
         } else {
             out.precision(2);
@@ -960,12 +995,12 @@ void ContentManager::initialize() {
     this->requestBundleSize = par("requestBundleSize").longValue();
     this->haveBundleSize = par("haveBundleSize").longValue();
     this->infoHash = par("infoHash").longValue();
-    bool seeder = par("seeder").boolValue();
+    this->seeder = par("seeder").boolValue();
 
     // create an empty or full BitField, depending on the parameter "seeder"
-    this->clientBitField = BitField(this->numberOfPieces, seeder);
+    this->clientBitField = BitField(this->numberOfPieces, this->seeder);
 
-    if (seeder) {
+    if (this->seeder) {
         this->updateStatusString();
     }
 

@@ -179,6 +179,9 @@ public:
     void removePeerBitField(int peerId);
     //@}
 private:
+    std::list<int> orderedListRarestPieces;
+
+    bool seeder;
     //!@name Pimpl classes
     //@{
     class PieceBlocks;

@@ -104,6 +104,8 @@ public:
     void removeBitField(BitField const& bitField);
     //! Return the size of the piece vector.
     size_t size() const;
+
+
 protected:
     //! pieceCount Store the piece count of each piece in the peer set, used to calculate the rarest piece.
     std::vector<int> pieceCount;
