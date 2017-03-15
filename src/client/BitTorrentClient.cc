@@ -1234,7 +1234,7 @@ void BitTorrentClient::selectListPeersRandom()
                 d = std::sqrt((x_+y_));
                 //std::cerr << this->strCurrentNode.c_str() <<" -> Distancia :: " << d << "***\n";
                 //De acuerdo al umbral es como se permite el envio
-                if(d <= (this->communicationRange*2)){ //Se permite la igualdad (considerar el error de redondeo*). Dos saltos desde el nodo actual
+                if(d <= (this->communicationRange)){ //Se permite la igualdad (considerar el error de redondeo*). Dos saltos desde el nodo actual
                     if(this->numWant > listaPares ){
                         PeerConnInfo peer = boost::make_tuple(peerIdNode, IPvXAddressResolver().resolve(strNode.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort); //Todos comparten el mismo puerto
                         this->peers_swap.push_back(peer);
