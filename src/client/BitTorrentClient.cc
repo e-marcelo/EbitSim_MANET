@@ -324,8 +324,52 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     this->strCurrentNode.append(optNumtoStr.str());
     this->strCurrentNode.append("]");
 
-    if(!newSwarmSeeding){ //Sino es semilla, el par actual solo adquiere pares de tu cuadrante
-         selectListPeersRandom(); //Selección por cuadrantes, no al azar!!!
+
+
+
+
+    //Lista de todos los pares participando en el enjambre
+    this->peers_swap.clear();
+//
+//    //1.- Definir en que cuadrante se encuentra el par
+//    //Contrucción de la cadena que identifica al par en la interfaz gráfica
+//    currentPosition(this->strCurrentNode.c_str(),&(this->peerX),&(this->peerY)); //Coordenada (x,y) del nodo actual
+    //std::cerr << "Nodo :: " << this->localIdDisplay << " | Posición :: " <<  this->peerX << ", " << this->peerY <<"\n";
+    //2.- Iterar sobre todos los nodos y determinar a que cuadrante corresponde (es posible ser más eficiente -> clientController)
+//    int x2;
+//    int y2;
+//    int d = -1; //Distancia entre los pares (redondeo de entero)
+//    int x_ = -1;
+//    int y_ = -1;
+
+
+    if(!newSwarmSeeding){ //Sino es semilla, el par actual solo adquiere pares al azar
+        //Reutilizando variables
+        int peerIdNode;
+        this->strArgNode.clear();
+        this->optNumtoStr.str("");
+        std::string strNode;
+
+        //Recorrido sobre todos los nodos de la red. No contemplamos al par actual en la lista que almacena los datos de los nodos
+        for(int i=0; i<this->numberOfPeers; i++){
+                this->strArgNode = std::string("peer[");
+                this->optNumtoStr << i;
+                this->strArgNode.append(this->optNumtoStr.str());
+                this->strArgNode.append("]");
+                peerIdNode = simulation.getModuleByPath(this->strArgNode.c_str())->getId();
+                //Almacenamos par que se encuentra en el enjambre
+                if(this->localPeerId != peerIdNode){ //Cuidamos que no se trate del par actual
+                    //Obtenemos coordenadas del par
+                    strNode = this->strArgNode.c_str();
+                    PeerConnInfo peer = boost::make_tuple(peerIdNode, IPvXAddressResolver().resolve(strNode.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort); //Todos comparten el mismo puerto
+                    this->peers_swap.push_back(peer);
+                    strNode.clear();
+                }
+                this->strArgNode.clear();
+                this->optNumtoStr.str("");
+        }
+
+        selectListPeersRandom(); //Selección por cuadrantes, no al azar!!!
          if(this->peers.size()){
                 std::cerr << "***[Enjambre] Lista de pares, nodo :: " << this->strCurrentNode << " -> " <<this->peers.size() <<  "\n";
         //          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
@@ -1196,71 +1240,26 @@ void BitTorrentClient::currentPosition(const char* peer, int *x, int *y) {
 void BitTorrentClient::selectListPeersRandom()
 {
 
-    //Lista nueva
-    this->peers_swap.clear();
-
-    //1.- Definir en que cuadrante se encuentra el par
-    //Contrucción de la cadena que identifica al par en la interfaz gráfica
-    currentPosition(this->strCurrentNode.c_str(),&(this->peerX),&(this->peerY)); //Coordenada (x,y) del nodo actual
-    //std::cerr << "Nodo :: " << this->localIdDisplay << " | Posición :: " <<  this->peerX << ", " << this->peerY <<"\n";
-    //2.- Iterar sobre todos los nodos y determinar a que cuadrante corresponde (es posible ser más eficiente -> clientController)
-    int x2;
-    int y2;
-    int peerIdNode;
-    int d = -1; //Distancia entre los pares (redondeo de entero)
-    int x_ = -1;
-    int y_ = -1;
-    //Reutilizando variables
-    this->strArgNode.clear();
-    this->optNumtoStr.str("");
-    std::string strNode;
-
-    int listaPares = 0;
-    for(int i=0; i<this->numberOfPeers; i++){
-            this->strArgNode = std::string("peer[");
-            this->optNumtoStr << i;
-            this->strArgNode.append(this->optNumtoStr.str());
-            this->strArgNode.append("]");
-            peerIdNode = simulation.getModuleByPath(this->strArgNode.c_str())->getId();
-
-            if(this->localPeerId != peerIdNode){ //Cuidamos que no se trate del par actual
-                //Obtenemos coordenadas del par
-                strNode = this->strArgNode.c_str();
-    //            std::cerr << "Nodo ::: " << this->strArgNode.c_str();
-                currentPosition(this->strArgNode.c_str(),&x2,&y2);
-                //Incluir validanciones
-                x_ = std::pow((double)(x2-this->peerX),2);
-                y_ = std::pow((double)(y2-this->peerY),2);
-                d = std::sqrt((x_+y_));
-                //std::cerr << this->strCurrentNode.c_str() <<" -> Distancia :: " << d << "***\n";
-                //De acuerdo al umbral es como se permite el envio
-                if(d <= (this->communicationRange*2)){ //Se permite la igualdad (considerar el error de redondeo*). Dos saltos desde el nodo actual
-                    if(this->numWant > listaPares ){
-                        PeerConnInfo peer = boost::make_tuple(peerIdNode, IPvXAddressResolver().resolve(strNode.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort); //Todos comparten el mismo puerto
-                        this->peers_swap.push_back(peer);
-                    }//Podriamos almacenar los pares extra ***
-                    listaPares++;
-                }
-                strNode.clear();
-    //          std::cerr << " | Posición :: " <<  x2 << ", " << y2 <<"\n";
-                //Distancia entre el par actual y el par que estamos visitando
-            }
-
-            this->strArgNode.clear();
-            this->optNumtoStr.str("");
-    }
 
     //Validamos la inclusión de pares en la lista
     if(this->peers_swap.size()){
-        //    //Cambio en el orden anterior
+        int listaPares = 0;
+        //    Seleccion al azar!!!
         std::random_shuffle(peers_swap.begin(), peers_swap.end(), intrand);
 
         this->peers.clear();
         BOOST_FOREACH(PeerConnInfo peer, peers_swap){
             //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
-            this->peers.push_back(peer);
+            if(this->numWant > listaPares ){
+                this->peers.push_back(peer);
+            }else{
+                break;
+            }
+            listaPares ++;
             //       //EAM :: i++;
         }
+    }else{
+        std::cerr << "Lista base sin pares (peers_swap) ? \n";
     }
 }
 

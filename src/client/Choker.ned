@@ -25,7 +25,7 @@ simple Choker
         //double roundInterval @unit(s) = default(10s);
 
 //        double roundInterval @unit(s) = default(10s);
-		double roundInterval @unit(s) = default(40s);
+		double roundInterval @unit(s) = default(10s);
 
         // True if the Client have all pieces already.
         bool seeder;
