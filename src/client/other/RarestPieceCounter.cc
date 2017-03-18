@@ -187,12 +187,13 @@ std::vector<int> RarestPieceCounter::getRarestPieces(
 
             returnedPieces.push_back(it->second);
         }
-
+        //Selección de pieza al azar |  [Rearranges the elements in the range [first,last) randomly]
+        std::random_shuffle(returnedPieces.begin(),returnedPieces.end(), intrand);
         // If all pieces were inserted, then it is necessary to shuffle the last group
-        if (it == orderedList.end()) {
-            std::random_shuffle(returnedPieces.begin() + retGroupBegin,
-                returnedPieces.end(), intrand);
-        }
+//        if (it == orderedList.end()) {
+//            std::random_shuffle(returnedPieces.begin() + retGroupBegin,
+//                returnedPieces.end(), intrand);
+//        }
     }
 
     int front = returnedPieces.front();
