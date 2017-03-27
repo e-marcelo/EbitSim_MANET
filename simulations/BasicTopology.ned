@@ -47,7 +47,7 @@ network BasicTopology extends BasicNetwork
         //double playgroundSizeY;
 		//Área de simulación
         //@display("bgb=1000,1000,white;bgg=100,2,grey80");
-        @display("bgb=500,500,white;bgg=100,2,grey80");
+        @display("bgb=500,500,white;bgg=100,2,grey80;bgl=2");
         @signal[BitTorrentClient_DownloadComplete_Test];
         @statistic[DownloadComplete_Test](source=BitTorrentClient_DownloadComplete_Test; title="Tiempo de desacarga (prueba)"; record=vector);
         @signal[BitTorrentClient_PeerWireBytesSent];
@@ -86,14 +86,14 @@ network BasicTopology extends BasicNetwork
         @statistic[LeaveSwarm](source=SwarmManager_LeaveSwarm; title="Leave Swarm Time"; record=vector; );
         @statistic[SwarmEmittedPeerId](source=SwarmManager_EmittedPeerId; title="Peer Swarm Signal Emitted"; record=vector; );
 
-                @signal[ContentManager_BecameSeeder];
-                @signal[ContentManager_PieceDownloadTime];
-                @signal[ContentManager_PieceDownloaded];
-                @signal[ContentManager_TotalBytesDownloaded];
-                @signal[ContentManager_TotalBytesUploaded];
-                @signal[ContentManager_25_percentDownloadTime];
-                @signal[ContentManager_50_percentDownloadTime];
-                @signal[ContentManager_75_percentDownloadTime];
+        @signal[ContentManager_BecameSeeder];
+        @signal[ContentManager_PieceDownloadTime];
+        @signal[ContentManager_PieceDownloaded];
+        @signal[ContentManager_TotalBytesDownloaded];
+        @signal[ContentManager_TotalBytesUploaded];
+        @signal[ContentManager_25_percentDownloadTime];
+        @signal[ContentManager_50_percentDownloadTime];
+        @signal[ContentManager_75_percentDownloadTime];
         @signal[ContentManager_100_percentDownloadTime];
         @statistic[DownloadComplete](source=ContentManager_100_percentDownloadTime; title="Download Complete"; unit=s; record=vector,histogram);
         @signal[ContentManager_EmittedPeerId];
@@ -106,20 +106,20 @@ network BasicTopology extends BasicNetwork
 
         flatNetworkConfigurator: FlatNetworkConfigurator {
 
-            @display("p=17,134");
+            @display("p=13,62");
         }
 
         clientController: ClientController {
-            @display("p=17,20");
+            @display("p=24,172");
         }
         channelControl: ChannelControl {
             parameters:
                 //EAM :: playgroundSizeX = playgroundSizeX;
                 //EAM :: playgroundSizeY = playgroundSizeY;
-                @display("p=17,197");
+                @display("p=24,16");
         }
         slaw: Slaw if mobilityModel == "SlawMobility" {
-            @display("p=17,79;i=block/cogwheel_s");
+            @display("p=13,111;i=block/cogwheel_s");
         }
 
         //EAM :: peer[numPeers]: <> like PeerInterface{
@@ -131,7 +131,7 @@ network BasicTopology extends BasicNetwork
             numTcpApps = 1;
             //EAM :: mobilityType = mobilityModel;
             @display("p=296,71;is=vs;i=old/x_active");
-		
+
 
         }
         tracker: AdhocHost {
@@ -147,7 +147,7 @@ network BasicTopology extends BasicNetwork
 			//tcpAppType = "TrackerApp";
             //@address("192.168.0.133");
             //@display("p=392,293;i=device/server2");
-            @display("i=old/x_blank;is=vs;p=2,2");
+            @display("i=old/x_blank;is=vs;p=-1,2");
             //@display("p=500,500");
         }
 
