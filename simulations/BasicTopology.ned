@@ -49,7 +49,7 @@ network BasicTopology extends BasicNetwork
         //@display("bgb=1000,1000,white;bgg=100,2,grey80");
         @display("bgb=500,500,white;bgg=100,2,grey80");
         @signal[BitTorrentClient_DownloadComplete_Test];
-        @statistic[DownloadComplete_Test](source=BitTorrentClient_DownloadComplete_Test; title="Tiempo de desacarga (prueba)"; record=vector);
+        //@statistic[DownloadComplete_Test](source=BitTorrentClient_DownloadComplete_Test; title="Tiempo de desacarga (prueba)"; record=vector);
         @signal[BitTorrentClient_PeerWireBytesSent];
         @signal[BitTorrentClient_ContentBytesSent];
         @statistic[PeerWireBytesSent](source=BitTorrentClient_PeerWireBytesSent; title="Total bytes of PeerWire messages sent"; record=sum);
@@ -82,22 +82,22 @@ network BasicTopology extends BasicNetwork
         @signal[SwarmManager_EnterSwarm];
         @signal[SwarmManager_LeaveSwarm];
         @signal[SwarmManager_EmittedPeerId];
-        @statistic[EnterSwarm](source=SwarmManager_EnterSwarm; title="Enter Swarm Time"; record=vector; );
-        @statistic[LeaveSwarm](source=SwarmManager_LeaveSwarm; title="Leave Swarm Time"; record=vector; );
+        @statistic[EnterSwarm](source=SwarmManager_EnterSwarm; title="Enter Swarm Time"; record=histogram; );
+        @statistic[LeaveSwarm](source=SwarmManager_LeaveSwarm; title="Leave Swarm Time"; record=histogram; );
         @statistic[SwarmEmittedPeerId](source=SwarmManager_EmittedPeerId; title="Peer Swarm Signal Emitted"; record=vector; );
 
-                @signal[ContentManager_BecameSeeder];
-                @signal[ContentManager_PieceDownloadTime];
-                @signal[ContentManager_PieceDownloaded];
-                @signal[ContentManager_TotalBytesDownloaded];
-                @signal[ContentManager_TotalBytesUploaded];
-                @signal[ContentManager_25_percentDownloadTime];
-                @signal[ContentManager_50_percentDownloadTime];
-                @signal[ContentManager_75_percentDownloadTime];
+        @signal[ContentManager_BecameSeeder];
+        @signal[ContentManager_PieceDownloadTime];
+        @signal[ContentManager_PieceDownloaded];
+        @signal[ContentManager_TotalBytesDownloaded];
+        @signal[ContentManager_TotalBytesUploaded];
+        @signal[ContentManager_25_percentDownloadTime];
+        @signal[ContentManager_50_percentDownloadTime];
+        @signal[ContentManager_75_percentDownloadTime];
         @signal[ContentManager_100_percentDownloadTime];
-        @statistic[DownloadComplete](source=ContentManager_100_percentDownloadTime; title="Download Complete"; unit=s; record=vector,histogram);
+        @statistic[DownloadComplete](source=ContentManager_100_percentDownloadTime; title="Download Complete"; unit=s;  record=vector,histogram);
         @signal[ContentManager_EmittedPeerId];
-        @statistic[DownloadEmittedPeerId](source=ContentManager_EmittedPeerId; title="Peer Download Signal Emitted"; record=vector);
+        @statistic[DownloadEmittedPeerId](source=ContentManager_EmittedPeerId; title="Peer Download Signal Emitted";  record=vector);
 
     submodules:
         //        tracker: Tracker;
@@ -131,7 +131,7 @@ network BasicTopology extends BasicNetwork
             numTcpApps = 1;
             //EAM :: mobilityType = mobilityModel;
             @display("p=296,71;is=vs;i=old/x_active");
-		
+
 
         }
         tracker: AdhocHost {
