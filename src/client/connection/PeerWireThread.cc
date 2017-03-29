@@ -106,7 +106,7 @@ void PeerWireThread::failure(int code) {
 ////        btClient->swarmManager->askMorePeers(20);
 //        break;
 //    }
-      std::cerr << "[PeerWireThread] TCP connection failure :: "<< code <<" :: "<< this->btClient->localPeerId << " ---> " << this->getSocket()->getRemoteAddress() <<"\n";
+//      std::cerr << "[PeerWireThread] TCP connection failure :: "<< code <<" :: "<< this->btClient->localPeerId << " ---> " << this->getSocket()->getRemoteAddress() <<"\n";
       this->btClient->updateBitField();
 //    this->printDebugMsg(out.str());
 //#endif

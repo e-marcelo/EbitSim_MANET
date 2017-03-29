@@ -87,7 +87,7 @@ void BitTorrentClient::addUnconnectedPeers(int infoHash,
     if(!this->askMore){ //Solo una vez es necesario ejecutar el temporizador
         cMessage * askMoreMsg = new cMessage("AskMorePeersTemp");
         askMoreMsg->setContextPointer(this);
-        std::cerr<< "[Temporizador] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
+        //std::cerr<< "[Temporizador] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
         this->scheduleAt(simTime()+this->timerAskMorePeers, askMoreMsg);
         this->askMore = true;
     }
@@ -597,7 +597,7 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
              //Como calendarizar invocación de más pares?
             cMessage * askMsg = new cMessage("AskMorePeers");
             askMsg->setContextPointer(this);
-            std::cerr<< "[PeerList-1] :: " << this->strCurrentNode << " :: Calendarizando en 1h!\n";
+            //std::cerr<< "[PeerList-1] :: " << this->strCurrentNode << " :: Calendarizando en 1h!\n";
             this->scheduleAt(simTime()+3600, askMsg);
 //            std::cerr<< "[PeerList-2] :: "<< this->strCurrentNode << " | " << unconnectedList.size() << "\n";
         }
