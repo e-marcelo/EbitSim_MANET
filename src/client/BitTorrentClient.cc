@@ -1275,24 +1275,25 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
     //Mensaje que es encaminado (adaptación) [Seok11]
 if(msg->arrivedOn("peerIn")){
         //:( -> PieceMsg *pp = (PieceMsg *)object; (void)pp;
+        //Referencia al enjambre
         Swarm & swarm = this->getSwarm(this->infoHash_);
-        int peerId = -215, pieceIndex = 0, begin = 0, blockSize = 32768, count=0;
         //std::cerr << this->strCurrentNode << msg->getName() <<"\n";
         //PieceMsg * piece = dynamic_cast<PieceMsg *>(msg);
         //PieceMsg * piece = check_and_cast<PieceMsg *>(msg);
-        std::string name = msg->getName();
-        std::string value;
+        this->name = msg->getName();
+        this->count = 0;
         boost::char_separator<char> token("|");
         typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
         tokenizer myTokenizer(name,token);
+        //Posible error de división entre cero sino se inicializan correctamente los parámetros: "pieceIndex" y "begin"
         for(auto &t: myTokenizer){
-            value = t;
-            if(count == 0){
-                pieceIndex = std::atoi(value.c_str());
-            }else if(count == 1){
-                begin = std::atoi(value.c_str());
+            this->value = t;
+            if(this->count == 0){
+                this->pieceIndex = std::atoi(this->value.c_str());
+            }else if(this->count == 1){
+                this->begin = std::atoi(this->value.c_str());
             }
-            count ++;
+            this->count ++;
         }
         //Ya debe estar filtrado el mensaje (solo se esperan mensajes de tipo: PieceMsg)
         //std::cerr << peerId << "  ::  " << pieceIndex << " +\n ";
@@ -1301,10 +1302,18 @@ if(msg->arrivedOn("peerIn")){
             //1.- Cómo deducir el tamaño de la pieza y los campos complementarios
             //2.- Procesando pieza en modo "promiscuo"
         //Manejar histórico de piezas que ya se tomaron en modo promiscuo (no procesar dos veces)!
-        swarm.contentManager->processBlock(peerId,pieceIndex,begin,blockSize);
+        //Es posible que sea el mismo identificador de pieza, pero diferente índice del bloque (en consecuencia, se delega la tarea al manejador del contenido)
+        swarm.contentManager->processBlock(this->peerId,this->pieceIndex,this->begin,this->blockSize);
             //3.- Verificar comportamiento (modo gráfico)
         //}// msg->getFullName() << "\n"; //
+        //Eliminamos mensaje
         delete msg;
+        //Reiniciamos variables (reutilizables)
+        this->value.clear();
+        this->name.clear();
+        this->count = 0;
+        this->pieceIndex = 0;
+        this->begin = 0;
 }else{
 
     if (!msg->isSelfMessage()) {

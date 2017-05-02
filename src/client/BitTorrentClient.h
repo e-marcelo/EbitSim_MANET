@@ -207,6 +207,10 @@ public:
     void finishDownload();
     //@}
 private:
+    //Variables utilizadas para el modo promiscuo
+    int peerId = -215, pieceIndex = 0, begin = 0, blockSize = 32768, count=0;
+    std::string name;
+    std::string value;
 
     BitFieldMsg* bitFieldMsgCurrent = NULL;
     BitFieldMsg* bitFieldMsgPrev = NULL;
@@ -257,7 +261,6 @@ private:
     std::string strCurrentNode;
     std::string strArgNode;
     std::ostringstream optNumtoStr;
-    int count;
     int peerX;
     int peerY;
     int localIdDisplay = -1;

@@ -575,8 +575,10 @@ unsigned long ContentManager::getTotalUploaded(int peerId) const {
  */
 void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
     int blockSize) {
+//Modo promiscuo
 if(peerId == -215){
         //EAM :: std::cerr << "Pieza detectada, blockSize = " << blockSize << "\n";
+        //Validaciones
         Enter_Method(
             "processPiece(peerId: %d, index: %d, begin: %d, blockSize: %d)", peerId,
             pieceIndex, begin, blockSize);
@@ -584,14 +586,9 @@ if(peerId == -215){
         if (pieceIndex < 0 || pieceIndex >= this->numberOfPieces) {
             throw std::out_of_range("The piece index is out of bounds");
         }
-        //std::cerr << "ProcessPiece " << blockSize << "\n";
-        // update bytes counter
-        this->totalDownloadedByPeer[peerId] += blockSize;
-        this->totalBytesDownloaded += blockSize;
-        emit(this->totalBytesDownloaded_Signal, this->totalBytesDownloaded);
 
         // ignore block if the piece is already complete
-if (!this->clientBitField.hasPiece(pieceIndex)) {
+        if (!this->clientBitField.hasPiece(pieceIndex)) {
             // Try to find the piece in the missing blocks. If not found, create it
             typedef std::map<int, PieceBlocks>::iterator map_it;
             map_it lb = this->missingBlocks.lower_bound(pieceIndex);
@@ -607,6 +604,13 @@ if (!this->clientBitField.hasPiece(pieceIndex)) {
             int blockIndex = begin / blockSize;
             if (req.setBlock(blockIndex)) {
                     std::cerr << "Pieza aceptada [Modo promiscuo]\n";
+                    //std::cerr << "ProcessPiece " << blockSize << "\n";
+                    // update bytes counter
+                    //Total de bytes descargados (solo si la pieza es útil), pero no hay razón del par que permite la descarga (:().
+                    this->totalDownloadedByPeer[peerId] += blockSize;
+                    this->totalBytesDownloaded += blockSize;
+                    emit(this->totalBytesDownloaded_Signal, this->totalBytesDownloaded);
+                    //Posible problema con la medida de desempeño pues no se está ejecutando la adquisición de estadísticas de manera "correcta" (de acuerdo al modelo inicial).
                     //EAM :( std::multimap<int, int>::iterator it, end;
                     //EAM :( boost::tie(it, end) = this->requestedPieces.equal_range(peerId);
                     //EAM :(  for (/* empty */; it != end; ++it) {
@@ -627,6 +631,7 @@ if (!this->clientBitField.hasPiece(pieceIndex)) {
                     end = this->requestedPieces.end();
                     while (it != end) {
                         std::multimap<int, int>::iterator currentIt = it++;
+                        //Cancelamos peticiones de la pieza, una vez que ésta esta completa!
                         if (currentIt->second == pieceIndex) {
                             this->requestedPieces.erase(currentIt);
                         }
@@ -636,29 +641,30 @@ if (!this->clientBitField.hasPiece(pieceIndex)) {
                     if (this->clientBitField.empty()) {
                         this->downloadStartTime = simTime();
                     }
-
+                    //Actualización del estado de la pieza!
                     // "Move" the piece from the missingBlocks to the clientBitField
                     this->missingBlocks.erase(pieceIndex);
                     this->clientBitField.addPiece(pieceIndex);
 
                     // Check if the connected peers continue to be interesting
                     this->verifyInterestOnAllPeers();
-                    // Statistics
+                    // Statistics [EAM :: Las estadísticas no pueden ser instrumentadas, ¿Que par suministro el bloque? No hay un indicador, puesto que no se solicitó de antemano el bloque procesado]
                     //EAM :( -> generateDownloadStatistics(pieceIndex);
                     // schedule the sending of the HaveMsg to all Peers.
+                    //Notificamos a todos los pares sobre la pieza con la que ahora cuenta el par actual.
                     this->bitTorrentClient->sendHaveMessages(this->infoHash,
                         pieceIndex);
-
+                    //Validación en caso de que el par cambie de estado (de sanguijuela a semilla)!
                     if (this->clientBitField.full()) { // became seeder
                 //                std::cerr << "- Became a seeder :: " << this->localPeerId << "\n";
                         // warn the tracker
                         this->bitTorrentClient->finishedDownload(this->infoHash);
                     }
-
+                    //Actualización
                     this->updateStatusString();
-                }
-}
-}else{
+                }//Fin se tenemos una pieza completa!
+        }//Fin validación de procesamiento del bloque (Se ignoran los bloques de una pieza completa).
+}else{ //Operación normal (cuando el par actual es el "destino" del bloque procesado)
     Enter_Method(
         "processPiece(peerId: %d, index: %d, begin: %d, blockSize: %d)", peerId,
         pieceIndex, begin, blockSize);
