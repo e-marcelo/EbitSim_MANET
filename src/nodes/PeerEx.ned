@@ -59,7 +59,7 @@ module PeerEx{
         string routingFile = default("");
         bool IPForward = default(true);
         bool forwardMulticast = default(false);
-        string routingProtocol @enum("AODVUU","DYMOUM","DYMO","DSRUU","OLSR","OLSR_ETX","DSDV_2","Batman") = default("AODVUU");  // used mobile routing protocol. see: inet.networklayer.manetrouting
+        string routingProtocol @enum("AODVUU","DYMOUM","DYMO","DSRUU","OLSR","OLSR_ETX","DSDV_2","Batman") = default("DSRUU");  // used mobile routing protocol. see: inet.networklayer.manetrouting
     gates:
         input radioIn[numRadios] @directIn;
         inout pppg[] @labels(PPPFrame-conn);
@@ -176,7 +176,8 @@ module PeerEx{
         
         networkLayer.manetOut --> manetrouting.from_ip if routingProtocol != "";
         networkLayer.manetIn <-- manetrouting.to_ip if routingProtocol != "";
-    
+    	//Comunicación capa de encaminamiento y capa de aplicación (BT)
+ 		bitTorrentApp.peerIn <-- manetrouting.to_peer if routingProtocol != "";   	
     
     
 }

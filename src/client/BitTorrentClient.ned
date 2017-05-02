@@ -7,6 +7,7 @@ import inet.applications.tcpapp.TCPSrvHostApp;
 //
 simple BitTorrentClient extends TCPSrvHostApp
 {
+       
     parameters:
         @signal[BitTorrentClient_DownloadComplete_Test];
         
@@ -79,4 +80,7 @@ simple BitTorrentClient extends TCPSrvHostApp
         //Tamaño del escenario
         int sizeX = default(500);
         int sizeY = default(500);
+        
+     gates:
+        input peerIn;
 }

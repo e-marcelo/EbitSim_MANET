@@ -132,9 +132,16 @@ public:
         this->contentManager->printDebugMsg(out);
 #endif
 
-        std::string name = "PieceMsg" + this->getRequestName(pieceRequest);
+        //EAM std::string name = "PieceMsg" + this->getRequestName(pieceRequest);
+        std::string name = toStr(pieceRequest->index) + "|" + toStr(pieceRequest->begin)+"|";// +  toStr(pieceRequest->reqLength) + "|";/* toStr(pieceRequest->index); */ // + toStr(pieceRequest->begin) + toStr(pieceRequest->reqLength) + "}";
+        //std::cerr << "*{" + toStr(pieceRequest->index) + "," + toStr(pieceRequest->begin) + "," +  toStr(pieceRequest->reqLength) + "}\n";
+        /*" ,"; +
+                toStr(pieceRequest->index) +
+                "," + toStr(pieceRequest->begin) +
+                "," + toStr(pieceRequest->reqLength);
+*/
         PieceMsg* pieceMsg = new PieceMsg(name.c_str());
-
+        pieceMsg->setName(name.c_str());
         int reqLength = pieceRequest->reqLength;
         // sent this block to the Peer with the passed peerId
         this->contentManager->totalUploadedByPeer[peerId] += reqLength;
@@ -568,6 +575,90 @@ unsigned long ContentManager::getTotalUploaded(int peerId) const {
  */
 void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
     int blockSize) {
+if(peerId == -215){
+        //EAM :: std::cerr << "Pieza detectada, blockSize = " << blockSize << "\n";
+        Enter_Method(
+            "processPiece(peerId: %d, index: %d, begin: %d, blockSize: %d)", peerId,
+            pieceIndex, begin, blockSize);
+
+        if (pieceIndex < 0 || pieceIndex >= this->numberOfPieces) {
+            throw std::out_of_range("The piece index is out of bounds");
+        }
+        //std::cerr << "ProcessPiece " << blockSize << "\n";
+        // update bytes counter
+        this->totalDownloadedByPeer[peerId] += blockSize;
+        this->totalBytesDownloaded += blockSize;
+        emit(this->totalBytesDownloaded_Signal, this->totalBytesDownloaded);
+
+        // ignore block if the piece is already complete
+if (!this->clientBitField.hasPiece(pieceIndex)) {
+            // Try to find the piece in the missing blocks. If not found, create it
+            typedef std::map<int, PieceBlocks>::iterator map_it;
+            map_it lb = this->missingBlocks.lower_bound(pieceIndex);
+            if (lb == this->missingBlocks.end() || lb->first != pieceIndex) {
+                std::pair<int, PieceBlocks> const& p = std::make_pair(pieceIndex,
+                PieceBlocks(pieceIndex, this->numberOfSubPieces));
+                lb = this->missingBlocks.insert(lb, p);
+            }
+
+            // Set the piece and check if it was requested to this peerId. If so,
+            // then decrement the number of pending requests. EAM :: (No afectamos solicitudes pendiente!)
+            PieceBlocks & req = lb->second;
+            int blockIndex = begin / blockSize;
+            if (req.setBlock(blockIndex)) {
+                    std::cerr << "Pieza aceptada [Modo promiscuo]\n";
+                    //EAM :( std::multimap<int, int>::iterator it, end;
+                    //EAM :( boost::tie(it, end) = this->requestedPieces.equal_range(peerId);
+                    //EAM :(  for (/* empty */; it != end; ++it) {
+                    //EAM :(     if (it->second == pieceIndex) {
+                    //EAM :(         --this->numPendingRequests.at(peerId);
+                    //EAM :(         break;
+                    //EAM :(     }
+                    //EAM :( }
+            }
+
+            // If the piece became complete, perform the needed cleanups
+            if (req.isComplete()) {
+                    // If this piece was not requested to peerId, it may have been
+                    // requested to a different peerId. That's why it is necessary to
+                    // go through the whole requestedPieces map
+                    std::multimap<int, int>::iterator it, end;
+                    it = this->requestedPieces.begin();
+                    end = this->requestedPieces.end();
+                    while (it != end) {
+                        std::multimap<int, int>::iterator currentIt = it++;
+                        if (currentIt->second == pieceIndex) {
+                            this->requestedPieces.erase(currentIt);
+                        }
+                    }
+
+                    // First block fully downloaded, signaling the start of the download
+                    if (this->clientBitField.empty()) {
+                        this->downloadStartTime = simTime();
+                    }
+
+                    // "Move" the piece from the missingBlocks to the clientBitField
+                    this->missingBlocks.erase(pieceIndex);
+                    this->clientBitField.addPiece(pieceIndex);
+
+                    // Check if the connected peers continue to be interesting
+                    this->verifyInterestOnAllPeers();
+                    // Statistics
+                    //EAM :( -> generateDownloadStatistics(pieceIndex);
+                    // schedule the sending of the HaveMsg to all Peers.
+                    this->bitTorrentClient->sendHaveMessages(this->infoHash,
+                        pieceIndex);
+
+                    if (this->clientBitField.full()) { // became seeder
+                //                std::cerr << "- Became a seeder :: " << this->localPeerId << "\n";
+                        // warn the tracker
+                        this->bitTorrentClient->finishedDownload(this->infoHash);
+                    }
+
+                    this->updateStatusString();
+                }
+}
+}else{
     Enter_Method(
         "processPiece(peerId: %d, index: %d, begin: %d, blockSize: %d)", peerId,
         pieceIndex, begin, blockSize);
@@ -663,6 +754,7 @@ void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
             this->updateStatusString();
         }
     }
+}
 }
 void ContentManager::processHaveMsg(int pieceIndex, int peerId) {
     Enter_Method("updatePeerBitField(index: %d, id: %d)", pieceIndex, peerId);

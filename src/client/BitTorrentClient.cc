@@ -87,7 +87,7 @@ void BitTorrentClient::addUnconnectedPeers(int infoHash,
     if(!this->askMore){ //Solo una vez es necesario ejecutar el temporizador
         cMessage * askMoreMsg = new cMessage("AskMorePeersTemp");
         askMoreMsg->setContextPointer(this);
-//        std::cerr<< "[Temporizador] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
+        //std::cerr<< "[Temporizador] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
         this->scheduleAt(simTime()+this->timerAskMorePeers, askMoreMsg);
         this->askMore = true;
     }
@@ -126,6 +126,7 @@ void BitTorrentClient::addUnconnectedPeers(int infoHash,
             emit(this->numUnconnected_Signal, this->prevNumUnconnected);
         }
         this->bitFieldMsgPrev = swarm.contentManager->getClientBitFieldMsg();
+
     }
 
 
@@ -597,7 +598,7 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
              //Como calendarizar invocación de más pares?
             cMessage * askMsg = new cMessage("AskMorePeers");
             askMsg->setContextPointer(this);
-//            std::cerr<< "[PeerList-1] :: " << this->strCurrentNode << " :: Calendarizando en 1h!\n";
+            //std::cerr<< "[PeerList-1] :: " << this->strCurrentNode << " :: Calendarizando en 1h!\n";
             this->scheduleAt(simTime()+3600, askMsg);
 //            std::cerr<< "[PeerList-2] :: "<< this->strCurrentNode << " | " << unconnectedList.size() << "\n";
         }
@@ -1105,13 +1106,13 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
       if(this->peers.size()){
         //          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
 //          peers.unique();
-//          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << ", agregando :: "<< peers.size()<<"\n";
+          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << ", agregando :: "<< peers.size()<<"\n";
           addUnconnectedPeers(infoHash, this->peers);
       }else{
-//          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << " aislado :(\n";
+          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << " aislado :(\n";
           cMessage * askMsg = new cMessage("AskMorePeers");
           askMsg->setContextPointer(this);
-//          std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 1:30 minutos!\n";
+          std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 1:30 minutos!\n";
           this->scheduleAt(simTime()+5100, askMsg);
       }
 
@@ -1271,6 +1272,41 @@ void BitTorrentClient::updateBitField()
 }
 
 void BitTorrentClient::handleMessage(cMessage* msg) {
+    //Mensaje que es encaminado (adaptación) [Seok11]
+if(msg->arrivedOn("peerIn")){
+        //:( -> PieceMsg *pp = (PieceMsg *)object; (void)pp;
+        Swarm & swarm = this->getSwarm(this->infoHash_);
+        int peerId = -215, pieceIndex = 0, begin = 0, blockSize = 0, count=0;
+        //std::cerr << this->strCurrentNode << msg->getName() <<"\n";
+        //PieceMsg * piece = dynamic_cast<PieceMsg *>(msg);
+        //PieceMsg * piece = check_and_cast<PieceMsg *>(msg);
+        std::string name = msg->getName();
+        std::string value;
+        boost::char_separator<char> token("|");
+        typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+        tokenizer myTokenizer(name,token);
+        for(auto &t: myTokenizer){
+            value = t;
+            if(count == 0){
+                pieceIndex = std::atoi(value.c_str());
+            }else if(count == 1){
+                begin = std::atoi(value.c_str());
+            }
+            count ++;
+        }
+        //Ya debe estar filtrado el mensaje (solo se esperan mensajes de tipo: PieceMsg)
+        //std::cerr << peerId << "  ::  " << pieceIndex << " +\n ";
+        //if(piece){
+        //    std::cerr << piece->getName() << "  ::  " << piece->getIndex()<< " | "<<piece->getBegin() << "\n";
+            //1.- Cómo deducir el tamaño de la pieza y los campos complementarios
+            //2.- Procesando pieza en modo "promiscuo"
+        //Manejar histórico de piezas que ya se tomaron en modo promiscuo (no procesar dos veces)!
+        swarm.contentManager->processBlock(peerId,pieceIndex,begin,32768);
+            //3.- Verificar comportamiento (modo gráfico)
+        //}// msg->getFullName() << "\n"; //
+        delete msg;
+}else{
+
     if (!msg->isSelfMessage()) {
         // message arrived after the processing time, process as it normally would
         TCPSocket *socket = socketMap.findSocketFor(msg);
@@ -1334,15 +1370,15 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
                 //Calendarizando el siguiente mensaje del temporizador
                 cMessage * askMoreMsg = new cMessage("AskMorePeersTemp");
                 askMoreMsg->setContextPointer(this);
-//                std::cerr<< "[Temporizador-handleMessage] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
+                std::cerr<< "[Temporizador-handleMessage] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
 
                 this->bitFieldMsgCurrent = swarm.contentManager->getClientBitFieldMsg();
                 if(this->bitFieldMsgCurrent != NULL && this->bitFieldMsgPrev !=NULL){
                     if(this->bitFieldMsgCurrent->getByteLength() != this->bitFieldMsgPrev->getByteLength()){
                         this->bitFieldMsgPrev = this->bitFieldMsgCurrent;
-//                        std::cerr<< "[Temporizador_1-handleMessage] :: (BitField ha cambiado) "<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
+                        std::cerr<< "[Temporizador_1-handleMessage] :: (BitField ha cambiado) "<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
                     }else{
-//                        std::cerr<< "[Temporizador_2-handleMessage] :: (BitField no cambio)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
+                        std::cerr<< "[Temporizador_2-handleMessage] :: (BitField no cambio)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
                         //this->allThreads.clear();
                         //this->socketMap.deleteSockets();
                         swarm.numActive = 0;
@@ -1359,7 +1395,7 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
                     swarm.numPassive = 0;
                     swarm.seeding = false;
                     swarm.closing = false;
-//                    std::cerr<< "[Temporizador_3-handleMessage] :: (BitField NULL)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
+                    std::cerr<< "[Temporizador_3-handleMessage] :: (BitField NULL)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
                     this->askMoreUnconnectedPeers(this->infoHash_);
                 }
 
@@ -1377,6 +1413,7 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
             thread->timerExpired(msg);
         }
     }
+  }//Fin else
 }
 
 

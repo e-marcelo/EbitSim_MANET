@@ -177,7 +177,7 @@ private:
     //! A value of -1 represents an empty slot.
     //@{
     std::set<int> regularSlots;
-    std::set<int> optimisticSlots;
+    std::set<int> optimisticSlots; //EAM <- Estructura pares optimistas >= 2 saltos
     //@}
 
     cMessage roundTimer;

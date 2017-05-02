@@ -106,7 +106,7 @@ void PeerWireThread::failure(int code) {
 ////        btClient->swarmManager->askMorePeers(20);
 //        break;
 //    }
-      std::cerr << "[PeerWireThread] TCP connection failure :: "<< code <<" :: "<< this->btClient->localPeerId << " ---> " << this->getSocket()->getRemoteAddress() <<"\n";
+//      std::cerr << "[PeerWireThread] TCP connection failure :: "<< code <<" :: "<< this->btClient->localPeerId << " ---> " << this->getSocket()->getRemoteAddress() <<"\n";
       this->btClient->updateBitField();
 //    this->printDebugMsg(out.str());
 //#endif
@@ -321,6 +321,7 @@ void PeerWireThread::sendApplicationMessage(int id) {
     // Ensure the processing of the first message to arrive.
     if (!this->busy) this->btClient->processNextThread();
 }
+
 void PeerWireThread::issueTransition(cMessage const* msg) { // get message Id
     ApplicationMsg const* appMsg = dynamic_cast<ApplicationMsg const*>(msg);
     PeerWireMsg const* pwMsg = dynamic_cast<PeerWireMsg const*>(msg);

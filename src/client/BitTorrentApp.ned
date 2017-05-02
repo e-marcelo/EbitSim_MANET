@@ -84,6 +84,7 @@ module BitTorrentApp
     gates:
         input tcpIn[2];
         output tcpOut[2];
+        input peerIn;
     submodules:
         swarmManager: SwarmManager {
             @display("p=68,58");
@@ -105,6 +106,7 @@ module BitTorrentApp
 //        
         bitTorrentClient.tcpOut --> tcpOut[0];
         bitTorrentClient.tcpIn <-- tcpIn[0];
+        bitTorrentClient.peerIn <-- peerIn;
         swarmManager.tcpOut --> tcpOut[1];
         swarmManager.tcpIn <-- tcpIn[1];
 }
