@@ -1276,7 +1276,7 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
 if(msg->arrivedOn("peerIn")){
         //:( -> PieceMsg *pp = (PieceMsg *)object; (void)pp;
         Swarm & swarm = this->getSwarm(this->infoHash_);
-        int peerId = -215, pieceIndex = 0, begin = 0, blockSize = 0, count=0;
+        int peerId = -215, pieceIndex = 0, begin = 0, blockSize = 32768, count=0;
         //std::cerr << this->strCurrentNode << msg->getName() <<"\n";
         //PieceMsg * piece = dynamic_cast<PieceMsg *>(msg);
         //PieceMsg * piece = check_and_cast<PieceMsg *>(msg);
@@ -1301,7 +1301,7 @@ if(msg->arrivedOn("peerIn")){
             //1.- Cómo deducir el tamaño de la pieza y los campos complementarios
             //2.- Procesando pieza en modo "promiscuo"
         //Manejar histórico de piezas que ya se tomaron en modo promiscuo (no procesar dos veces)!
-        swarm.contentManager->processBlock(peerId,pieceIndex,begin,32768);
+        swarm.contentManager->processBlock(peerId,pieceIndex,begin,blockSize);
             //3.- Verificar comportamiento (modo gráfico)
         //}// msg->getFullName() << "\n"; //
         delete msg;
