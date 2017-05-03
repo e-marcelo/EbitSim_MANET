@@ -12,6 +12,10 @@ using boost::tie;
 #include "BitField.h"
 #include "PeerStatus.h"
 
+//Macros para clasificar pares en area de compartición y pares en area de diversificación
+#define PEER_REGULAR 0
+#define PEER_OPTIMISTIC 1
+
 //Torrent adaptación
 struct TorrentMetadataBTM {
     int numOfPieces;
@@ -100,7 +104,7 @@ public:
      *
      * @param infoHash[in] The infoHash that identifies the swarm.
      */
-    PeerVector getFastestToUpload(int infoHash) const;
+    PeerVector getFastestToUpload(int infoHash,bool optimisticRound) const;
     /*!
      * Return a vector of pointers to PeerStatus objects, ordered by their
      * download rate to the Client.
@@ -255,7 +259,6 @@ private:
     //@}
 private:
     std::string strCurrentNode;
-    std::string strArgNode;
     std::ostringstream optNumtoStr;
     int count;
     int peerX;
@@ -263,8 +266,9 @@ private:
     int localIdDisplay = -1;
     bool seed;
     int communicationRange;
-    void currentPosition(const char* peer, int *x, int *y);
+    void currentPosition(const char* peer, int *x, int *y) const;
     void selectListPeersRandom();
+    bool calculaSaltos(int idPeer) const;
 //    bool opt_peers = true;
     int infoHash_ = -1;
     //!@name Pointers to other modules
@@ -380,7 +384,7 @@ private:
     // get list of Peers returned by the tracker and tell the
     // BitTorrentClient to connect with them.
     std::list<PeerConnInfo> peers;
-
+    std::vector<PeerConnInfo> peers_opt;
     std::vector<PeerConnInfo> peers_swap;
     std::vector<PeerConnInfo> peers_aux;
     // Private Methods

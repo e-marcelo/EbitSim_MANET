@@ -172,10 +172,18 @@ void Choker::removePeer(int peerId) {
 
 void Choker::chokeAlgorithm(bool optimisticRound) {
     // order the peers differently depending on the client's state
+//    if(par("seeder").boolValue()){
+//        std::cerr << "Punto de prueba!";
+//    }
+    //En la lista de pares debe existir pares del área de diversificación
+    //Si es semilla el par actual descargar pares en el área de diversificación
+    //Listas con pares en área de compartición y diversificación (todos intentan conectar!)
+    //Si es una ranura optimista y soy semilla la prioridad es tomar al menos un par en el area de diversificación!
+    //Sino hay pares en el área de diversificación utilizar un par del área de compartición!
     PeerVector orderedPeers =
-        par("seeder").boolValue() ?
-            this->bitTorrentClient->getFastestToUpload(this->infoHash) :
-            this->bitTorrentClient->getFastestToDownload(this->infoHash);
+        par("seeder").boolValue() ? //Condición de ronda optimista y estado del cliente "semilla"
+            this->bitTorrentClient->getFastestToUpload(this->infoHash,optimisticRound) : //Solo en este caso tengo que buscar por saltos > 1hop (area de diversificación)
+            this->bitTorrentClient->getFastestToDownload(this->infoHash); //Olvidar pares a más de dos saltos
 
     // Do nothing if the list is empty
     if (orderedPeers.empty()) {
@@ -184,10 +192,11 @@ void Choker::chokeAlgorithm(bool optimisticRound) {
     // choke/unchoke the peers.
     PeerVectorIt it = orderedPeers.begin();
     PeerVectorIt end = orderedPeers.end();
-
-    regularUnchoke(it, end);
-    if (optimisticRound || this->optimisticSlots.empty()) {
-        optimisticUnchoke(it, end);
+    //Cambiar orden. Primero el par optimista (seed = true & optimisticRound = true) por defecto par a un salto [1 hop], luego los pares a un salto.
+    regularUnchoke(it, end); //Validar todos los pares a 1-salto (eliminar/evitar). Semilla o Sanguijuela!
+    if (optimisticRound || this->optimisticSlots.empty()) { //Validar todos los pares a 1-salto (eliminar/evitar). Sanguijuela!
+        optimisticUnchoke(it, end); //<- Aqui (Si es semilla, modificar vectores "it" & "end") -> getFastestToUpload(this->infoHash)
+        //Solo si es semilla y hay pares a más de un salto (desahogar)!  Semilla!
     }
 
     // All other interested peers are choked, except for the optimistic unchoke

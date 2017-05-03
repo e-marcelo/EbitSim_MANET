@@ -91,11 +91,13 @@ void BitTorrentClient::addUnconnectedPeers(int infoHash,
         this->scheduleAt(simTime()+this->timerAskMorePeers, askMoreMsg);
         this->askMore = true;
     }
+    //Comenzar clasificación ???
     Enter_Method("addUnconnectedPeers(infoHash: %d, qtty: %d)", infoHash,peers.size());
     Swarm & swarm = this->getSwarm(infoHash);
 
     // if seeding or closing, don't add unconnected peers
     if (!(swarm.seeding || swarm.closing)) {
+        //Ajuste de parámetros por referencia!
         UnconnectedList & unconnectedList = swarm.unconnectedList;
 
 #ifdef DEBUG_MSG
@@ -118,7 +120,7 @@ void BitTorrentClient::addUnconnectedPeers(int infoHash,
         this->printDebugMsg(out.str());
 #endif
         // try to connect to more peers, if possible
-        this->attemptActiveConnections(swarm, infoHash);
+        this->attemptActiveConnections(swarm, infoHash); //Procesamiento de los pares en la lista proporcionada
 
         // if the number of unconnected peers changed, emit a signal
         if (this->prevNumUnconnected != unconnectedList.size()) {
@@ -162,10 +164,20 @@ PeerVector BitTorrentClient::getFastestToDownload(int infoHash) const {
 
     return orderedPeers;
 }
-PeerVector BitTorrentClient::getFastestToUpload(int infoHash) const {
-    Enter_Method("getFastestToUpload(infoHash: %d)", infoHash);
+PeerVector BitTorrentClient::getFastestToUpload(int infoHash, bool optimisticRound) const {
+    Enter_Method("getFastestToUpload(infoHash: %d, optimisticRound: %d)", infoHash,optimisticRound); //Correcto???
     Swarm const& swarm = this->getSwarm(infoHash);
-    PeerMap const& peerMap = swarm.peerMap;
+
+
+    if(optimisticRound){
+        std::cerr << "Soy semilla y estoy en ronda optimista!\n";
+    }//else{
+//        //Descartar pares a más de un salto (<= 40 m)
+//
+//    }
+
+
+    PeerMap const& peerMap = swarm.peerMap; //Jugar!
     int peerMapSize = peerMap.size();
     PeerVector orderedPeers;
     if (peerMapSize) {
@@ -173,7 +185,12 @@ PeerVector BitTorrentClient::getFastestToUpload(int infoHash) const {
         PeerMapConstIt it = peerMap.begin();
         for (; it != peerMap.end(); ++it) {
             PeerStatus const* peerStatus = &it->second;
-            orderedPeers.push_back(peerStatus);
+            std::cerr << peerStatus->getPeerId() << "\n"; // -6
+            if(calculaSaltos(peerStatus->getPeerId())){
+
+            }
+            //Descartar pares que se ubiquen a más de un salto?
+            orderedPeers.push_back(peerStatus); //Cómo crear una entidad equivalente, pero fantasma?
         }
 
         std::sort(orderedPeers.rbegin(), orderedPeers.rend(),
@@ -324,17 +341,17 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     this->strCurrentNode.append(optNumtoStr.str());
     this->strCurrentNode.append("]");
 
-    if(!newSwarmSeeding){ //Sino es semilla, el par actual solo adquiere pares de tu cuadrante
+    if(!newSwarmSeeding){ //Sino es semilla, el par actual solo adquiere pares de su cuadrante
          selectListPeersRandom(); //Selección por cuadrantes, no al azar!!!
          if(this->peers.size()){
                 std::cerr << "***[Enjambre] Lista de pares, nodo :: " << this->strCurrentNode << " -> " <<this->peers.size() <<  "\n";
-        //          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
+                //EAM :: std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
                 addUnconnectedPeers(infoHash, this->peers);
          }else{
                 std::cerr << "***[Enjambre] Lista de pares vacia, nodo :: " << this->strCurrentNode << " aislado :(\n";
                 cMessage * askMsg = new cMessage("AskMorePeers");
                 askMsg->setContextPointer(this);
-                std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 30 minutos!\n";
+                //EAM std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 30 minutos!\n";
                 this->scheduleAt(simTime()+1500, askMsg);
          }
     }
@@ -401,6 +418,7 @@ void BitTorrentClient::addPeerToSwarm(int infoHash, int peerId,
 
     // Can't connect with the same Peer twice
     assert(!peerMap.count(peerId));
+    //Relación con pares a desahogar!
     peerMap.insert(std::make_pair(peerId, PeerStatus(peerId, thread)));
 
 }
@@ -557,6 +575,7 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
     //¿Cómo alterar la condición del número de slots activos?
 //    std::cerr << "Soy el par ::" << this->localPeerId << "\n";
     if (!(swarm.seeding || swarm.closing)) {
+        //Posible clasificación inicial PEER_REGULAR & PEER_OPTIMISTIC
         UnconnectedList & unconnectedList = swarm.unconnectedList;
 
         int numActiveSlost = this->numActiveConn - swarm.numActive;
@@ -564,6 +583,7 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
             // Get a random peer to connect with
             UnconnectedListIt it = unconnectedList.begin();
             for (int i = intrand(unconnectedList.size()); i > 0; --i) {
+                //Siempre preferir a un par a un salto? PEER_REGULAR
                 ++it;
             }
 //            if(unconnectedList.size() == 2){
@@ -612,7 +632,7 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
  */
 void BitTorrentClient::connect(int infoHash, PeerConnInfo const& peer) {
     // initialize variables with the tuple content
-    int peerId, port;
+    int peerId, port,type;
     IPvXAddress ip;
     boost::tie(peerId, ip, port) = peer;
 
@@ -919,6 +939,7 @@ void BitTorrentClient::initialize(int stage) {
         TCPSrvHostApp::initialize();
 
         this->swarmManager = check_and_cast<SwarmManager*>(getParentModule()->getSubmodule("swarmManager"));
+        //Creo que esta aqui el identificador que coincide con idPeer de la máquina de estado!
         this->localPeerId = this->getParentModule()->getParentModule()->getId();
 
         // get parameters from the modules
@@ -1105,13 +1126,13 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
       if(this->peers.size()){
         //          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
 //          peers.unique();
-          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << ", agregando :: "<< peers.size()<<"\n";
+          //EAM :: std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << ", agregando :: "<< peers.size()<<"\n";
           addUnconnectedPeers(infoHash, this->peers);
       }else{
-          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << " aislado :(\n";
+          //EAM :: std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << " aislado :(\n";
           cMessage * askMsg = new cMessage("AskMorePeers");
           askMsg->setContextPointer(this);
-          std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 1:30 minutos!\n";
+          //EAM :: std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 1:30 minutos!\n";
           this->scheduleAt(simTime()+5100, askMsg);
       }
 
@@ -1143,30 +1164,31 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
 
 }
 
-void BitTorrentClient::currentPosition(const char* peer, int *x, int *y) {
+void BitTorrentClient::currentPosition(const char* peer, int *x, int *y) const {
     //Localización del nodo actual en el escenario de simulación
+    std::string strArgNode;
     //Leyenda del nodo actual
     std::string pos = simulation.getModuleByPath(peer)->getDisplayString().str();
 //    std::cerr << "Nodo :: " << pos <<"\n";
     //Separador de las propiedades de la leyenda del nodo
     boost::char_separator<char> sep(";");
-    this->count = 0;
+    int count = 0;
     typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
     //Recorrido entre los parámetros de la leyenda del nodo
     tokenizer mytokenizer(pos,sep);
     for(auto& token: mytokenizer){
         if(this->count == 3){
-            this->strArgNode = token; //Primera posición
+            strArgNode = token; //Primera posición
             break;
         }
-        this->count++;
+        count++;
 
     }
 
     //    std::cerr << "Nodo :: " << this->idDisplay << " | Posición :: " <<  this->newArg <<"\n";
     //Separando coordenadas (x,y) del nodo actual de acuerdo a su leyenda en el escenario de simulación
     boost::char_separator<char> sepA("=");
-    tokenizer mytokenizerA(this->strArgNode,sepA);
+    tokenizer mytokenizerA(strArgNode,sepA);
     //Posicion del par
     for(auto& token: mytokenizerA){
         pos = token; //Última posición
@@ -1175,29 +1197,30 @@ void BitTorrentClient::currentPosition(const char* peer, int *x, int *y) {
     boost::char_separator<char> sepB(",");
     tokenizer mytokenizerB(pos,sepB);
     //Contador a cero (para reutilizarlo)
-    this->count = 0;
+    count = 0;
     for(auto& token: mytokenizerB){
-        if(this->count == 0){
-            this->strArgNode = token;
-            *x = std::atoi(this->strArgNode.c_str());
+        if(count == 0){
+            strArgNode = token;
+            *x = std::atoi(strArgNode.c_str());
         }else{
-            this->strArgNode = token;
-            *y = std::atoi(this->strArgNode.c_str());
+            strArgNode = token;
+            *y = std::atoi(strArgNode.c_str());
         }
-        this->count++; //Solo dos posiciones son consideradas
+        count++; //Solo dos posiciones son consideradas
     }
     //Variables reutilizables
-    this->count = 0;
-    this->strArgNode.clear();
+    count = 0;
+    //this->strArgNode.clear();
     //    std::cerr << "Nodo :: " << this->localIdDisplay << " | Posición :: " <<  this->peerX << ", " << this->peerY <<"\n";
 
 }
 
 void BitTorrentClient::selectListPeersRandom()
 {
-
     //Lista nueva
     this->peers_swap.clear();
+    //Lista con pares en el área de diversificación
+    this->peers_opt.clear();
 
     //1.- Definir en que cuadrante se encuentra el par
     //Contrucción de la cadena que identifica al par en la interfaz gráfica
@@ -1211,42 +1234,50 @@ void BitTorrentClient::selectListPeersRandom()
     int x_ = -1;
     int y_ = -1;
     //Reutilizando variables
-    this->strArgNode.clear();
+    std::string strArgNode;
     this->optNumtoStr.str("");
     std::string strNode;
 
     int listaPares = 0;
     for(int i=0; i<this->numberOfPeers; i++){
-            this->strArgNode = std::string("peer[");
+            strArgNode = std::string("peer[");
             this->optNumtoStr << i;
-            this->strArgNode.append(this->optNumtoStr.str());
-            this->strArgNode.append("]");
-            peerIdNode = simulation.getModuleByPath(this->strArgNode.c_str())->getId();
+            strArgNode.append(this->optNumtoStr.str());
+            strArgNode.append("]");
+            peerIdNode = simulation.getModuleByPath(strArgNode.c_str())->getId();
 
             if(this->localPeerId != peerIdNode){ //Cuidamos que no se trate del par actual
                 //Obtenemos coordenadas del par
-                strNode = this->strArgNode.c_str();
+                strNode = strArgNode.c_str();
     //            std::cerr << "Nodo ::: " << this->strArgNode.c_str();
-                currentPosition(this->strArgNode.c_str(),&x2,&y2);
-                //Incluir validanciones
+                currentPosition(strArgNode.c_str(),&x2,&y2);
+                //Incluir validaciones
                 x_ = std::pow((double)(x2-this->peerX),2);
                 y_ = std::pow((double)(y2-this->peerY),2);
                 d = std::sqrt((x_+y_));
                 //std::cerr << this->strCurrentNode.c_str() <<" -> Distancia :: " << d << "***\n";
                 //De acuerdo al umbral es como se permite el envio
-                if(d <= (this->communicationRange*2)){ //Se permite la igualdad (considerar el error de redondeo*). Dos saltos desde el nodo actual
+                if(d <= (this->communicationRange * 1.6)){ //Se permite la igualdad (considerar el error de redondeo*). Un salto "lógico" y área de diversificación
                     if(this->numWant > listaPares ){
                         PeerConnInfo peer = boost::make_tuple(peerIdNode, IPvXAddressResolver().resolve(strNode.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort); //Todos comparten el mismo puerto
                         this->peers_swap.push_back(peer);
                     }//Podriamos almacenar los pares extra ***
                     listaPares++;
                 }
+//                else{
+//                    //Lista con pares que conforman el área de diversificación
+//                    if(d <= (this->communicationRange * 1.6)){ //Distancia entre pares!
+//                        //Tamaño de la lista? -> Dinámico - independiente
+//                        PeerConnInfo peer = boost::make_tuple(peerIdNode, IPvXAddressResolver().resolve(strNode.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort,PEER_OPTIMISTIC); //Todos comparten el mismo puerto
+//                        this->peers_opt.push_back(peer);
+//                    }
+//                }
                 strNode.clear();
     //          std::cerr << " | Posición :: " <<  x2 << ", " << y2 <<"\n";
                 //Distancia entre el par actual y el par que estamos visitando
             }
 
-            this->strArgNode.clear();
+
             this->optNumtoStr.str("");
     }
 
@@ -1254,13 +1285,34 @@ void BitTorrentClient::selectListPeersRandom()
     if(this->peers_swap.size()){
         //    //Cambio en el orden anterior
         std::random_shuffle(peers_swap.begin(), peers_swap.end(), intrand);
-
+        //std::cerr << "Tamaño de lista pares (normal) :: " << this->peers_swap.size() << "\n";
         this->peers.clear();
         BOOST_FOREACH(PeerConnInfo peer, peers_swap){
             //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
             this->peers.push_back(peer);
             //       //EAM :: i++;
         }
+        //Lista con pares en el area de diversificación (solo las semillas las utilizan)
+//        if(this->peers_opt.size()){
+//            //Cambio en el orden (aleatorio)
+//            std::random_shuffle(peers_opt.begin(), peers_opt.end(), intrand);
+//            //Agregando pares para la ranura optimista (solo las semillas)
+//            //Elementos admitidos en la lista de pares (pares del área de diversificación)!
+//            int areaD = this->peers_swap.size() / 2;
+//            //std::cerr << "Tamaño de lista pares (optimistas) :: " << this->peers_opt.size()  << "\n";
+//            BOOST_FOREACH(PeerConnInfo peer, peers_opt){
+//                        //EAM :: std::cerr<< i << " :: " << peer.head << "\n";
+//                        if(this->numWant > listaPares && areaD >= 0){ //Al menos un par del área de diversificación!
+//                            this->peers.push_back(peer);
+//                        }else{
+//                            break; //Terminamos el ciclo!
+//                        }
+//                        listaPares++;
+//                        areaD--;
+//                        //       //EAM :: i++;
+//            }
+            //std::random_shuffle(peers_opt.begin(), peers_opt.end(), intrand);
+        //}
     }
 }
 
@@ -1270,11 +1322,97 @@ void BitTorrentClient::updateBitField()
     this->bitFieldMsgPrev = swarm.contentManager->getClientBitFieldMsg();
 }
 
+bool BitTorrentClient::calculaSaltos(int idPeer) const
+{
+    bool opt = false;
+    //Calculando posicion actual del nodo que va a desahogar!
+    currentPosition(this->strCurrentNode.c_str(),&(this->peerX),&(this->peerY)); //Coordenada (x,y) del nodo actual
+
+    //Calculando posición del nodo
+    int x2;
+    int y2;
+
+    int d = -1; //Distancia entre los pares (redondeo de entero)
+    int x_ = -1;
+    int y_ = -1;
+    //Reutilizando variables
+    std::string optNumtoStr.str("");
+    std::string strNode;
+    std::string strArgNode;
+    //Distancia entre el par actual y el par que se intenta desahogar!
+
+
+//    this->strArgNode = std::string("peer[");
+//    this->optNumtoStr << idPeer;
+//    this->strArgNode.append(this->optNumtoStr.str());
+//    this->strArgNode.append("]");
+
+
+    //Obtenemos coordenadas del par
+    //currentPosition(this->strArgNode.c_str(),&x2,&y2);
+    std::string pos = simulation.getModule(idPeer)->getDisplayString().str();
+    std::cerr << "Nodo :: " << pos <<"\n";
+    //Separador de las propiedades de la leyenda del nodo
+    boost::char_separator<char> sep(";");
+    int count = 0;
+    typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+    //Recorrido entre los parámetros de la leyenda del nodo
+    tokenizer mytokenizer(pos,sep);
+    for(auto& token: mytokenizer){
+        if(count == 3){
+            strArgNode = token; //Primera posición
+            break;
+        }
+        count++;
+
+    }
+    //    std::cerr << "Nodo :: " << this->idDisplay << " | Posición :: " <<  this->newArg <<"\n";
+    //Separando coordenadas (x,y) del nodo actual de acuerdo a su leyenda en el escenario de simulación
+    boost::char_separator<char> sepA("=");
+    tokenizer mytokenizerA(strArgNode,sepA);
+    //Posicion del par
+    for(auto& token: mytokenizerA){
+        pos = token; //Última posición
+    }
+    //Posicion en X , Y
+    boost::char_separator<char> sepB(",");
+    tokenizer mytokenizerB(pos,sepB);
+    //Contador a cero (para reutilizarlo)
+    count = 0;
+    for(auto& token: mytokenizerB){
+        if(count == 0){
+            strArgNode = token;
+            x_ = std::atoi(strArgNode.c_str());
+        }else{
+            strArgNode = token;
+            y_ = std::atoi(strArgNode.c_str());
+        }
+    count++; //Solo dos posiciones son consideradas
+    }
+    //Variables reutilizables
+    count = 0;
+    //    std::cerr << "Nodo :: " << this->localIdDisplay << " | Posición :: " <<  this->peerX << ", " << this->peerY <<"\n";
+
+    //Incluir validaciones
+    x_ = std::pow((double)(x2-this->peerX),2);
+    y_ = std::pow((double)(y2-this->peerY),2);
+    d = std::sqrt((x_+y_));
+    //std::cerr << this->strCurrentNode.c_str() <<" -> Distancia :: " << d << "***\n";
+    //De acuerdo al umbral es como se permite el envio
+    if(d < (this->communicationRange - 10)){ //Se permite la igualdad (considerar el error de redondeo*). Un salto "lógico" y área de diversificación
+        opt = true;
+    }
+
+
+
+
+    return opt;
+}
+
 void BitTorrentClient::handleMessage(cMessage* msg) {
     if (!msg->isSelfMessage()) {
         // message arrived after the processing time, process as it normally would
         TCPSocket *socket = socketMap.findSocketFor(msg);
-
         if (socket == NULL) {
             if (msg->getKind() == TCP_I_ESTABLISHED) {
                 // new connection, create socket and process message
@@ -1334,15 +1472,15 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
                 //Calendarizando el siguiente mensaje del temporizador
                 cMessage * askMoreMsg = new cMessage("AskMorePeersTemp");
                 askMoreMsg->setContextPointer(this);
-                std::cerr<< "[Temporizador-handleMessage] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
+                //EAM :: std::cerr<< "[Temporizador-handleMessage] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
 
                 this->bitFieldMsgCurrent = swarm.contentManager->getClientBitFieldMsg();
                 if(this->bitFieldMsgCurrent != NULL && this->bitFieldMsgPrev !=NULL){
                     if(this->bitFieldMsgCurrent->getByteLength() != this->bitFieldMsgPrev->getByteLength()){
                         this->bitFieldMsgPrev = this->bitFieldMsgCurrent;
-                        std::cerr<< "[Temporizador_1-handleMessage] :: (BitField ha cambiado) "<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
+                        //EAM :: std::cerr<< "[Temporizador_1-handleMessage] :: (BitField ha cambiado) "<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
                     }else{
-                        std::cerr<< "[Temporizador_2-handleMessage] :: (BitField no cambio)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
+                        //EAM :: std::cerr<< "[Temporizador_2-handleMessage] :: (BitField no cambio)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
                         //this->allThreads.clear();
                         //this->socketMap.deleteSockets();
                         swarm.numActive = 0;
@@ -1359,7 +1497,7 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
                     swarm.numPassive = 0;
                     swarm.seeding = false;
                     swarm.closing = false;
-                    std::cerr<< "[Temporizador_3-handleMessage] :: (BitField NULL)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
+                    //EAM :: std::cerr<< "[Temporizador_3-handleMessage] :: (BitField NULL)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
                     this->askMoreUnconnectedPeers(this->infoHash_);
                 }
 
