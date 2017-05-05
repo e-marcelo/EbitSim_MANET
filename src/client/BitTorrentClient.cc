@@ -379,7 +379,7 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
                 cMessage * askMsg = new cMessage("AskMorePeers");
                 askMsg->setContextPointer(this);
                 //EAM std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 30 minutos!\n";
-                this->scheduleAt(simTime()+1500, askMsg);
+                this->scheduleAt(simTime()+360, askMsg);
          }
     }
 
@@ -645,7 +645,7 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
             cMessage * askMsg = new cMessage("AskMorePeers");
             askMsg->setContextPointer(this);
             //std::cerr<< "[PeerList-1] :: " << this->strCurrentNode << " :: Calendarizando en 1h!\n";
-            this->scheduleAt(simTime()+3600, askMsg);
+            this->scheduleAt(simTime()+960, askMsg);
 //            std::cerr<< "[PeerList-2] :: "<< this->strCurrentNode << " | " << unconnectedList.size() << "\n";
         }
 
@@ -1160,7 +1160,7 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
           cMessage * askMsg = new cMessage("AskMorePeers");
           askMsg->setContextPointer(this);
           //EAM :: std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 1:30 minutos!\n";
-          this->scheduleAt(simTime()+5100, askMsg);
+          this->scheduleAt(simTime()+498, askMsg);
       }
 
 //    //Es posible actualizar la lista de pares disponibles con los pares que se convierten en semillas*
@@ -1286,7 +1286,7 @@ void BitTorrentClient::selectListPeersRandom()
                 d = std::sqrt((x_+y_));
                 //std::cerr << this->strCurrentNode.c_str() <<" -> Distancia :: " << d << "***\n";
                 //De acuerdo al umbral es como se permite el envio
-                if(d <= (this->communicationRange * 2)){ //Se permite la igualdad (considerar el error de redondeo*). Un salto "lógico" y área de diversificación
+                if(d <= (this->communicationRange * 1.62)){ //Se permite la igualdad (considerar el error de redondeo*). Un salto "lógico" y área de diversificación
                     if(this->numWant > listaPares ){
                         PeerConnInfo peer = boost::make_tuple(peerIdNode, IPvXAddressResolver().resolve(strNode.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort); //Todos comparten el mismo puerto
                         this->peers_swap.push_back(peer);
@@ -1425,7 +1425,7 @@ bool BitTorrentClient::verificarAD(int idPeer) //Verifica si el nodo con el iden
     d = std::sqrt((x_+y_));
     //std::cerr << this->strCurrentNode.c_str() <<" -> Distancia :: " << d << "***\n";
     //De acuerdo al umbral es como se permite el envio
-    if(d <= (this->communicationRange - 10)){ //Se permite la igualdad (considerar el error de redondeo*). Un salto "lógico" y área de diversificación
+    if(d <= (this->communicationRange)){ //Se permite la igualdad (considerar el error de redondeo*). Un salto "lógico" y área de diversificación
         opt = false; //El nodo no se ubica en el área de diversidicación!
     }
     return opt;
