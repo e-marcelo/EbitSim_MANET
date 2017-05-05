@@ -645,7 +645,7 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
             cMessage * askMsg = new cMessage("AskMorePeers");
             askMsg->setContextPointer(this);
             //std::cerr<< "[PeerList-1] :: " << this->strCurrentNode << " :: Calendarizando en 1h!\n";
-            this->scheduleAt(simTime()+960, askMsg);
+            this->scheduleAt(simTime()+360, askMsg);
 //            std::cerr<< "[PeerList-2] :: "<< this->strCurrentNode << " | " << unconnectedList.size() << "\n";
         }
 
@@ -1160,7 +1160,7 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
           cMessage * askMsg = new cMessage("AskMorePeers");
           askMsg->setContextPointer(this);
           //EAM :: std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 1:30 minutos!\n";
-          this->scheduleAt(simTime()+498, askMsg);
+          this->scheduleAt(simTime()+398, askMsg);
       }
 
 //    //Es posible actualizar la lista de pares disponibles con los pares que se convierten en semillas*
