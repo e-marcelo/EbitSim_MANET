@@ -200,7 +200,7 @@ private:
      * Will increment the iterator until (it == end) or until the optimistic
      * slots are full.
      */
-    void optimisticUnchoke(PeerVectorIt & it, PeerVectorIt & end);
+    void optimisticUnchoke(PeerVectorIt & it, PeerVectorIt & end, bool opt);
     void printUploadSlots();
     //! Print a debug message to clog.
     void printDebugMsg(std::string s);

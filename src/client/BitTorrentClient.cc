@@ -143,7 +143,7 @@ void BitTorrentClient::chokePeer(int infoHash, int peerId) {
         peer.getThread()->sendApplicationMessage(APP_CHOKE_PEER);
     }
 }
-PeerVector BitTorrentClient::getFastestToDownload(int infoHash) const {
+PeerVector BitTorrentClient::getFastestToDownload(int infoHash) {
     Enter_Method("getFastestToDownload(infoHash: %d)", infoHash);
     Swarm const& swarm = this->getSwarm(infoHash);
     PeerMap const& peerMap = swarm.peerMap;
@@ -154,7 +154,14 @@ PeerVector BitTorrentClient::getFastestToDownload(int infoHash) const {
 //EAM ::        int i = 0;
         for (; it != peerMap.end(); ++it) {
             PeerStatus const* peerStatus = &it->second;
-            orderedPeers.push_back(peerStatus);
+            int strId = peerStatus->getPeerId();
+            //EAM :: std::cerr << strId << " [getFastestToDownload] \n";
+            if(!this->verificarAD(peerStatus->getPeerId())){ //Identificador del nodo. Se permiten todos los nodos que no se ubiquen en el area de diversificación
+                //EAM :: std::cerr << "[Sanguijuela]:: "<< this->strCurrentNode <<". En mi área de compartición :: Peer[" << strId << "] \n" ;
+                //Solo me interesa el vecindario local (nodos a un salto)!
+                orderedPeers.push_back(peerStatus);
+            }
+
         }
 
         // Order from lowest to largest, and we want the reverse order
@@ -164,38 +171,58 @@ PeerVector BitTorrentClient::getFastestToDownload(int infoHash) const {
 
     return orderedPeers;
 }
-PeerVector BitTorrentClient::getFastestToUpload(int infoHash, bool optimisticRound) const {
+PeerVector BitTorrentClient::getFastestToUpload(int infoHash, bool optimisticRound) {
     Enter_Method("getFastestToUpload(infoHash: %d, optimisticRound: %d)", infoHash,optimisticRound); //Correcto???
     Swarm const& swarm = this->getSwarm(infoHash);
 
-
-    if(optimisticRound){
-        std::cerr << "Soy semilla y estoy en ronda optimista!\n";
-    }//else{
+//
+//    if(optimisticRound){
+//        std::cerr << "Soy semilla y estoy en ronda optimista!\n";
+//        //Obligo a atender a un par en el área de diversificación!!!
+//    }//else{
 //        //Descartar pares a más de un salto (<= 40 m)
 //
 //    }
-
-
     PeerMap const& peerMap = swarm.peerMap; //Jugar!
     int peerMapSize = peerMap.size();
     PeerVector orderedPeers;
+    PeerVector orderedPeers_opt;
+    bool areaD = true;
+
     if (peerMapSize) {
-        orderedPeers.reserve(peerMapSize);
+        orderedPeers.reserve(peerMapSize); //Maximo
+        orderedPeers_opt.reserve(peerMapSize);
         PeerMapConstIt it = peerMap.begin();
         for (; it != peerMap.end(); ++it) {
             PeerStatus const* peerStatus = &it->second;
-            std::cerr << peerStatus->getPeerId() << "\n"; // -6
-            if(calculaSaltos(peerStatus->getPeerId())){
-
+            //std::cerr << peerStatus->getPeerId() << "\n"; // -6, no es necesario decrementar el identificador, los módulos coinciden con la numeración que se adquiere del método correspondiente (interacción con la máquina de estado)
+            int strId = peerStatus->getPeerId();
+            //EAM :: std::cerr << strId << "[getFastestToUpload] \n";
+            areaD = this->verificarAD(peerStatus->getPeerId());
+            //Si soy semilla y no estoy en ronda optimista (algoritmo de choking), solo selecciono a pares en el área de compartición (nodos a un salto).
+            if(areaD && optimisticRound){ //Identificador del nodo.
+                //EAM :: std::cerr << "[Semilla]:: "<< this->strCurrentNode << ". Par dentro del área de diversificación (ronda optimista) ::  Peer[" << strId << "] \n";
+                orderedPeers_opt.push_back(peerStatus);
+            }else{//
+                //Llenar pre-lista (por sino existe nodos en el área de diversificación) ???
+                if(!areaD){ //Independiente de si se trata de una ronda optimista la condición es evitar a los pares fuera del área de compartición!
+                    //EAM :: std::cerr << "[Semilla]:: "<< this->strCurrentNode << ". Par en el área de compartición :: Peer[" << strId << "] \n" ;
+                    orderedPeers.push_back(peerStatus); //Cómo crear una entidad equivalente, pero fantasma?
+                }
             }
-            //Descartar pares que se ubiquen a más de un salto?
-            orderedPeers.push_back(peerStatus); //Cómo crear una entidad equivalente, pero fantasma?
         }
-
+        //Orden ascendente
+        if(optimisticRound){ //Soy semilla
+            //Orden predeterminado!
+            for(PeerStatus const *peer : orderedPeers) //Complementamos con pares en el área de compartición!
+                orderedPeers_opt.push_back(peer);
+            //Si tengo pares en el área de diversificación y claramente soy semilla devuelvo la lista de pares (sin orden)
+            return orderedPeers_opt;
+        }
+        //En caso contrario continuo con el proceso normal!
         std::sort(orderedPeers.rbegin(), orderedPeers.rend(),
             PeerStatus::sortByUploadRate);
-    }
+    }//Fin se hay elementos!
 
     return orderedPeers;
 }
@@ -1164,12 +1191,12 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
 
 }
 
-void BitTorrentClient::currentPosition(const char* peer, int *x, int *y) const {
+void BitTorrentClient::currentPosition(const char* peer, int *x, int *y){
     //Localización del nodo actual en el escenario de simulación
     std::string strArgNode;
     //Leyenda del nodo actual
     std::string pos = simulation.getModuleByPath(peer)->getDisplayString().str();
-//    std::cerr << "Nodo :: " << pos <<"\n";
+    //std::cerr << "-> Nodo :: " << pos <<"\n";
     //Separador de las propiedades de la leyenda del nodo
     boost::char_separator<char> sep(";");
     int count = 0;
@@ -1177,7 +1204,7 @@ void BitTorrentClient::currentPosition(const char* peer, int *x, int *y) const {
     //Recorrido entre los parámetros de la leyenda del nodo
     tokenizer mytokenizer(pos,sep);
     for(auto& token: mytokenizer){
-        if(this->count == 3){
+        if(count == 3){
             strArgNode = token; //Primera posición
             break;
         }
@@ -1211,7 +1238,7 @@ void BitTorrentClient::currentPosition(const char* peer, int *x, int *y) const {
     //Variables reutilizables
     count = 0;
     //this->strArgNode.clear();
-    //    std::cerr << "Nodo :: " << this->localIdDisplay << " | Posición :: " <<  this->peerX << ", " << this->peerY <<"\n";
+    //std::cerr << "Nodo :: " << this->localIdDisplay << " | Posición :: " <<  this->peerX << ", " << this->peerY <<"\n";
 
 }
 
@@ -1220,7 +1247,7 @@ void BitTorrentClient::selectListPeersRandom()
     //Lista nueva
     this->peers_swap.clear();
     //Lista con pares en el área de diversificación
-    this->peers_opt.clear();
+    //this->peers_opt.clear();
 
     //1.- Definir en que cuadrante se encuentra el par
     //Contrucción de la cadena que identifica al par en la interfaz gráfica
@@ -1249,15 +1276,17 @@ void BitTorrentClient::selectListPeersRandom()
             if(this->localPeerId != peerIdNode){ //Cuidamos que no se trate del par actual
                 //Obtenemos coordenadas del par
                 strNode = strArgNode.c_str();
-    //            std::cerr << "Nodo ::: " << this->strArgNode.c_str();
+                //EAM :: std::cerr << "Nodo ::: " << strArgNode.c_str() << "\n";
                 currentPosition(strArgNode.c_str(),&x2,&y2);
                 //Incluir validaciones
+                //std::cerr << this->peerX << " :: " <<  this->peerY << "  |\n";
                 x_ = std::pow((double)(x2-this->peerX),2);
                 y_ = std::pow((double)(y2-this->peerY),2);
+                //std::cerr << x_ << " :: " <<y_<< "  |\n";
                 d = std::sqrt((x_+y_));
                 //std::cerr << this->strCurrentNode.c_str() <<" -> Distancia :: " << d << "***\n";
                 //De acuerdo al umbral es como se permite el envio
-                if(d <= (this->communicationRange * 1.6)){ //Se permite la igualdad (considerar el error de redondeo*). Un salto "lógico" y área de diversificación
+                if(d <= (this->communicationRange * 2)){ //Se permite la igualdad (considerar el error de redondeo*). Un salto "lógico" y área de diversificación
                     if(this->numWant > listaPares ){
                         PeerConnInfo peer = boost::make_tuple(peerIdNode, IPvXAddressResolver().resolve(strNode.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort); //Todos comparten el mismo puerto
                         this->peers_swap.push_back(peer);
@@ -1276,8 +1305,6 @@ void BitTorrentClient::selectListPeersRandom()
     //          std::cerr << " | Posición :: " <<  x2 << ", " << y2 <<"\n";
                 //Distancia entre el par actual y el par que estamos visitando
             }
-
-
             this->optNumtoStr.str("");
     }
 
@@ -1322,21 +1349,21 @@ void BitTorrentClient::updateBitField()
     this->bitFieldMsgPrev = swarm.contentManager->getClientBitFieldMsg();
 }
 
-bool BitTorrentClient::calculaSaltos(int idPeer) const
+bool BitTorrentClient::verificarAD(int idPeer) //Verifica si el nodo con el identificador pertenece a la zona de compartición (igual a un salto a partir del nodo actual)!
 {
-    bool opt = false;
+    bool opt = true;
     //Calculando posicion actual del nodo que va a desahogar!
     currentPosition(this->strCurrentNode.c_str(),&(this->peerX),&(this->peerY)); //Coordenada (x,y) del nodo actual
-
+    //EAM ::  std::cerr << "Posicion actual :: " << this->strCurrentNode.c_str() << this->peerX << this->peerY << "\n";
     //Calculando posición del nodo
-    int x2;
-    int y2;
+    int x2 = -1;
+    int y2 = -1;
 
     int d = -1; //Distancia entre los pares (redondeo de entero)
     int x_ = -1;
     int y_ = -1;
     //Reutilizando variables
-    std::string optNumtoStr.str("");
+    optNumtoStr.str("");
     std::string strNode;
     std::string strArgNode;
     //Distancia entre el par actual y el par que se intenta desahogar!
@@ -1348,10 +1375,10 @@ bool BitTorrentClient::calculaSaltos(int idPeer) const
 //    this->strArgNode.append("]");
 
 
-    //Obtenemos coordenadas del par
+    //Obtenemos coordenadas del par que estamos a punto de "atender"
     //currentPosition(this->strArgNode.c_str(),&x2,&y2);
     std::string pos = simulation.getModule(idPeer)->getDisplayString().str();
-    std::cerr << "Nodo :: " << pos <<"\n";
+    //EAM :: std::cerr << "Nodo [choking] :: " << pos <<"\n";
     //Separador de las propiedades de la leyenda del nodo
     boost::char_separator<char> sep(";");
     int count = 0;
@@ -1382,16 +1409,15 @@ bool BitTorrentClient::calculaSaltos(int idPeer) const
     for(auto& token: mytokenizerB){
         if(count == 0){
             strArgNode = token;
-            x_ = std::atoi(strArgNode.c_str());
+            x2 = std::atoi(strArgNode.c_str());
         }else{
             strArgNode = token;
-            y_ = std::atoi(strArgNode.c_str());
+            y2 = std::atoi(strArgNode.c_str());
         }
     count++; //Solo dos posiciones son consideradas
     }
     //Variables reutilizables
     count = 0;
-    //    std::cerr << "Nodo :: " << this->localIdDisplay << " | Posición :: " <<  this->peerX << ", " << this->peerY <<"\n";
 
     //Incluir validaciones
     x_ = std::pow((double)(x2-this->peerX),2);
@@ -1399,13 +1425,9 @@ bool BitTorrentClient::calculaSaltos(int idPeer) const
     d = std::sqrt((x_+y_));
     //std::cerr << this->strCurrentNode.c_str() <<" -> Distancia :: " << d << "***\n";
     //De acuerdo al umbral es como se permite el envio
-    if(d < (this->communicationRange - 10)){ //Se permite la igualdad (considerar el error de redondeo*). Un salto "lógico" y área de diversificación
-        opt = true;
+    if(d <= (this->communicationRange - 10)){ //Se permite la igualdad (considerar el error de redondeo*). Un salto "lógico" y área de diversificación
+        opt = false; //El nodo no se ubica en el área de diversidicación!
     }
-
-
-
-
     return opt;
 }
 

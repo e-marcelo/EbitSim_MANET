@@ -104,14 +104,14 @@ public:
      *
      * @param infoHash[in] The infoHash that identifies the swarm.
      */
-    PeerVector getFastestToUpload(int infoHash,bool optimisticRound) const;
+    PeerVector getFastestToUpload(int infoHash,bool optimisticRound);
     /*!
      * Return a vector of pointers to PeerStatus objects, ordered by their
      * download rate to the Client.
      *
      * @param infoHash[in] The infoHash that identifies the swarm.
      */
-    PeerVector getFastestToDownload(int infoHash) const;
+    PeerVector getFastestToDownload(int infoHash);
     /*!
      * Unchoke the Peer.
      *
@@ -266,9 +266,9 @@ private:
     int localIdDisplay = -1;
     bool seed;
     int communicationRange;
-    void currentPosition(const char* peer, int *x, int *y) const;
+    void currentPosition(const char* peer, int *x, int *y);
     void selectListPeersRandom();
-    bool calculaSaltos(int idPeer) const;
+    bool verificarAD(int idPeer);
 //    bool opt_peers = true;
     int infoHash_ = -1;
     //!@name Pointers to other modules

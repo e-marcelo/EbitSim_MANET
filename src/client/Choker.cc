@@ -183,7 +183,7 @@ void Choker::chokeAlgorithm(bool optimisticRound) {
     PeerVector orderedPeers =
         par("seeder").boolValue() ? //Condición de ronda optimista y estado del cliente "semilla"
             this->bitTorrentClient->getFastestToUpload(this->infoHash,optimisticRound) : //Solo en este caso tengo que buscar por saltos > 1hop (area de diversificación)
-            this->bitTorrentClient->getFastestToDownload(this->infoHash); //Olvidar pares a más de dos saltos
+            this->bitTorrentClient->getFastestToDownload(this->infoHash); //Olvidar pares a más de un saltos
 
     // Do nothing if the list is empty
     if (orderedPeers.empty()) {
@@ -192,26 +192,42 @@ void Choker::chokeAlgorithm(bool optimisticRound) {
     // choke/unchoke the peers.
     PeerVectorIt it = orderedPeers.begin();
     PeerVectorIt end = orderedPeers.end();
-    //Cambiar orden. Primero el par optimista (seed = true & optimisticRound = true) por defecto par a un salto [1 hop], luego los pares a un salto.
-    regularUnchoke(it, end); //Validar todos los pares a 1-salto (eliminar/evitar). Semilla o Sanguijuela!
-    if (optimisticRound || this->optimisticSlots.empty()) { //Validar todos los pares a 1-salto (eliminar/evitar). Sanguijuela!
-        optimisticUnchoke(it, end); //<- Aqui (Si es semilla, modificar vectores "it" & "end") -> getFastestToUpload(this->infoHash)
-        //Solo si es semilla y hay pares a más de un salto (desahogar)!  Semilla!
+    //Incluir validación de semilla!
+    if(optimisticRound && par("seeder").boolValue()){
+        //Es una ronda optimista y se trata de un cliente "semilla"
+        //Forzar a tomar al par optimista del área de diversidicación (si existe alguno), en caso contrario complementar con pares del área de compartición!
+        if (optimisticRound || this->optimisticSlots.empty()) { //Validar todos los pares a 1-salto (eliminar/evitar). Sanguijuela!
+            optimisticUnchoke(it, end, true); //<- Aqui (Si es semilla, modificar vectores "it" & "end") -> getFastestToUpload(this->infoHash)
+            //Solo si es semilla y hay pares a más de un salto (desahogar)!  Semilla!
+        }
+        //Ordenamos de acuerdo al protocolo (para tratar de mejorar el desempeño).
+        std::sort(orderedPeers.rbegin(), orderedPeers.rend(),PeerStatus::sortByUploadRate);
+        //Apuntadores a los elementos del vector de referencia
+        it = orderedPeers.begin();
+        end = orderedPeers.end();
+        regularUnchoke(it, end); //Validar todos los pares a 1-salto (eliminar/evitar). Semilla o Sanguijuela!
+
+    }else{ //Operaciones normales!
+        //Cambiar orden. Primero el par optimista (seed = true & optimisticRound = true) por defecto par a un salto [1 hop], luego los pares a un salto.
+        regularUnchoke(it, end); //Validar todos los pares a 1-salto (eliminar/evitar). Semilla o Sanguijuela!
+        if (optimisticRound || this->optimisticSlots.empty()) { //Validar todos los pares a 1-salto (eliminar/evitar). Sanguijuela!
+            optimisticUnchoke(it, end, false); //<- Aqui (Si es semilla, modificar vectores "it" & "end") -> getFastestToUpload(this->infoHash)
+        }
     }
 
     // All other interested peers are choked, except for the optimistic unchoke
-    for (; it != end; ++it) {
-        PeerStatus const* peer = *it;
-        int peerId = peer->getPeerId();
-        if (!this->optimisticSlots.count(peerId) && peer->isInterested()) {
-            this->bitTorrentClient->chokePeer(this->infoHash, peerId);
-#ifdef DEBUG_MSG
-            std::string out = "Choke peer " + toStr(peerId);
-            this->printDebugMsg(out);
-#endif
-        }
-    }
-    this->printUploadSlots();
+          for (; it != end; ++it) {
+              PeerStatus const* peer = *it;
+              int peerId = peer->getPeerId();
+              if (!this->optimisticSlots.count(peerId) && peer->isInterested()) {
+                  this->bitTorrentClient->chokePeer(this->infoHash, peerId);
+  #ifdef DEBUG_MSG
+                  std::string out = "Choke peer " + toStr(peerId);
+                  this->printDebugMsg(out);
+  #endif
+              }
+          }
+          this->printUploadSlots();
 }
 void Choker::regularUnchoke(PeerVectorIt & it, PeerVectorIt const& end) {
     this->regularSlots.clear();
@@ -253,10 +269,13 @@ void Choker::regularUnchoke(PeerVectorIt & it, PeerVectorIt const& end) {
     this->printDebugMsg(out);
 #endif
 }
-void Choker::optimisticUnchoke(PeerVectorIt & it, PeerVectorIt & end) {
+void Choker::optimisticUnchoke(PeerVectorIt & it, PeerVectorIt & end, bool opt) {
     this->optimisticSlots.clear();
     // Shuffle the remaining Peers, since optimistic unchokes are random.
-    std::random_shuffle(it, end, intrand);
+    if(!opt) //Sino estamos en la condición :: Semilla&RondaOptimista, podemos continuar con el proceso normal, en caso contrario si interesa el orden pre-establecido
+        std::random_shuffle(it, end, intrand);
+    else
+        std::cerr << "Condición (semilla&optimista) :: " << this->bitTorrentClient->getFullPath();;
     // run until all of the upload slots are occupied or until there are
     // no more peers to unchoke
 #ifdef DEBUG_MSG
@@ -269,7 +288,7 @@ void Choker::optimisticUnchoke(PeerVectorIt & it, PeerVectorIt & end) {
 
         // The top interested Peers that are not snubbed are optimistically unchoked
         if (peer->isInterested()) {
-            if (peer->isSnubbed()) {
+            if (peer->isSnubbed()) { // Si es rechazado lo ahogamos?
                 this->bitTorrentClient->chokePeer(this->infoHash, peerId);
 #ifdef DEBUG_MSG
                 out += "choke_snubbed(" + toStr(peerId) + ") ";
@@ -277,6 +296,9 @@ void Choker::optimisticUnchoke(PeerVectorIt & it, PeerVectorIt & end) {
             } else {
                 this->optimisticSlots.insert(peerId);
                 this->bitTorrentClient->unchokePeer(this->infoHash, peerId);
+                if(opt)
+                    std::cerr << " | Par :: " << peerId - 6 ; // ??? -> Creo que corresponde al identificador gráfico.
+                    std::cerr << "\n";
 #ifdef DEBUG_MSG
                 out += "unchoke(" + toStr(peerId) + ") ";
 #endif
