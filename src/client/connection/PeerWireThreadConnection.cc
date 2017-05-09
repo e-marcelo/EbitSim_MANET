@@ -188,6 +188,7 @@ void PeerWireThread::sendPeerWireMsg(cPacket * msg) {
             cMessage * askMsg = new cMessage("AskMorePeers");
             askMsg->setContextPointer(this);
             //std::cerr<< "[PeerWireThreadConnection] :: " << this->btClient->strCurrentNode << " :: Busqueda de inmediato!\n";
+            //Búsqueda de manera inmediata!
             this->scheduleAt(simTime(), askMsg);
             this->btClient->updateBitField();
             this->askMorePeers = 0;

@@ -313,6 +313,7 @@ private:
     //! The time, in seconds, to occur a message timeout.
     simtime_t timeoutInterval;
     simtime_t timerAskMorePeers;
+    simtime_t timerExtraPeers;
     //! The time, in seconds, to occur a keep-alive timeout.
     simtime_t keepAliveInterval;
     //! The time, in seconds, to occur a download rate timeout.

@@ -379,7 +379,7 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
                 cMessage * askMsg = new cMessage("AskMorePeers");
                 askMsg->setContextPointer(this);
                 //EAM std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 30 minutos!\n";
-                this->scheduleAt(simTime()+360, askMsg);
+                this->scheduleAt(simTime()+this->timerAskMorePeers, askMsg);
          }
     }
 
@@ -567,12 +567,13 @@ void BitTorrentClient::processNextThread() {
             this->printDebugMsg(out.str());
 #endif
             this->threadInProcessingIt = nextThreadIt;
+            //Utilizamos valores de la traza (mientrás no exista una mejor opción, las capacidades de una red cableada son mejores que en una red inalámbrica)!
             simtime_t processingTime =
                 (*this->threadInProcessingIt)->startProcessing();
 //            emit(this->processingTime_Signal, processingTime);
             emit(this->processingTime_Signal,simTime());
-            //this->scheduleAt(simTime() + processingTime, //Evitamos el retardo para iniciar el procesamiento de la pieza
-            this->scheduleAt(simTime(),
+            this->scheduleAt(simTime() + processingTime, //Evitamos el retardo para iniciar el procesamiento de la pieza
+            //this->scheduleAt(simTime(),
                 &this->endOfProcessingTimer);
 #ifdef DEBUG_MSG
         } else {
@@ -645,7 +646,7 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
             cMessage * askMsg = new cMessage("AskMorePeers");
             askMsg->setContextPointer(this);
             //std::cerr<< "[PeerList-1] :: " << this->strCurrentNode << " :: Calendarizando en 1h!\n";
-            this->scheduleAt(simTime()+360, askMsg);
+            this->scheduleAt(simTime()+this->timerExtraPeers, askMsg);
 //            std::cerr<< "[PeerList-2] :: "<< this->strCurrentNode << " | " << unconnectedList.size() << "\n";
         }
 
@@ -973,6 +974,8 @@ void BitTorrentClient::initialize(int stage) {
         this->snubbedInterval = par("snubbedInterval");
         this->timeoutInterval = par("timeoutInterval");
         this->timerAskMorePeers = par("timerAskMorePeers");
+        this->timerExtraPeers = par ("timerExtraPeers");
+
         this->keepAliveInterval = par("keepAliveInterval");
         //        this->oldUnchokeInterval = par("oldUnchokeInterval");
         this->downloadRateInterval = par("downloadRateInterval");
@@ -1160,7 +1163,7 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
           cMessage * askMsg = new cMessage("AskMorePeers");
           askMsg->setContextPointer(this);
           //EAM :: std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 1:30 minutos!\n";
-          this->scheduleAt(simTime()+398, askMsg);
+          this->scheduleAt(simTime()+this->timerAskMorePeers, askMsg);
       }
 
 //    //Es posible actualizar la lista de pares disponibles con los pares que se convierten en semillas*
@@ -1199,16 +1202,16 @@ void BitTorrentClient::currentPosition(const char* peer, int *x, int *y){
     //std::cerr << "-> Nodo :: " << pos <<"\n";
     //Separador de las propiedades de la leyenda del nodo
     boost::char_separator<char> sep(";");
-    int count = 0;
+    this->count = 0;
     typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
     //Recorrido entre los parámetros de la leyenda del nodo
     tokenizer mytokenizer(pos,sep);
     for(auto& token: mytokenizer){
-        if(count == 3){
+        if(this->count == 3){
             strArgNode = token; //Primera posición
             break;
         }
-        count++;
+        this->count++;
 
     }
 
@@ -1224,19 +1227,19 @@ void BitTorrentClient::currentPosition(const char* peer, int *x, int *y){
     boost::char_separator<char> sepB(",");
     tokenizer mytokenizerB(pos,sepB);
     //Contador a cero (para reutilizarlo)
-    count = 0;
+    this->count = 0;
     for(auto& token: mytokenizerB){
-        if(count == 0){
+        if(this->count == 0){
             strArgNode = token;
             *x = std::atoi(strArgNode.c_str());
         }else{
             strArgNode = token;
             *y = std::atoi(strArgNode.c_str());
         }
-        count++; //Solo dos posiciones son consideradas
+        this->count++; //Solo dos posiciones son consideradas
     }
     //Variables reutilizables
-    count = 0;
+    this->count = 0;
     //this->strArgNode.clear();
     //std::cerr << "Nodo :: " << this->localIdDisplay << " | Posición :: " <<  this->peerX << ", " << this->peerY <<"\n";
 
@@ -1381,16 +1384,16 @@ bool BitTorrentClient::verificarAD(int idPeer) //Verifica si el nodo con el iden
     //EAM :: std::cerr << "Nodo [choking] :: " << pos <<"\n";
     //Separador de las propiedades de la leyenda del nodo
     boost::char_separator<char> sep(";");
-    int count = 0;
+    this->count = 0;
     typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
     //Recorrido entre los parámetros de la leyenda del nodo
     tokenizer mytokenizer(pos,sep);
     for(auto& token: mytokenizer){
-        if(count == 3){
+        if(this->count == 3){
             strArgNode = token; //Primera posición
             break;
         }
-        count++;
+        this->count++;
 
     }
     //    std::cerr << "Nodo :: " << this->idDisplay << " | Posición :: " <<  this->newArg <<"\n";
@@ -1405,19 +1408,19 @@ bool BitTorrentClient::verificarAD(int idPeer) //Verifica si el nodo con el iden
     boost::char_separator<char> sepB(",");
     tokenizer mytokenizerB(pos,sepB);
     //Contador a cero (para reutilizarlo)
-    count = 0;
+    this->count = 0;
     for(auto& token: mytokenizerB){
-        if(count == 0){
+        if(this->count == 0){
             strArgNode = token;
             x2 = std::atoi(strArgNode.c_str());
         }else{
             strArgNode = token;
             y2 = std::atoi(strArgNode.c_str());
         }
-    count++; //Solo dos posiciones son consideradas
+        this->count++; //Solo dos posiciones son consideradas
     }
     //Variables reutilizables
-    count = 0;
+    this->count = 0;
 
     //Incluir validaciones
     x_ = std::pow((double)(x2-this->peerX),2);
