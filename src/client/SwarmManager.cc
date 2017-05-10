@@ -232,7 +232,7 @@ public:
         // make the socket ready to connect again
         this->socket->renewSocket();
 
-        this->socket->setDataTransferMode(TCPDataTransferMode::TCP_TRANSFER_OBJECT);
+        //this->socket->setDataTransferMode(TCPDataTransferMode::TCP_TRANSFER_OBJECT);
 
 
         switch (this->lastAnnounceType) {
@@ -292,7 +292,7 @@ public:
         // Don't connect if the socket is already connected
         if (this->socket->getState() == TCPSocket::NOT_BOUND) {
             //EAM **
-            this->socket->setDataTransferMode(TCP_TRANSFER_OBJECT);
+            //this->socket->setDataTransferMode(TCP_TRANSFER_OBJECT);
             //EAM **
             bool sendAnnounce = false;
             // If not a A_NORMAL announce, OR
