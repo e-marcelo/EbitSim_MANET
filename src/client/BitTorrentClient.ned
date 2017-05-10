@@ -70,12 +70,13 @@ simple BitTorrentClient extends TCPSrvHostApp
         double uploadRateInterval @unit(s) = default(1s);
         int globalNumberOfPeers = default(0);
         int numberOfPeers = default(0);
-        int numberOfActivePeers = default(4);
-        int numberOfPassivePeers = default(6);
+        int numberOfActivePeers = default(8);
+        int numberOfPassivePeers = default(4);
         // The number of Peers the Client requests to the Tracker
         int numWant = default(50);
         int communicationRange = default(50);
-        double timerAskMorePeers @unit(s) = default(5500s); //Una hora y media para preguntar por más pares
+        double timerAskMorePeers @unit(s) = default(300s); // 5 minutos
+        double timerExtraPeers @unit(s) = default(390s);  // 6.5 minutos 
         //Tamaño del escenario
         int sizeX = default(500);
         int sizeY = default(500);
