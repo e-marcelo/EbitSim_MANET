@@ -335,7 +335,7 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
                 cMessage * askMsg = new cMessage("AskMorePeers");
                 askMsg->setContextPointer(this);
                 std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 30 minutos!\n";
-                this->scheduleAt(simTime()+1500, askMsg);
+                this->scheduleAt(simTime()+this->timerAskMorePeers, askMsg);
          }
     }
 
@@ -524,10 +524,10 @@ void BitTorrentClient::processNextThread() {
             this->threadInProcessingIt = nextThreadIt;
             simtime_t processingTime =
                 (*this->threadInProcessingIt)->startProcessing();
-//            emit(this->processingTime_Signal, processingTime);
-            emit(this->processingTime_Signal,simTime());
-            //this->scheduleAt(simTime() + processingTime, //Evitamos el retardo para iniciar el procesamiento de la pieza
-            this->scheduleAt(simTime(),
+            emit(this->processingTime_Signal, processingTime);
+//            emit(this->processingTime_Signal,simTime());
+            this->scheduleAt(simTime() + processingTime, //Evitamos el retardo para iniciar el procesamiento de la pieza
+            //this->scheduleAt(simTime(),
                 &this->endOfProcessingTimer);
 #ifdef DEBUG_MSG
         } else {
@@ -598,7 +598,7 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
             cMessage * askMsg = new cMessage("AskMorePeers");
             askMsg->setContextPointer(this);
 //            std::cerr<< "[PeerList-1] :: " << this->strCurrentNode << " :: Calendarizando en 1h!\n";
-            this->scheduleAt(simTime()+3600, askMsg);
+            this->scheduleAt(simTime()+this->timerExtraPeers, askMsg);
 //            std::cerr<< "[PeerList-2] :: "<< this->strCurrentNode << " | " << unconnectedList.size() << "\n";
         }
 
@@ -925,6 +925,7 @@ void BitTorrentClient::initialize(int stage) {
         this->snubbedInterval = par("snubbedInterval");
         this->timeoutInterval = par("timeoutInterval");
         this->timerAskMorePeers = par("timerAskMorePeers");
+        this->timerExtraPeers = par("timerExtraPeers");
         this->keepAliveInterval = par("keepAliveInterval");
         //        this->oldUnchokeInterval = par("oldUnchokeInterval");
         this->downloadRateInterval = par("downloadRateInterval");
@@ -1112,7 +1113,7 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
           cMessage * askMsg = new cMessage("AskMorePeers");
           askMsg->setContextPointer(this);
 //          std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 1:30 minutos!\n";
-          this->scheduleAt(simTime()+5100, askMsg);
+          this->scheduleAt(simTime()+this->timerAskMorePeers, askMsg);
       }
 
 //    //Es posible actualizar la lista de pares disponibles con los pares que se convierten en semillas*
@@ -1234,7 +1235,7 @@ void BitTorrentClient::selectListPeersRandom()
                 d = std::sqrt((x_+y_));
                 //std::cerr << this->strCurrentNode.c_str() <<" -> Distancia :: " << d << "***\n";
                 //De acuerdo al umbral es como se permite el envio
-                if(d <= (this->communicationRange)){ //Se permite la igualdad (considerar el error de redondeo*). Dos saltos desde el nodo actual
+                if(d < (this->communicationRange)){ //Se permite la igualdad (considerar el error de redondeo*). Dos saltos desde el nodo actual
                     if(this->numWant > listaPares ){
                         PeerConnInfo peer = boost::make_tuple(peerIdNode, IPvXAddressResolver().resolve(strNode.c_str(),IPvXAddressResolver::ADDR_IPv4),this->localPort); //Todos comparten el mismo puerto
                         this->peers_swap.push_back(peer);
