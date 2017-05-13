@@ -131,6 +131,7 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
         // The first peers set to seeders and start imediatelly
 //
         } else {
+            //Cada par se une al enjambre con un segundo de diferencia!!!
             self->emitEnterTime(enterTime);
 //            //EAM :: self->scheduleAt(enterTime,msg);
             self->scheduleAt(enterTime+1, msg); //<-- Con movilidad todos los pares inician al mismo tiempo (no podemos perder la oportunidad de compartir y obtener contenido)
