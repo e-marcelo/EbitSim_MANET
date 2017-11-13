@@ -246,11 +246,11 @@ public:
 
             // Send the scheduled message directly to the swarm manager module
             //El par se mantiene en el enjambre compartiendo el contenido
-//            if (uniform(0, 1) > parent->par("remainingSeeders").doubleValue()) {
-//                cMessage * leaveMsg = new cMessage("Leave");
-//                leaveMsg->setContextPointer(this);
-//                this->parent->scheduleAt(simTime(), leaveMsg);
-//            }
+            if (uniform(0, 1) > parent->par("remainingSeeders").doubleValue()) {
+                cMessage * leaveMsg = new cMessage("Leave");
+                leaveMsg->setContextPointer(this);
+                this->parent->scheduleAt(simTime(), leaveMsg);
+            }
         }
             break;
         case A_STOPPED: {
