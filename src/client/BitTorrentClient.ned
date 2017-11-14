@@ -76,7 +76,7 @@ simple BitTorrentClient extends TCPSrvHostApp
         int numWant = default(50);
         int communicationRange = default(50);
         double timerAskMorePeers @unit(s) = default(300s); // 5 minutos
-        double timerExtraPeers  @unit(s) = default(390s); // 5 minutos
+        double timerExtraPeers  @unit(s) = default(390s); // 6.5 minutos
         //Tamaño del escenario
         int sizeX = default(500);
         int sizeY = default(500);

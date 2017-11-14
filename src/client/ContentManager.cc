@@ -131,6 +131,12 @@ public:
             + " taken by peer " + toStr(peerId);
         this->contentManager->printDebugMsg(out);
 #endif
+        //if (peerId==34 || this->contentManager->bitTorrentClient->localPeerId==34)   //Traza
+        //{
+        //    std::cerr<<simulation.getSimTime()<<"El par "<<peerId<<" envia la pieza "<<this->getRequestName(pieceRequest)<<" al par "<<this->contentManager->bitTorrentClient->localPeerId<<"\n";
+        //}
+        //if ((this->contentManager->bitTorrentClient->localPeerId==11 && peerId==13) || (this->contentManager->bitTorrentClient->localPeerId==13 && peerId==11))
+        //    std::cerr<<simulation.getSimTime()<<";Par "<<this->contentManager->bitTorrentClient->localPeerId<<" desde content envia peticion al par "<<peerId<<" pieza "<<this->getRequestName(pieceRequest)<<"\n";  //Eric
 
         std::string name = "PieceMsg" + this->getRequestName(pieceRequest);
         PieceMsg* pieceMsg = new PieceMsg(name.c_str());
@@ -166,6 +172,11 @@ public:
         this->contentManager->printDebugMsg(out);
 #endif
 
+        //if (peerId==34)   //Traza
+        //{
+        //    std::cerr<<simulation.getSimTime()<<"A el par "<<peerId<<" le solicitan la pieza "<<this->getRequestName(pieceRequest)<<"\n";
+        //}
+
         this->requestQueues[peerId].push(pieceRequest);
         // Fix the iterator, since the queue is definitely not empty anymore
         this->fixCurrentIt();
@@ -177,6 +188,9 @@ public:
     void cancelUploadRequests(int peerId) {
         std::ostringstream out;
         out << "Cancel requests ";
+       // if ((this->contentManager->bitTorrentClient->localPeerId==11 && peerId==13) || (this->contentManager->bitTorrentClient->localPeerId==13 && peerId==11))
+       //     std::cerr<<simulation.getSimTime()<<";Par "<<this->contentManager->bitTorrentClient->localPeerId<<" desde content cancela peticiones del par "<<peerId<<"\n";  //Eric
+
         int currentTokens = this->tokens;
         RequestQueueMapIt sendIt = this->sendQueues.find(peerId);
         if (sendIt != this->sendQueues.end()) {
@@ -277,6 +291,7 @@ private:
         bool hasEnoughTokens = true;
         // Prepare one message from each queue, until there are no tokens or no
         // more messages
+
         while (hasEnoughTokens && !this->requestQueues.empty()) {
             RequestQueue & currentQueueRef = this->currentQueueIt->second;
             unsigned long reqLength =
@@ -288,6 +303,9 @@ private:
 
                 // Move the request from the requestQueue to the sendQueue
                 int peerId = this->currentQueueIt->first;
+               // if ((this->contentManager->bitTorrentClient->localPeerId==11 && peerId==13) || (this->contentManager->bitTorrentClient->localPeerId==13 && peerId==11))
+               //     std::cerr<<simulation.getSimTime()<<";Par "<<this->contentManager->bitTorrentClient->localPeerId<<" mueve peticiones a la sendQueue del par "<<peerId<<"\n";  //Eric
+
                 Request * pieceRequest = currentQueueRef.front();
                 this->sendQueues[peerId].push(pieceRequest);
 #ifdef DEBUG_MSG
@@ -296,6 +314,12 @@ private:
                     + " ready to send to peer " + toStr(peerId);
                 this->contentManager->printDebugMsg(out);
 #endif
+
+                //if (peerId==34)   //Traza
+                //{
+                //    std::cerr<<simulation.getSimTime()<<"Del par "<<this->contentManager->bitTorrentClient->localPeerId<<" la pieza "<<this->getRequestName(pieceRequest)<<" atendido por el par "<<peerId<<"\n";
+                //}
+
 
                 currentQueueRef.pop();
                 // If empty, erase the request queue and forward the current it
@@ -306,11 +330,19 @@ private:
                         + toStr(peerId);
                     this->contentManager->printDebugMsg(out);
 #endif
+                    //if (peerId==34)   //Traza
+                    //{
+                    //    std::cerr<<simulation.getSimTime()<<"Limpia requestQueues No hay requerimientos para el par "<<peerId<<"\n";
+                    //}
+
                 } else {
                     ++this->currentQueueIt;
                 }
                 // Ensure the iterator remains valid after forwarding
                 this->fixCurrentIt();
+
+               // if ((this->contentManager->bitTorrentClient->localPeerId==11 && peerId==13) || (this->contentManager->bitTorrentClient->localPeerId==13 && peerId==11))
+               //     std::cerr<<simulation.getSimTime()<<";Par "<<this->contentManager->bitTorrentClient->localPeerId<<" desde content envia sendPieceMsg al par "<<peerId<<"\n";  //Eric
 
                 // Warn the thread that there's a piece waiting
                 this->contentManager->bitTorrentClient->sendPieceMessage(
@@ -388,11 +420,20 @@ void ContentManager::addPeerBitField(BitField const& bitField, int peerId) {
     if (this->isPeerInteresting(peerId)) {
         this->interestingPeers.insert(peerId);
         // peer interesting
+        /*if (peerId==10)   //Traza
+        {
+           std::cerr<<"Desde el contentmanager par actual "<<this->bitTorrentClient->localPeerId<<" me interesa "<<peerId<<"\n"; //Eric
+        }*/
+
         this->bitTorrentClient->peerInteresting(this->infoHash, peerId);
     } else if (bitField.full()) {
-        this->seeder = true;
         // if this client is not interested in a seeder, that means it is
         // also a seeder and this connection has no use, so it is dropped.
+        /*if (peerId==10)   //Traza
+        {
+           std::cerr<<"Cierra conexión el par "<<peerId<<"\n"; //Eric
+        }*/
+
         this->bitTorrentClient->closeConnection(this->infoHash, peerId);
     }
 }
@@ -404,6 +445,14 @@ void ContentManager::removePeerBitField(int peerId) {
     out << "removing peer " << peerId;
     this->printDebugMsg(out.str());
 #endif
+
+   // if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+   //     std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" elimina bitfield del par "<<peerId<<"\n";  //Eric
+
+   // if (peerId==34)   //Traza
+   // {
+   //    std::cerr<<simulation.getSimTime()<<"Se elimina del PeerBitField al par "<<peerId<<"\n"; //Eric
+   // }
 
     // subtract BitField from pieceCount
     this->rarestPieceCounter.removeBitField(this->peerBitFields[peerId]);
@@ -432,6 +481,8 @@ void ContentManager::cancelDownloadRequests(int peerId) {
     std::ostringstream out;
     out << "Canceling requested pieces: ";
 #endif
+   // if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+   //     std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" cancelDownloadRequest del par "<<peerId<<"\n";  //Eric
 
     std::multimap<int, int>::iterator begin, end;
     boost::tie(begin, end) = this->requestedPieces.equal_range(peerId);
@@ -455,6 +506,12 @@ void ContentManager::cancelUploadRequests(int peerId) {
     Enter_Method("cancelUploadRequests(index: %d)", peerId);
     // The peer must be registered here
     assert(this->peerBitFields.count(peerId));
+    //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+    //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" cancelUploadRequest del par "<<peerId<<"\n";  //Eric
+    //if (peerId==34)   //Traza
+    //{
+    //   std::cerr<<simulation.getSimTime()<<" cancelUploadRequest "<<peerId<<"\n"; //Eric
+    //}
 
     this->tokenBucket->cancelUploadRequests(peerId);
 }
@@ -462,6 +519,35 @@ bool ContentManager::isBitFieldEmpty() const {
     Enter_Method("isBitFieldEmpty()");
     return this->clientBitField.empty();
 }
+
+double ContentManager::getDescarga()
+{
+    int i;
+    /*if (this->localPeerId==13)
+    {
+       std::cerr<<simulation.getSimTime()<<";Par "<<this->localPeerId<<" no tiene las piezas ";
+       for(i=0;i<this->numberOfPieces;i++)
+       {
+           if (!this->clientBitField.hasPiece(i))
+                std::cerr<<","<<i;
+       }
+       std::cerr<<"\n";
+       if (this->requestedPieces.size()>0)
+       {
+          std::multimap<int, int>::iterator it, end;
+          it = this->requestedPieces.begin();
+          end = this->requestedPieces.end();
+          while (it != end) {
+              std::multimap<int, int>::iterator currentIt = it++;
+              std::cerr<<simulation.getSimTime()<<";Par "<<this->localPeerId<<" solicito la pieza "<<currentIt->second<<" al par "<<currentIt->first<<"\n";  //Eric
+          }
+       }
+       else
+         std::cerr<<"No hay peticiones hechas\n";
+    }*/
+    return(this->clientBitField.getCompletedPercentage());
+}
+
 BitFieldMsg* ContentManager::getClientBitFieldMsg() const {
     Enter_Method("sendClientBitFieldMsg()");
 
@@ -482,8 +568,30 @@ PeerWireMsgBundle* ContentManager::getNextRequestBundle(int peerId) {
     assert(this->peerBitFields.count(peerId));
     PeerWireMsgBundle* requestBundle = NULL;
 
+    //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+    //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" al par "<<peerId<<" numPendingRequests "<<this->numPendingRequests.at(peerId)<<"\n";  //Eric
+
     int numWantedRequests = this->requestBundleSize
         - this->numPendingRequests.at(peerId);
+
+    //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+    //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" al par "<<peerId<<" numPendingRequests "<<this->numPendingRequests.at(peerId)<<"\n";  //Eric
+
+    //if (peerId==34)   //Traza
+    //{
+    //   std::cerr<<"getNextRequestBundle par "<<peerId<<" numWantRequests "<<numWantedRequests<<"\n"; //Eric
+    //}
+    //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+    //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" getNextRequest del par "<<peerId<<" numWantedRequests "<<numWantedRequests<<"\n";  //Eric
+
+    if (numWantedRequests<=0)
+    {
+        numWantedRequests=1;
+      //  if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+      //      std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" se inicializa numWantedRequests=1 el par "<<peerId<<" numWantedRequests "<<numWantedRequests<<"\n";  //Eric
+
+    }
+
     // make new request only if there is space
     if (numWantedRequests > 0) {
         // The bundle to be filled with blocks
@@ -498,6 +606,9 @@ PeerWireMsgBundle* ContentManager::getNextRequestBundle(int peerId) {
         assert(bundle->getLength() <= numWantedRequests);
 
         this->numPendingRequests.at(peerId) += bundle->getLength();
+        //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+        //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" bloque del par "<<peerId<<" numPendingRequests "<<this->numPendingRequests.at(peerId)<<"\n";  //Eric
+
 
         if (!bundle->empty()) {
             name_o << ")";
@@ -510,6 +621,11 @@ PeerWireMsgBundle* ContentManager::getNextRequestBundle(int peerId) {
             out << "There are no blocks available for download";
             this->printDebugMsg(out.str());
 #endif
+            /*if (peerId==10)   //Traza
+            {
+               std::cerr<<"No hay blocks disponible para descargar par "<<peerId<<"\n"; //Eric
+            }*/
+
         }
     } else {
 #ifdef DEBUG_MSG
@@ -517,6 +633,12 @@ PeerWireMsgBundle* ContentManager::getNextRequestBundle(int peerId) {
         out << "There are blocks pending";
         this->printDebugMsg(out.str());
 #endif
+        //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+        //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" al par "<<peerId<<" no hay disponiblilidad en bundle para hacer peticion\n";  //Eric
+        /*if (peerId==10)   //Traza
+        {
+           std::cerr<<"Hay blocks pendientes par "<<peerId<<"\n"; //Eric
+        }*/
     }
     return requestBundle;
 }
@@ -531,6 +653,8 @@ void ContentManager::requestPieceMsg(int peerId, int index, int begin,
     }
     // The piece must be available
     assert(this->clientBitField.hasPiece(index));
+    //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+    //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" requestPieceMsg del par "<<peerId<<" pieza "<<index<<"\n";  //Eric
 
     this->tokenBucket->requestPieceMsg(peerId, index, begin, reqLength);
 }
@@ -580,8 +704,18 @@ void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
     // The peer must be registered here
     assert(this->peerBitFields.count(peerId));
 
+    //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+    //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" processBlock del par "<<peerId<<" pieza "<<pieceIndex<<"\n";  //Eric
+
+
     // update bytes counter
     this->totalDownloadedByPeer[peerId] += blockSize;
+
+    //if (peerId==34)   //Traza
+    //{
+    //    std::cerr<<simulation.getSimTime()<<"El par "<<peerId<<" aumenta sus bloques "<<this->totalDownloadedByPeer[peerId]<<"\n";
+    //}
+
     this->totalBytesDownloaded += blockSize;
     emit(this->totalBytesDownloaded_Signal, this->totalBytesDownloaded);
 
@@ -600,12 +734,25 @@ void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
         // then decrement the number of pending requests
         PieceBlocks & req = lb->second;
         int blockIndex = begin / blockSize;
+        //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+        //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" processBlock del par "<<peerId<<" pieza "<<pieceIndex<<" bloque "<<blockIndex<<"\n";  //Eric
         if (req.setBlock(blockIndex)) {
+            //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+            //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" bloque del par "<<peerId<<" pieza "<<pieceIndex<<" bloque marcado "<<blockIndex<<"\n";  //Eric
             std::multimap<int, int>::iterator it, end;
-            boost::tie(it, end) = this->requestedPieces.equal_range(peerId);
+            boost::tie(it, end) = this->requestedPieces.equal_range(peerId);  //Eric***** AQUI PROBLEMA
+            //int x=1;
             for (/* empty */; it != end; ++it) {
+               // if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+               // {
+               //     std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" antes de disminuir num peticiones del par "<<peerId<<" numpendingRequest reales "<<x<<"\n";  //Eric
+               //     std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" pieza "<<it->second<<"\n";  //Eric
+               // }
+               // x++;
                 if (it->second == pieceIndex) {
                     --this->numPendingRequests.at(peerId);
+                   // if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+                   //     std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" disminuye num peticiones del par "<<peerId<<" numpendingRequest "<<this->numPendingRequests.at(peerId)<<"\n";  //Eric
                     break;
                 }
             }
@@ -641,25 +788,36 @@ void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
 
             // "Move" the piece from the missingBlocks to the clientBitField
             this->missingBlocks.erase(pieceIndex);
+            //if (peerId==34)   //Traza
+            //{
+            //    std::cerr<<"El par "<<peerId<<" agrega la pieza "<<pieceIndex<<"\n";
+            //}
+
             this->clientBitField.addPiece(pieceIndex);
 
             // Check if the connected peers continue to be interesting
             this->verifyInterestOnAllPeers();
             // Statistics
             generateDownloadStatistics(pieceIndex);
+
             // schedule the sending of the HaveMsg to all Peers.
+            //Ojo **** Eric avisa a los otros pares
             this->bitTorrentClient->sendHaveMessages(this->infoHash,
                 pieceIndex);
+
+            //if (this->bitTorrentClient->localPeerId==42 )   //Traza
+            //{
+            //  std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" faltan piezas "<<this->clientBitField.unavailablePieces()<<"\n";  //Eric mensaje de saca del swarm
+            //}
 
             if (this->clientBitField.full()) { // became seeder
 #ifdef DEBUG_MSG
                 this->printDebugMsg("Became a seeder");
 #endif
 
-//                std::cerr << "- Became a seeder :: " << this->localPeerId << "\n";
+                std::cerr << "- Became a seeder :: " << this->localPeerId << "\n";
                 // warn the tracker
                 this->bitTorrentClient->finishedDownload(this->infoHash);
-                this->seeder = true;
             }
 
             this->updateStatusString();
@@ -675,6 +833,8 @@ void ContentManager::processHaveMsg(int pieceIndex, int peerId) {
 
     // The peer must be registered here
     assert(this->peerBitFields.count(peerId));
+    //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+    //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" processHaveMsg del par "<<peerId<<" pieza "<<pieceIndex<<"\n";  //Eric
 
     this->rarestPieceCounter.addPiece(pieceIndex);
     // add the piece to the client's BitField
@@ -684,26 +844,34 @@ void ContentManager::processHaveMsg(int pieceIndex, int peerId) {
     if (!this->interestingPeers.count(peerId) && // Peer was not interesting
         this->isPeerInteresting(peerId)) { // but now is
         this->interestingPeers.insert(peerId);
+        /*if (peerId==10)   //Traza
+        {
+           std::cerr<<"Desde el CM havemsg par actual "<<this->bitTorrentClient->localPeerId<<" me interesa "<<peerId<<"\n"; //Eric
+        }*/
+
         this->bitTorrentClient->peerInteresting(this->infoHash, peerId);
     }
 
     // Last piece resulted in the Peer becoming a seeder
     if (peerBitField.full()) {
-
 #ifdef DEBUG_MSG
         std::string out;
         std::string peerIdStr = toStr(peerId);
 #endif
         if (this->clientBitField.full()) {
-            this->seeder  = true;
 #ifdef DEBUG_MSG
             out = "Both the Client and Peer " + peerIdStr + " are seeders.";
 #endif
             // the connection between two seeders is useless. Drop it.
+            /*if (peerId==10)   //Traza
+            {
+               std::cerr<<"Desde el CM havemsg par actual "<<this->bitTorrentClient->localPeerId<<" cierra conección "<<peerId<<"\n"; //Eric
+            }*/
+
             this->bitTorrentClient->closeConnection(this->infoHash, peerId);
 #ifdef DEBUG_MSG
         } else {
-            out = "Peer " + peerIdStr + " became a .";
+            out = "Peer " + peerIdStr + " became a seeder.";
 #endif
         }
 #ifdef DEBUG_MSG
@@ -751,7 +919,15 @@ void ContentManager::getRemainingPieces(cPacketQueue * const bundle,
         }
 
         // exit the loop because the bundle is full
-        if (bundle->getLength() == requestBundleSize) break;
+        if (bundle->getLength() == requestBundleSize)
+        {
+            //if (peerId==34)   //Traza
+            //{
+            //   std::cerr<<"getRaminingPieces se sale porque bundle lleno par actual "<<this->bitTorrentClient->localPeerId<<" cierra conección "<<peerId<<"\n"; //Eric
+            //}
+
+            break;
+        }
         ++it;
     }
 }
@@ -762,9 +938,6 @@ void ContentManager::getInterestingPieces(cPacketQueue * const bundle,
     if (requestBundleSize == 0) {
         return;
     }
-
-    //Lista auxiliar con las piezas a descargar
-    orderedListRarestPieces.clear();
 
     // Ignore all pieces previously requested (including the ones requested by
     // this peerId because they were already added to the bundle).
@@ -781,37 +954,12 @@ void ContentManager::getInterestingPieces(cPacketQueue * const bundle,
         // get the rarest pieces among the interesting ones.
         std::vector<int> const& rarest =
             this->rarestPieceCounter.getRarestPieces(intPieces, numberOfPieces);
-
         BOOST_FOREACH (int pieceIndex, rarest) {
-            orderedListRarestPieces.push_back(pieceIndex);
-        }
-        //Verificamos si existe condición de empate
-        if(!orderedListRarestPieces.empty()){
-            //Condición de empate en el último elemento
-            if(orderedListRarestPieces.back() == -369){
-                /**
-                   *  Returns a read-only (constant) reference to the data at the
-                   *  last element of the %vector.
-                   */
-                //Eliminamos el identificador que indica la condición de empate
-                orderedListRarestPieces.pop_back();
-
-                if(!this->seeder)//Para el caso de la sanguijuela
-                    orderedListRarestPieces.sort(std::greater<int>()); //descending
-                else//Para el caso de la semilla
-                    orderedListRarestPieces.sort(); //ascending
-
-            }
-        }
-        BOOST_FOREACH (int pieceIndex, orderedListRarestPieces) {
             // Return the incomplete piece, or create a new one
             // similar to operator[], but without the default constructor
             // http://cplusplus.com/reference/stl/map/operator[]/
+
             // Try to find the piece in the missing blocks. If not found, create it
-
-            if(pieceIndex < 0) //Evitamos que la estampa de identificación provoque errores graves en la descarga
-                continue;
-
             typedef std::map<int, PieceBlocks>::iterator map_it;
             map_it lb = this->missingBlocks.lower_bound(pieceIndex);
             if (lb == this->missingBlocks.end() || lb->first != pieceIndex) {
@@ -824,6 +972,9 @@ void ContentManager::getInterestingPieces(cPacketQueue * const bundle,
 
             // Add the piece to the requested map
             this->requestedPieces.insert(std::make_pair(peerId, pieceIndex));
+            //if ((this->bitTorrentClient->localPeerId==11 && peerId==13) || (this->bitTorrentClient->localPeerId==13 && peerId==11))
+            //    std::cerr<<simulation.getSimTime()<<";Par "<<this->bitTorrentClient->localPeerId<<" requiere al par "<<peerId<<" la pieza "<<pieceIndex<<"\n";  //Eric
+
             // Save the time this request was made
             this->pieceRequestTime[pieceIndex];
 
@@ -889,7 +1040,6 @@ void ContentManager::generateDownloadStatistics(int pieceIndex) {
 
         // send signal warning this ContentManager became a seeder
         emit(this->becameSeeder_Signal, this->infoHash);
-        this->seeder = true;
     }
 
     if (emitCompletionSignal) {
@@ -922,11 +1072,20 @@ void ContentManager::verifyInterestOnAllPeers() {
                 + " are seeders.";
             this->printDebugMsg(out);
 #endif
-            this->bitTorrentClient->closeConnection(this->infoHash, peerId);
+         //   if (peerId==34)   //Traza
+         //   {
+         //      std::cerr<<"Cierra conección client y par son semillas "<<this->bitTorrentClient->localPeerId<<" y par "<<peerId<<"\n"; //Eric
+         //   }
 
+            this->bitTorrentClient->closeConnection(this->infoHash, peerId);
         } else if (!this->isPeerInteresting(peerId)) {
             // not interesting anymore
             this->interestingPeers.erase(currentPeerIt);
+           //if (peerId==42)   //Traza
+           // {
+           //    std::cerr<<"El par "<<this->bitTorrentClient->localPeerId<<" no interesa a "<<peerId<<"\n"; //Eric
+           // }
+
             this->bitTorrentClient->peerNotInteresting(this->infoHash, peerId);
         }
     }
@@ -964,7 +1123,6 @@ void ContentManager::updateStatusString() {
     if (ev.isGUI()) {
         std::ostringstream out;
         if (this->clientBitField.full()) {
-            this->seeder = true;
             out << "Seeder";
         } else {
             out.precision(2);
@@ -995,12 +1153,12 @@ void ContentManager::initialize() {
     this->requestBundleSize = par("requestBundleSize").longValue();
     this->haveBundleSize = par("haveBundleSize").longValue();
     this->infoHash = par("infoHash").longValue();
-    this->seeder = par("seeder").boolValue();
+    bool seeder = par("seeder").boolValue();
 
     // create an empty or full BitField, depending on the parameter "seeder"
-    this->clientBitField = BitField(this->numberOfPieces, this->seeder);
+    this->clientBitField = BitField(this->numberOfPieces, seeder);
 
-    if (this->seeder) {
+    if (seeder) {
         this->updateStatusString();
     }
 
