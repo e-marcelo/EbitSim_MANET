@@ -111,16 +111,19 @@ PeerWireThread* PeerStatus::getThread() const {
 
 // Attributes used when sorting.
 void PeerStatus::setSnubbed(bool snubbed) {
-    this->snubbed = snubbed;
+    //this->snubbed = snubbed;
+    this->snubbed = false;
 }
 bool PeerStatus::isSnubbed() const {
-    return this->snubbed;
+    //return this->snubbed;
+    return false;
 }
 void PeerStatus::setInterested(bool interested) {
     this->interested = interested;
 }
 bool PeerStatus::isInterested() const {
     return this->interested;
+    //return true;
 }
 void PeerStatus::setUnchoked(bool unchoked, simtime_t const& now) {
     if (unchoked) {

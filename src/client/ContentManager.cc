@@ -439,7 +439,7 @@ void ContentManager::addPeerBitField(BitField const& bitField, int peerId) {
 }
 void ContentManager::removePeerBitField(int peerId) {
     Enter_Method("removePeerBitField(id: %d)", peerId);
-    assert(this->peerBitFields.count(peerId));
+    //assert(this->peerBitFields.count(peerId)); EAM
 #ifdef DEBUG_MSG
     std::ostringstream out;
     out << "removing peer " << peerId;
@@ -520,9 +520,9 @@ bool ContentManager::isBitFieldEmpty() const {
     return this->clientBitField.empty();
 }
 
-double ContentManager::getDescarga()
-{
-    int i;
+//double ContentManager::getDescarga()
+//{
+    //int i;
     /*if (this->localPeerId==13)
     {
        std::cerr<<simulation.getSimTime()<<";Par "<<this->localPeerId<<" no tiene las piezas ";
@@ -545,8 +545,8 @@ double ContentManager::getDescarga()
        else
          std::cerr<<"No hay peticiones hechas\n";
     }*/
-    return(this->clientBitField.getCompletedPercentage());
-}
+    //return(this->clientBitField.getCompletedPercentage());
+//}
 
 BitFieldMsg* ContentManager::getClientBitFieldMsg() const {
     Enter_Method("sendClientBitFieldMsg()");

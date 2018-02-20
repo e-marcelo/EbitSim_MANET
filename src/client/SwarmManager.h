@@ -102,6 +102,8 @@ private:
      */
     void enterSwarm(TorrentMetadata const& torrentInfo, bool seeder,
             IPvXAddress const& trackerAddress, int trackerPort,int idDisplay);
+    void renewSwarm(TorrentMetadata const& torrentInfo, bool seeder,
+                IPvXAddress const& trackerAddress, int trackerPort,int idDisplay);
     /*! Send an announce to the Tracker stating that this Peer is exiting the
      * swarm. Upon response, close the connections with all the peers and delete
      * the swarm related modules

@@ -197,6 +197,8 @@ public:
      */
     void createSwarm(int infoHash, int numOfPieces, int numOfSubPieces,
         int subPieceSize, bool newSwarmSeeding,int idDisplay);
+    void renewSwarm(int infoHash, int numOfPieces, int numOfSubPieces,
+            int subPieceSize, bool newSwarmSeeding,int idDisplay);
     /*!
      * Delete the swarm from the Client.
      *

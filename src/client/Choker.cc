@@ -179,6 +179,7 @@ void Choker::chokeAlgorithm(bool optimisticRound) {
 
     // Do nothing if the list is empty
     if (orderedPeers.empty()) {
+        std::cerr << "*** Lista vacia :: " << optimisticRound << "\n";
         return;
     }
     // choke/unchoke the peers.

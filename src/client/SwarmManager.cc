@@ -369,7 +369,19 @@ void SwarmManager::finishedDownload(int infoHash) {
 //Retomar ::    emit(this->seederSignal, &data); Retomar señales
 
 }
+void SwarmManager::renewSwarm(TorrentMetadata const& torrent, bool seeder,
+    IPvXAddress const& trackerAddress, int trackerPort,int idDisplay) {
 
+    //Evitamos contactar al tracker y en su lugar utilizamos una lista con la información completa (semillas y pares)
+    // The swarm must be new
+    assert(!this->callbacksByInfoHash.count(torrent.infoHash)); // <-- [:)]
+
+    //El controlador define que infoHash se utilizará
+    this->bitTorrentClient->renewSwarm(torrent.infoHash, torrent.numOfPieces,
+        torrent.numOfSubPieces, torrent.subPieceSize, seeder, idDisplay);
+    //emit(this->enterSwarmSignal, simTime());
+    //emit(this->emittedPeerId_Signal, this->localPeerId);
+}
 // Private methods
 // Tracker communication methods
 void SwarmManager::enterSwarm(TorrentMetadata const& torrent, bool seeder,
@@ -409,6 +421,7 @@ void SwarmManager::enterSwarm(TorrentMetadata const& torrent, bool seeder,
     emit(this->enterSwarmSignal, simTime());
     emit(this->emittedPeerId_Signal, this->localPeerId);
 }
+
 void SwarmManager::leaveSwarm(int infoHash) {
 //EAM    this->callbacksByInfoHash.at(infoHash)->sendAnnounce(A_STOPPED);
     // remove the swarm from the application, closing all connections
@@ -419,7 +432,6 @@ void SwarmManager::leaveSwarm(int infoHash) {
     emit(this->leaveSwarmSignal, simTime());
     emit(this->emittedPeerId_Signal, this->localPeerId);
 }
-
 // Handle message methods
 void SwarmManager::treatUserCommand(cMessage * msg) {
     cObject * controlInfo = msg->getControlInfo();
@@ -430,9 +442,22 @@ void SwarmManager::treatUserCommand(cMessage * msg) {
         this->enterSwarm(enterSwarmMsg->getTorrentMetadata(),
             enterSwarmMsg->getSeeder(), enterSwarmMsg->getTrackerAddress(),
             enterSwarmMsg->getTrackerPort(),enterSwarmMsg->getIdDisplay());
-    } else {
-        throw cException("Bad user command");
-    }
+    } else if (msg->getKind() == USER_COMMAND_RENEW_SWARM) {
+        EnterSwarmCommand * enterSwarmMsg = check_and_cast<EnterSwarmCommand *>(
+            controlInfo);
+//        std::cerr << "\nSoy el par [" << this->bitTorrentClient->localPeerId << "] ->" << enterSwarmMsg->getIdDisplay()<< "\n";
+        this->renewSwarm(enterSwarmMsg->getTorrentMetadata(),
+            enterSwarmMsg->getSeeder(), enterSwarmMsg->getTrackerAddress(),
+            enterSwarmMsg->getTrackerPort(),enterSwarmMsg->getIdDisplay());
+    } else if (msg->getKind() == USER_COMMAND_LEAVE_SWARM) {
+            LeaveSwarmCommand * enterSwarmMsgLeave = check_and_cast<LeaveSwarmCommand *>(
+                        controlInfo);
+            //std::cerr << "\nSi quiero dejar el enjambre!!!";
+            this->leaveSwarm(enterSwarmMsgLeave->getInfoHash());
+
+        } else{
+           throw cException("Bad user command");
+        }
     delete msg;
 }
 void SwarmManager::treatSelfMessages(cMessage *msg) {

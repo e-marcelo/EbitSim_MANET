@@ -11,11 +11,23 @@
 #include <boost/tokenizer.hpp>
 #include "SwarmManager.h"
 #include "UserCommand_m.h"
+#include <boost/foreach.hpp>
+
+// Dumb fix because of the CDT parser (https://bugs.eclipse.org/bugs/show_bug.cgi?id=332278)
+#ifdef __CDT_PARSER__
+#undef BOOST_FOREACH
+#define BOOST_FOREACH(a, b) for(a; b; )
+#endif
+
 
 Define_Module(ClientController);
 
 // helper functions in anonymous workspace
 namespace {
+
+
+std::vector<int> newSeeds;
+
 //! Create ControlInfo object common to all announce messages.
 EnterSwarmCommand createDefaultControlInfo(
         TorrentMetadata const& torrentMetadata,
@@ -28,6 +40,15 @@ EnterSwarmCommand createDefaultControlInfo(
 
     return enterSwarmCommand;
 }
+
+LeaveSwarmCommand createDefaultControlInfoLeave(int infoHash) {
+    // these parameters are default for all announce messages sent
+    LeaveSwarmCommand leaveSwarmCommand;
+    leaveSwarmCommand.setInfoHash(infoHash);
+    return leaveSwarmCommand;
+}
+
+
 
 //! Create the announce message that will be sent to the passed SwarmManager.
 cMessage * createAnnounceMsg(EnterSwarmCommand const& defaultControlInfo,
@@ -46,6 +67,94 @@ cMessage * createAnnounceMsg(EnterSwarmCommand const& defaultControlInfo,
     msg->setControlInfo(enterSwarmCommand);
     return msg;
 }
+
+cMessage * createAnnounceMsgReNewSwarm(EnterSwarmCommand const& defaultControlInfo,
+        bool seeder, SwarmManager * swarmManager,int idDisplay) {
+    // create the message and set the control info
+    cMessage *msg = new cMessage("Renew Swarm");
+    msg->setContextPointer(swarmManager);
+    msg->setKind(USER_COMMAND_RENEW_SWARM);
+
+
+    // Each new message needs a new control info
+    // Update the seeder status in the control info
+    EnterSwarmCommand * enterSwarmCommand = defaultControlInfo.dup();
+    enterSwarmCommand->setSeeder(seeder);
+    enterSwarmCommand->setIdDisplay(idDisplay);
+    msg->setControlInfo(enterSwarmCommand);
+    return msg;
+}
+
+cMessage * createAnnounceMsgLeave(LeaveSwarmCommand const& defaultControlInfo,
+        SwarmManager * swarmManager) {
+    // create the message and set the control info
+    cMessage *msg = new cMessage("Leave Swarm");
+    msg->setContextPointer(swarmManager);
+    msg->setKind(USER_COMMAND_LEAVE_SWARM);
+
+
+    // Each new message needs a new control info
+    // Update the seeder status in the control info
+    LeaveSwarmCommand * enterSwarmCommand = defaultControlInfo.dup();
+    msg->setControlInfo(enterSwarmCommand);
+    return msg;
+}
+
+
+//! Schedule the announce messages to all BitTorrent applications.
+void scheduleLeaveMessages(ClientController * self, simtime_t const& leaveTime,
+       LeaveSwarmCommand const& defaultControlInfo) {
+    cTopology topo;
+    topo.extractByProperty("peer");
+    //simtime_t leaveTime_ = leaveTime;
+
+    for (int i = 0; i < topo.getNumNodes(); ++i) {
+        SwarmManager * swarmManager = check_and_cast<SwarmManager *>(
+                topo.getNode(i)->getModule()->getSubmodule("swarmManager"));
+
+              cMessage *msg = createAnnounceMsgLeave(defaultControlInfo,swarmManager);
+              //Calendarizando salida del enjambre de todos los pares!
+              self->scheduleAt(leaveTime,msg);
+
+    }
+}
+//Schedule the re-enter to swarm
+
+void scheduleEnterSwarmMessages(ClientController * self, simtime_t const& startTime,
+        simtime_t const& interarrivalTime, EnterSwarmCommand const& defaultControlInfo) {
+    cTopology topo;
+    topo.extractByProperty("peer");
+
+    simtime_t RenterTime = startTime;
+    for (int i = 0; i < topo.getNumNodes(); ++i) {
+        SwarmManager * swarmManager = check_and_cast<SwarmManager *>(
+                topo.getNode(i)->getModule()->getSubmodule("swarmManager"));
+
+
+        //Considerando que todos los nodos no son semilla al inicio
+        bool seeder = false;
+        // The first numSeeders will start immediately
+        BOOST_FOREACH(int seedNew, newSeeds){
+               if(i == seedNew){
+                  seeder = true;
+                  //std::cerr << "-> Semilla \n";
+                  continue;
+               }
+        }
+
+        cMessage *msg = createAnnounceMsgReNewSwarm(defaultControlInfo, seeder,swarmManager,i);
+
+//        self->scheduleAt(enterTime, msg);
+//        if(!seeder)
+//            self->emitEnterTime(enterTime);
+        // The first peers set to seeders and start imediatelly
+        self->scheduleAt(RenterTime, msg);
+
+    }
+}
+
+
+
 
 //! Schedule the announce messages to all BitTorrent applications.
 void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
@@ -74,6 +183,7 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
 
 
         if (seeder) {
+
               std::string opt;
               //std::string newArg;
               std::ostringstream numNode;
@@ -81,7 +191,7 @@ void scheduleStartMessages(ClientController * self, simtime_t const& startTime,
               int count = 0;*/
               //Construcción del identificador del par (en modo gráfico)
               opt = std::string("peer[");
-
+              newSeeds.push_back(i);
               numNode << i;
               opt.append(numNode.str());
               opt.append("]");
@@ -163,7 +273,73 @@ void ClientController::emitEnterTime(simtime_t enterTime) {
 int ClientController::numInitStages() const {
     return 4;
 }
+void ClientController::renewSwarmInit(){
+    // get the parameters
+    std::string sTrackerAddress = par("trackerAddress").stringValue();
+    int trackerPort = par("trackerPort").longValue();
+    //int numSeeders = par("numSeeders").longValue();
+    simtime_t leaveTime = par("leaveTime").doubleValue();
 
+    simtime_t pauseEnterSwarm = par("pauseTimeEnterSwarm").doubleValue();
+
+
+    cXMLElement * profile = par("profile").xmlValue();
+
+    // verify parameters
+    cXMLElementList contentList = profile->getChildrenByTagName("content");
+    if (contentList.empty()) {
+        throw cException("List of contents is empty. Check the xml file");
+    }
+    // throw an error if unable to resolve
+    IPvXAddress trackerAddress = IPvXAddressResolver().resolve(sTrackerAddress.c_str(), IPvXAddressResolver::ADDR_IPv4);
+
+    sTrackerAddress.append(".tcpApp[0]");
+
+    TrackerApp* trackerApp = check_and_cast<TrackerApp *>(
+    simulation.getModuleByPath(sTrackerAddress.c_str()));
+
+    // For each content in the profile, schedule the start messages.
+    cXMLElementList::iterator it = contentList.begin();
+            for (int num = 0; it != contentList.end(); ++it, ++num) {
+                using boost::lexical_cast;
+
+                char const* contentName =
+                        (*it)->getFirstChildWithTag("name")->getNodeValue();
+                simtime_t interarrival =
+                        lexical_cast<double>(
+                                (*it)->getFirstChildWithTag("interarrival")->getNodeValue());
+
+                // This simulates the phase where the Client get the the .torrent
+                // files from the torrent repository server.
+                TorrentMetadata const& torrentMetadata =
+                        trackerApp->getTorrentMetaData(contentName);
+
+                EnterSwarmCommand const& defaultControlInfo =
+                        createDefaultControlInfo(torrentMetadata, trackerAddress,
+                                trackerPort);
+
+
+                scheduleEnterSwarmMessages(this, leaveTime+pauseEnterSwarm, interarrival,
+                                          defaultControlInfo);
+
+                //Horas antes de terminar las ocho horas de descarga volvemos intentar reiniciar la descarga
+                //scheduleLeaveMessages(this,leaveTimeLast,defaultControlInfoLeave);
+
+                //Último intento de terminar la descarga antes de agotar el tiempo de descarga!
+                //scheduleEnterSwarmMessages(this, leaveTimeLast+pauseEnterSwarm, interarrival,
+                //                           defaultControlInfo);
+
+            }
+            //Contador de pares que terminan la descarga
+            this->endPeerDownload = 0;
+            cTopology topo;
+            topo.extractByProperty("peer");
+            this->numNodesTotal = topo.getNumNodes() - newSeeds.size();
+            std::cerr << "Numero de sanguijuelas :: " << this->numNodesTotal << "\n";
+            this->updateStatusString();
+
+
+}
 // Starting point of the simulation
 void ClientController::initialize(int stage) {
     if (stage == 0) {
@@ -176,6 +352,11 @@ void ClientController::initialize(int stage) {
         bool debugFlag = par("debugFlag").boolValue();
         int numSeeders = par("numSeeders").longValue();
         simtime_t startTime = par("startTime").doubleValue();
+        simtime_t leaveTime = par("leaveTime").doubleValue();
+        simtime_t leaveTimeLast = par("leaveTimeLast").doubleValue();
+        simtime_t pauseEnterSwarm = par("pauseTimeEnterSwarm").doubleValue();
+
+
         cXMLElement * profile = par("profile").xmlValue();
 
         // verify parameters
@@ -217,9 +398,30 @@ void ClientController::initialize(int stage) {
             EnterSwarmCommand const& defaultControlInfo =
                     createDefaultControlInfo(torrentMetadata, trackerAddress,
                             trackerPort);
+            LeaveSwarmCommand const& defaultControlInfoLeave =
+                                           createDefaultControlInfoLeave(torrentMetadata.infoHash);
 
+            //Inicia primera ronda de la descarga
             scheduleStartMessages(this, startTime, interarrival,
-                    numSeeders, defaultControlInfo);
+                               numSeeders, defaultControlInfo);
+
+            //Estadísticamente la descarga se estanca en un periodo muy visible
+            scheduleLeaveMessages(this,leaveTime,defaultControlInfoLeave);
+
+            cMessage * resetSwarm = new cMessage("renewSwarm");
+            resetSwarm->setContextPointer(this);
+           //        std::cerr<< "[Temporizador] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
+            this->scheduleAt(leaveTime+pauseEnterSwarm, resetSwarm);
+            //Calendarizar en un momento posterior!
+            //scheduleEnterSwarmMessages(this, leaveTime+pauseEnterSwarm, interarrival,
+            //                          defaultControlInfo);
+
+            //Horas antes de terminar las ocho horas de descarga volvemos intentar reiniciar la descarga
+            //scheduleLeaveMessages(this,leaveTimeLast,defaultControlInfoLeave);
+
+            //Último intento de terminar la descarga antes de agotar el tiempo de descarga!
+            //scheduleEnterSwarmMessages(this, leaveTimeLast+pauseEnterSwarm, interarrival,
+            //                           defaultControlInfo);
 
         }
         //Contador de pares que terminan la descarga
@@ -255,12 +457,14 @@ void ClientController::subscribeToSignals() {
 void ClientController::endUserDownload(cMessage *msg)
 {
     if(msg->getKind() == 333){ //Tipo de dato con el identificador para terminar la simulación
-
-        std::string *newSeed = static_cast<std::string *>(msg->getContextPointer());
-        if(newSeed != NULL)
-            std::cerr << "Datos de la nueva semilla :: " << newSeed <<"\n";
+        //std::cerr << "-> Semilla nueva (modo gráfico) :: Peer[ " << msg->getSrcProcId() <<"] \n";
+        //Vector con la referencia de los pares que son semillas dentro de la simulación!
+        newSeeds.push_back(msg->getSrcProcId());
+        //std::string *newSeed = static_cast<std::string *>(msg->getContextPointer());
+        //if(newSeed != NULL)
+            //std::cerr << "-> Datos de la nueva semilla :: " << newSeed <<"\n";
         this->endPeerDownload++;
-        std::cerr << "[clientController]* Pares que reportan descarga completa :: "<< this->endPeerDownload << " \n";
+        //std::cerr << "[clientController]* Pares que reportan descarga completa :: "<< this->endPeerDownload << " \n";
         if(this->endPeerDownload >= this->numNodesTotal){
             std::cerr << "*** Termina simulación [Condición de finalización aceptada]! \n";
             endSimulation(); //Esperamos que el histograma se guarde por defecto (en el tiempo establecido)
@@ -284,9 +488,17 @@ void ClientController::handleMessage(cMessage *msg) {
         if (!msg->isSelfMessage()) {
             throw cException("This module doesn't process messages");
         }
-        SwarmManager * swarmManager = check_and_cast<SwarmManager *>(
-                (cModule *) msg->getContextPointer());
-        // Send the scheduled message directly to the swarm manager module
-        sendDirect(msg, swarmManager, "userCommand");
+        if(msg->isName("renewSwarm")){
+               std::cerr << "\n*** Vamos a entrar de nuevo al enjambre :: " << simTime() << "\n";
+               renewSwarmInit();
+               delete msg;
+        }else{
+            SwarmManager * swarmManager = check_and_cast<SwarmManager *>(
+            (cModule *) msg->getContextPointer());
+            // Send the scheduled message directly to the swarm manager module
+            sendDirect(msg, swarmManager, "userCommand");
+        }
+
+
     }
 }

@@ -6,7 +6,8 @@
 #include <omnetpp.h>
 #include <clistener.h>
 #include <list>
-
+#include <vector>       // std::vector
+#include <boost/foreach.hpp>
 #include "TrackerApp.h"
 
 class SwarmManager;
@@ -29,6 +30,7 @@ private:
     int endPeerDownload;
     int numNodesTotal;
 
+
     //!@name Signals
     //@{
     simsignal_t enterTime_Signal; //! Emitted the instant a peer enters the swarm
@@ -47,6 +49,7 @@ private:
     //@{
     //! Subscribe to signals.
     void subscribeToSignals();
+    void renewSwarmInit();
     //@}
 protected:
     int numInitStages() const;
