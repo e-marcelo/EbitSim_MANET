@@ -372,11 +372,11 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
 
         selectListPeersRandom(); //Selección por cuadrantes, no al azar!!!
          if(this->peers.size()){
-                std::cerr << "***[Enjambre] Lista de pares, nodo :: " << this->strCurrentNode << " -> " <<this->peers.size() <<  "\n";
+                //std::cerr << "***[Enjambre] Lista de pares, nodo :: " << this->strCurrentNode << " -> " <<this->peers.size() <<  "\n";
         //          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
                 addUnconnectedPeers(infoHash, this->peers);
          }else{
-                std::cerr << "***[Enjambre] Lista de pares vacia, nodo :: " << this->strCurrentNode << " aislado :(\n";
+                //std::cerr << "***[Enjambre] Lista de pares vacia, nodo :: " << this->strCurrentNode << " aislado :(\n";
                 cMessage * askMsg = new cMessage("AskMorePeers");
                 askMsg->setContextPointer(this);
                 std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 30 minutos!\n";
@@ -495,11 +495,11 @@ void BitTorrentClient::renewSwarm(int infoHash, int numOfPieces,
         }
         selectListPeersRandom(); //Selección al azar!!!
          if(this->peers.size()){
-                std::cerr << "***[Enjambre] Lista de pares, nodo :: " << this->strCurrentNode << " -> " <<this->peers.size() <<  "\n";
+                //std::cerr << "***[Enjambre] Lista de pares, nodo :: " << this->strCurrentNode << " -> " <<this->peers.size() <<  "\n";
         //          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
                 addUnconnectedPeers(infoHash, this->peers);
          }else{
-                std::cerr << "***[Enjambre] Lista de pares vacia, nodo :: " << this->strCurrentNode << " aislado :(\n";
+                //std::cerr << "***[Enjambre] Lista de pares vacia, nodo :: " << this->strCurrentNode << " aislado :(\n";
                 cMessage * askMsg = new cMessage("AskMorePeers");
                 askMsg->setContextPointer(this);
                 std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 30 minutos!\n";
@@ -522,7 +522,7 @@ void BitTorrentClient::deleteSwarm(int infoHash) {
     swarm.closing = true;
     swarm.unconnectedList.clear();
 //
-//    // close the connection with all the peers
+//    // close the connection printwith all the peers
     typedef std::pair<int, PeerStatus> map_t;
     BOOST_FOREACH(map_t const& peer, swarm.peerMap) {
         PeerWireThread * thread = peer.second.getThread();
@@ -1178,9 +1178,9 @@ void BitTorrentClient::initialize(int stage) {
 void BitTorrentClient::finishDownload()
 {
 
-    std::cerr << "\n"<< simulation.getEventNumber();
-    std::cerr << ";" << simulation.getSimTime();
-    std::cerr << ";(bitTorrentClient); " << this->strCurrentNode << ";\n";
+    //std::cerr << "\n"<< simulation.getEventNumber();
+    //std::cerr << ";" << simulation.getSimTime();
+    //std::cerr << ";(bitTorrentClient); " << this->strCurrentNode << ";\n";
 
     cTopology topo;
     topo.extractByProperty("controller");

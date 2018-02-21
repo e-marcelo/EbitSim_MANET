@@ -377,7 +377,7 @@ ContentManager::ContentManager() :
         false) {
 }
 ContentManager::~ContentManager() {
-// EAM :: #ifdef DEBUG_MSG
+/*#ifdef DEBUG_MSG
     double completePerc = this->clientBitField.getCompletedPercentage();
     std::ostringstream out;
     out << "Completed " << completePerc << "% of the download";
@@ -388,8 +388,8 @@ ContentManager::~ContentManager() {
     this->printDebugMsg(out.str());
     delete this->tokenBucket;
 
-// EAM :: #endif
-//    delete this->tokenBucket; //<- Posible error
+EAM :: #endif*/
+    delete this->tokenBucket; //<- Posible error
 }
 
 void ContentManager::addEmptyBitField(int peerId) {
@@ -815,7 +815,7 @@ void ContentManager::processBlock(int peerId, int pieceIndex, int begin,
                 this->printDebugMsg("Became a seeder");
 #endif
 
-                std::cerr << "- Became a seeder :: " << this->localPeerId << "\n";
+                //std::cerr << "- Became a seeder :: " << this->localPeerId << "\n";
                 // warn the tracker
                 this->bitTorrentClient->finishedDownload(this->infoHash);
             }

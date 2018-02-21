@@ -278,9 +278,9 @@ void ClientController::renewSwarmInit(){
     std::string sTrackerAddress = par("trackerAddress").stringValue();
     int trackerPort = par("trackerPort").longValue();
     //int numSeeders = par("numSeeders").longValue();
-    simtime_t leaveTime = par("leaveTime").doubleValue();
+    //simtime_t leaveTime = par("leaveTime").doubleValue();
 
-    simtime_t pauseEnterSwarm = par("pauseTimeEnterSwarm").doubleValue();
+    //simtime_t pauseEnterSwarm = par("pauseTimeEnterSwarm").doubleValue();
 
 
     cXMLElement * profile = par("profile").xmlValue();
@@ -319,7 +319,7 @@ void ClientController::renewSwarmInit(){
                                 trackerPort);
 
 
-                scheduleEnterSwarmMessages(this, leaveTime+pauseEnterSwarm, interarrival,
+                scheduleEnterSwarmMessages(this, simTime(), interarrival,
                                           defaultControlInfo);
 
                 //Horas antes de terminar las ocho horas de descarga volvemos intentar reiniciar la descarga
@@ -331,11 +331,11 @@ void ClientController::renewSwarmInit(){
 
             }
             //Contador de pares que terminan la descarga
-            this->endPeerDownload = 0;
+            //this->endPeerDownload = 0;
             cTopology topo;
             topo.extractByProperty("peer");
-            this->numNodesTotal = topo.getNumNodes() - newSeeds.size();
-            std::cerr << "Numero de sanguijuelas :: " << this->numNodesTotal << "\n";
+            //this->numNodesTotal = topo.getNumNodes() - newSeeds.size();
+            std::cerr << "Numero de sanguijuelas :: " << topo.getNumNodes() - newSeeds.size() << "\n";
             this->updateStatusString();
 
 
@@ -349,11 +349,11 @@ void ClientController::initialize(int stage) {
         // get the parameters
         std::string sTrackerAddress = par("trackerAddress").stringValue();
         int trackerPort = par("trackerPort").longValue();
-        bool debugFlag = par("debugFlag").boolValue();
+        //bool debugFlag = par("debugFlag").boolValue();
         int numSeeders = par("numSeeders").longValue();
         simtime_t startTime = par("startTime").doubleValue();
         simtime_t leaveTime = par("leaveTime").doubleValue();
-        simtime_t leaveTimeLast = par("leaveTimeLast").doubleValue();
+        simtime_t renewTimeSwarm = par("renewTimeSwarm").doubleValue();
         simtime_t pauseEnterSwarm = par("pauseTimeEnterSwarm").doubleValue();
 
 
@@ -401,17 +401,73 @@ void ClientController::initialize(int stage) {
             LeaveSwarmCommand const& defaultControlInfoLeave =
                                            createDefaultControlInfoLeave(torrentMetadata.infoHash);
 
-            //Inicia primera ronda de la descarga
+            //*Inicia primera ronda de la descarga
             scheduleStartMessages(this, startTime, interarrival,
                                numSeeders, defaultControlInfo);
 
             //Estadísticamente la descarga se estanca en un periodo muy visible
             scheduleLeaveMessages(this,leaveTime,defaultControlInfoLeave);
 
+
+
+
+            //*Ronda 2
             cMessage * resetSwarm = new cMessage("renewSwarm");
             resetSwarm->setContextPointer(this);
-           //        std::cerr<< "[Temporizador] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
             this->scheduleAt(leaveTime+pauseEnterSwarm, resetSwarm);
+
+            scheduleLeaveMessages(this,(leaveTime+(renewTimeSwarm*2)),defaultControlInfoLeave);
+
+
+            //Ronda 3
+            cMessage * resetSwarm2 = new cMessage("renewSwarm");
+                        resetSwarm2->setContextPointer(this);
+            this->scheduleAt((leaveTime+(renewTimeSwarm*2))+pauseEnterSwarm, resetSwarm2);
+
+            scheduleLeaveMessages(this,leaveTime+(3*renewTimeSwarm),defaultControlInfoLeave);
+
+            //Ronda 4
+            cMessage * resetSwarm3 = new cMessage("renewSwarm");
+            resetSwarm3->setContextPointer(this);
+
+            this->scheduleAt((leaveTime+(3*renewTimeSwarm))+pauseEnterSwarm, resetSwarm3);
+
+            scheduleLeaveMessages(this,leaveTime+(4*renewTimeSwarm),defaultControlInfoLeave);
+
+            //Ronda 5
+            cMessage * resetSwarm4 = new cMessage("renewSwarm");
+            resetSwarm4->setContextPointer(this);
+
+            this->scheduleAt((leaveTime+(4*renewTimeSwarm))+pauseEnterSwarm, resetSwarm4);
+
+            scheduleLeaveMessages(this,leaveTime+(5*renewTimeSwarm),defaultControlInfoLeave);
+
+
+
+            //Ronda 6
+            cMessage * resetSwarm5 = new cMessage("renewSwarm");
+            resetSwarm5->setContextPointer(this);
+
+            this->scheduleAt((leaveTime+(5*renewTimeSwarm))+pauseEnterSwarm, resetSwarm5);
+
+            scheduleLeaveMessages(this,leaveTime+(6*renewTimeSwarm),defaultControlInfoLeave);
+
+            //Ronda 7
+
+            cMessage * resetSwarm6 = new cMessage("renewSwarm");
+            resetSwarm6->setContextPointer(this);
+
+            this->scheduleAt((leaveTime+(6*renewTimeSwarm))+pauseEnterSwarm, resetSwarm6);
+
+            scheduleLeaveMessages(this,leaveTime+(7*renewTimeSwarm),defaultControlInfoLeave);
+
+            //Ronda final (8)
+            cMessage * resetSwarm7 = new cMessage("renewSwarm");
+            resetSwarm7->setContextPointer(this);
+
+            this->scheduleAt((leaveTime+(7*renewTimeSwarm))+pauseEnterSwarm, resetSwarm7);
+
+
             //Calendarizar en un momento posterior!
             //scheduleEnterSwarmMessages(this, leaveTime+pauseEnterSwarm, interarrival,
             //                          defaultControlInfo);
@@ -464,7 +520,7 @@ void ClientController::endUserDownload(cMessage *msg)
         //if(newSeed != NULL)
             //std::cerr << "-> Datos de la nueva semilla :: " << newSeed <<"\n";
         this->endPeerDownload++;
-        //std::cerr << "[clientController]* Pares que reportan descarga completa :: "<< this->endPeerDownload << " \n";
+        std::cerr << "[clientController]* Pares que reportan descarga completa :: "<< this->endPeerDownload << " \n";
         if(this->endPeerDownload >= this->numNodesTotal){
             std::cerr << "*** Termina simulación [Condición de finalización aceptada]! \n";
             endSimulation(); //Esperamos que el histograma se guarde por defecto (en el tiempo establecido)
@@ -489,7 +545,7 @@ void ClientController::handleMessage(cMessage *msg) {
             throw cException("This module doesn't process messages");
         }
         if(msg->isName("renewSwarm")){
-               std::cerr << "\n*** Vamos a entrar de nuevo al enjambre :: " << simTime() << "\n";
+               //std::cerr << "\n*** Vamos a entrar de nuevo al enjambre :: " << simTime() << "\n";
                renewSwarmInit();
                delete msg;
         }else{
