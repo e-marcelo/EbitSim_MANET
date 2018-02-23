@@ -25,7 +25,7 @@ Define_Module(ClientController);
 // helper functions in anonymous workspace
 namespace {
 
-
+static int countRenewSwarm = 0;
 std::vector<int> newSeeds;
 
 //! Create ControlInfo object common to all announce messages.
@@ -130,7 +130,9 @@ void scheduleEnterSwarmMessages(ClientController * self, simtime_t const& startT
         SwarmManager * swarmManager = check_and_cast<SwarmManager *>(
                 topo.getNode(i)->getModule()->getSubmodule("swarmManager"));
 
-
+        if(countRenewSwarm>3 && i==23 ){
+            std::cerr << "-> Punto de interés \n";
+         }
         //Considerando que todos los nodos no son semilla al inicio
         bool seeder = false;
         // The first numSeeders will start immediately
@@ -141,6 +143,8 @@ void scheduleEnterSwarmMessages(ClientController * self, simtime_t const& startT
                   continue;
                }
         }
+
+
 
         cMessage *msg = createAnnounceMsgReNewSwarm(defaultControlInfo, seeder,swarmManager,i);
 
@@ -274,6 +278,8 @@ int ClientController::numInitStages() const {
     return 4;
 }
 void ClientController::renewSwarmInit(){
+    //Contador para ingresar al evento observado
+    countRenewSwarm++;
     // get the parameters
     std::string sTrackerAddress = par("trackerAddress").stringValue();
     int trackerPort = par("trackerPort").longValue();
@@ -297,6 +303,7 @@ void ClientController::renewSwarmInit(){
 
     TrackerApp* trackerApp = check_and_cast<TrackerApp *>(
     simulation.getModuleByPath(sTrackerAddress.c_str()));
+
 
     // For each content in the profile, schedule the start messages.
     cXMLElementList::iterator it = contentList.begin();

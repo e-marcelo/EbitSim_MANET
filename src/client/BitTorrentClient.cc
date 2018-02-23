@@ -410,10 +410,14 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
 
 void BitTorrentClient::renewSwarm(int infoHash, int numOfPieces,
     int numOfSubPieces, int subPieceSize, bool newSwarmSeeding, int idDisplay) {
-    //Enter_Method("addSwarm(infoHash: %d, %s)", infoHash,
-    //    (newSwarmSeeding ? "seeding" : "leeching"));
+    Enter_Method("addSwarm(infoHash: %d, %s)", infoHash,
+        (newSwarmSeeding ? "seeding" : "leeching"));
 
     //assert(!this->swarmMap.count(infoHash)); // Swarm must not exist <- Cuidar la validación
+
+    if(idDisplay == 23){
+        std::cerr << "[***] Punto de interés"<< "\n";
+    }
 
     // create Choker module
     cModule * choker;
@@ -725,14 +729,14 @@ void BitTorrentClient::attemptActiveConnections(Swarm & swarm, int infoHash) {
             bool notConnecting = this->activeConnectedPeers.count(
                 std::make_pair(infoHash, peerId)) == 0;
             // only connect if not already connecting or connected
-            if (notConnected && notConnecting) {
+            //if (notConnected && notConnecting) {
                 --numActiveSlost; // decrease the number of slots
                 ++swarm.numActive; // increase the number of active connections
                 // get unconnected peer, connect with it then remove it from the list
                 this->connect(infoHash, peer); // establish the tcp connection
                 this->activeConnectedPeers.insert(
                     std::make_pair(infoHash, peerId));
-            }
+            //}
 //          peers_swap.push_back(peer);
             unconnectedList.erase(it);// Evitamos eliminar la lista de pares que se requieren posteriormente
 
