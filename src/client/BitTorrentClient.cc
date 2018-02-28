@@ -415,9 +415,9 @@ void BitTorrentClient::renewSwarm(int infoHash, int numOfPieces,
 
     //assert(!this->swarmMap.count(infoHash)); // Swarm must not exist <- Cuidar la validación
 
-    if(idDisplay == 23){
-        std::cerr << "[***] Punto de interés"<< "\n";
-    }
+//    if(idDisplay == 23){
+//        std::cerr << "[***] Punto de interés"<< "\n";
+//    }
 
     // create Choker module
     cModule * choker;
@@ -786,7 +786,7 @@ void BitTorrentClient::connect(int infoHash, PeerConnInfo const& peer) {
 
     socket->connect(ip, port);
 //    emit(numDownloadComplete_Signal,simTime()); //Prueba
-    //Desde que se realiza la primera conexión se inicia a tomar el tiempo de descarga
+    //Desde que se realiza la primera conexión se toma el tiempo de descarga
     if(this->connectPeer){
         emit(this->numDownloadComplete_Signal,simTime());
         this->connectPeer = false;

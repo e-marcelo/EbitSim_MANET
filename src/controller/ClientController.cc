@@ -402,6 +402,11 @@ void ClientController::initialize(int stage) {
             TorrentMetadata const& torrentMetadata =
                     trackerApp->getTorrentMetaData(contentName);
 
+                        //*Inicia primera ronda de la descarga
+            //scheduleStartMessages(this, startTime, interarrival,
+            //                              numSeeders, defaultControlInfo);
+
+
             EnterSwarmCommand const& defaultControlInfo =
                     createDefaultControlInfo(torrentMetadata, trackerAddress,
                             trackerPort);
@@ -411,6 +416,7 @@ void ClientController::initialize(int stage) {
             //*Inicia primera ronda de la descarga
             scheduleStartMessages(this, startTime, interarrival,
                                numSeeders, defaultControlInfo);
+
 
             //Estadísticamente la descarga se estanca en un periodo muy visible
             scheduleLeaveMessages(this,leaveTime,defaultControlInfoLeave);
@@ -484,7 +490,8 @@ void ClientController::initialize(int stage) {
 
             //Último intento de terminar la descarga antes de agotar el tiempo de descarga!
             //scheduleEnterSwarmMessages(this, leaveTimeLast+pauseEnterSwarm, interarrival,
-            //                           defaultControlInfo);
+            //defaultControlInfo);
+
 
         }
         //Contador de pares que terminan la descarga
