@@ -42,18 +42,18 @@ import inet.mobility.models.Slaw;
 network BasicTopology extends BasicNetwork
 {
     parameters:
-        string mobilityModel;
+		//volatile int anchor = intuniform (0,1);
         //double playgroundSizeX;
         //double playgroundSizeY;
 		//Área de simulación
         //@display("bgb=1000,1000,white;bgg=100,2,grey80");
         @display("bgb=500,500,white;bgg=100,2,grey80");
         @signal[BitTorrentClient_DownloadComplete_Test];
-        @statistic[DownloadComplete_Test](source=BitTorrentClient_DownloadComplete_Test; title="Tiempo de desacarga (prueba)"; record=vector);
+//        @statistic[DownloadComplete_Test](source=BitTorrentClient_DownloadComplete_Test; title="Tiempo de desacarga (prueba)"; record=vector);
         @signal[BitTorrentClient_PeerWireBytesSent];
         @signal[BitTorrentClient_ContentBytesSent];
-        @statistic[PeerWireBytesSent](source=BitTorrentClient_PeerWireBytesSent; title="Total bytes of PeerWire messages sent"; record=sum);
-        @statistic[ContentBytesSent](source=BitTorrentClient_ContentBytesSent; title="Total bytes of content sent"; record=sum);
+//        @statistic[PeerWireBytesSent](source=BitTorrentClient_PeerWireBytesSent; title="Total bytes of PeerWire messages sent"; record=sum);
+//        @statistic[ContentBytesSent](source=BitTorrentClient_ContentBytesSent; title="Total bytes of content sent"; record=sum);
 
         @signal[BitTorrentClient_BitFieldSent];
         @signal[BitTorrentClient_CancelSent];
@@ -66,25 +66,25 @@ network BasicTopology extends BasicNetwork
         @signal[BitTorrentClient_PieceSent];
         @signal[BitTorrentClient_RequestSent];
         @signal[BitTorrentClient_UnchokeSent];
-        @statistic[BitFieldSent](source=BitTorrentClient_BitFieldSent; title="Sum of BitFields sent"; record=sum);
-        @statistic[CancelSent](source=BitTorrentClient_CancelSent; title="Sum of Cancels sent"; record=sum);
-        @statistic[ChokeSent](source=BitTorrentClient_ChokeSent; title="Sum of Chokes sent"; record=sum);
-        @statistic[HandshakeSent](source=BitTorrentClient_HandshakeSent; title="Sum of Handshakes sent"; record=sum);
-        @statistic[HaveSent](source=BitTorrentClient_HaveSent; title="Sum of Haves sent"; record=sum);
-        @statistic[InterestedSent](source=BitTorrentClient_InterestedSent; title="Sum of Interesteds sent"; record=sum);
-        @statistic[KeepAliveSent](source=BitTorrentClient_KeepAliveSent; title="Sum of KeepAlives sent "; record=sum);
-        @statistic[NotInterestedSent](source=BitTorrentClient_NotInterestedSent; title="Sum of NotInteresteds sent"; record=sum);
-        @statistic[PieceSent](source=BitTorrentClient_PieceSent; title="Sum of Pieces sent"; record=sum);
-        @statistic[RequestSent](source=BitTorrentClient_RequestSent; title="Sum of Requests sent"; record=sum);
-        @statistic[UnchokeSent](source=BitTorrentClient_UnchokeSent; title="Sum of Unchokes sent"; record=sum);
+//        @statistic[BitFieldSent](source=BitTorrentClient_BitFieldSent; title="Sum of BitFields sent"; record=sum);
+//        @statistic[CancelSent](source=BitTorrentClient_CancelSent; title="Sum of Cancels sent"; record=sum);
+//        @statistic[ChokeSent](source=BitTorrentClient_ChokeSent; title="Sum of Chokes sent"; record=sum);
+//        @statistic[HandshakeSent](source=BitTorrentClient_HandshakeSent; title="Sum of Handshakes sent"; record=sum);
+//        @statistic[HaveSent](source=BitTorrentClient_HaveSent; title="Sum of Haves sent"; record=sum);
+//        @statistic[InterestedSent](source=BitTorrentClient_InterestedSent; title="Sum of Interesteds sent"; record=sum);
+//        @statistic[KeepAliveSent](source=BitTorrentClient_KeepAliveSent; title="Sum of KeepAlives sent "; record=sum);
+//        @statistic[NotInterestedSent](source=BitTorrentClient_NotInterestedSent; title="Sum of NotInteresteds sent"; record=sum);
+        @statistic[PieceSent](source=BitTorrentClient_PieceSent; title="Sum of Pieces sent"; record=count);
+//        @statistic[RequestSent](source=BitTorrentClient_RequestSent; title="Sum of Requests sent"; record=sum);
+//        @statistic[UnchokeSent](source=BitTorrentClient_UnchokeSent; title="Sum of Unchokes sent"; record=sum);
 
 
         @signal[SwarmManager_EnterSwarm];
         @signal[SwarmManager_LeaveSwarm];
         @signal[SwarmManager_EmittedPeerId];
-        @statistic[EnterSwarm](source=SwarmManager_EnterSwarm; title="Enter Swarm Time"; record=vector; );
-        @statistic[LeaveSwarm](source=SwarmManager_LeaveSwarm; title="Leave Swarm Time"; record=vector; );
-        @statistic[SwarmEmittedPeerId](source=SwarmManager_EmittedPeerId; title="Peer Swarm Signal Emitted"; record=vector; );
+//        @statistic[EnterSwarm](source=SwarmManager_EnterSwarm; title="Enter Swarm Time"; record=vector; );
+//        @statistic[LeaveSwarm](source=SwarmManager_LeaveSwarm; title="Leave Swarm Time"; record=vector; );
+//        @statistic[SwarmEmittedPeerId](source=SwarmManager_EmittedPeerId; title="Peer Swarm Signal Emitted"; record=vector; );
 
                 @signal[ContentManager_BecameSeeder];
                 @signal[ContentManager_PieceDownloadTime];
@@ -95,9 +95,9 @@ network BasicTopology extends BasicNetwork
                 @signal[ContentManager_50_percentDownloadTime];
                 @signal[ContentManager_75_percentDownloadTime];
         @signal[ContentManager_100_percentDownloadTime];
-        @statistic[DownloadComplete](source=ContentManager_100_percentDownloadTime; title="Download Complete"; unit=s; record=vector,histogram);
+//        @statistic[DownloadComplete](source=ContentManager_100_percentDownloadTime; title="Download Complete"; unit=s; record=vector,histogram);
         @signal[ContentManager_EmittedPeerId];
-        @statistic[DownloadEmittedPeerId](source=ContentManager_EmittedPeerId; title="Peer Download Signal Emitted"; record=vector);
+//        @statistic[DownloadEmittedPeerId](source=ContentManager_EmittedPeerId; title="Peer Download Signal Emitted"; record=vector);
 
     submodules:
         //        tracker: Tracker;
@@ -118,22 +118,47 @@ network BasicTopology extends BasicNetwork
                 //EAM :: playgroundSizeY = playgroundSizeY;
                 @display("p=17,197");
         }
-        slaw: Slaw if mobilityModel == "SlawMobility" {
+        
+//        slaw: Slaw if mobilityModel == "SlawMobility" {
+//            @display("p=17,79;i=block/cogwheel_s");
+//        }
+		slaw: Slaw {
             @display("p=17,79;i=block/cogwheel_s");
         }
 
+//        peer[numPeers]: PeerEx {
+//		//EAM :: peer[numPeers] : AdhocHost{
+//            //		   	@display("i=device/cellphone");
+//            //@display("i");
+//            IPForward = default(true);
+//            numTcpApps = 1;
+//            
+//            mobilityType =  "SlawMobility";
+//            @display("p=296,71;is=vs;i=old/x_active");
+//		
+//
+//        }        
         //EAM :: peer[numPeers]: <> like PeerInterface{
+//        peer[numPeers-staticPeers]: PeerEx {
+//		//EAM :: peer[numPeers] : AdhocHost{
+//            //		   	@display("i=device/cellphone");
+//            //@display("i");
+//            isAnchor = 1;
+//            IPForward = default(true);
+//            numTcpApps = 1;            
+//            @display("p=296,71;is=vs;i=old/x_active");
+//		
+//
+//        }
         peer[numPeers]: PeerEx {
-		//EAM :: peer[numPeers] : AdhocHost{
-            //		   	@display("i=device/cellphone");
-            //@display("i");
-            IPForward = default(true);
-            numTcpApps = 1;
-            //EAM :: mobilityType = mobilityModel;
-            @display("p=296,71;is=vs;i=old/x_active");
-		
-
+            parameters:
+            	IPForward = default(true);
+            	numTcpApps = 1;            
+            	@display("p=296,71;is=vs;i=old/x_active");
         }
+		
+        
+              
         tracker: AdhocHost {
             IPForward = default(true);
             //wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");  // use adhoc management
@@ -148,12 +173,11 @@ network BasicTopology extends BasicNetwork
             //@address("192.168.0.133");
             //@display("p=392,293;i=device/server2");
             @display("i=old/x_blank;is=vs;p=2,2");
-            //@display("p=500,500");
         }
 
-
+	
     connections:
-
+				
         //for i=0..numPeers-1 {
         //    peer[i].ethg <--> ethernetline <--> router.ethg++;
         //}

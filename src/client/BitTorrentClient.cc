@@ -926,6 +926,8 @@ void BitTorrentClient::initialize(int stage) {
         this->snubbedInterval = par("snubbedInterval");
         this->timeoutInterval = par("timeoutInterval");
         this->timerAskMorePeers = par("timerAskMorePeers");
+        //Temporizador para obtener los valores del campo BitField (en todos los pares)
+
         this->timerExtraPeers = par("timerExtraPeers");
         this->keepAliveInterval = par("keepAliveInterval");
         //        this->oldUnchokeInterval = par("oldUnchokeInterval");
@@ -1368,22 +1370,25 @@ if(msg->arrivedOn("peerIn")){
             PeerWireThread * thread =
                 static_cast<PeerWireThread *>(msg->getContextPointer());
             this->removeThread(thread);
-
             delete msg;
 
         } else if (msg->isName("AskMorePeers")) {
             askMoreUnconnectedPeers(this->infoHash_);
             delete msg;
         } else if(msg->isName("AskMorePeersTemp")){
+
             Swarm & swarm = this->getSwarm(this->infoHash_);
             if(!swarm.seeding){//Sino eres semilla es necesario seguir solicitando piezas
                 //Calendarizando el siguiente mensaje del temporizador
                 cMessage * askMoreMsg = new cMessage("AskMorePeersTemp");
+                //cMessage * askBitField = new cMessage("AskBitField");
                 askMoreMsg->setContextPointer(this);
                 //std::cerr<< "[Temporizador-handleMessage] :: " << this->strCurrentNode << " :: Monitoreo en 1h!\n";
 
                 this->bitFieldMsgCurrent = swarm.contentManager->getClientBitFieldMsg();
+
                 if(this->bitFieldMsgCurrent != NULL && this->bitFieldMsgPrev !=NULL){
+                    std::cerr << "- " <<this->bitFieldMsgCurrent->getBitField().unavailablePieces() << "\n";
                     if(this->bitFieldMsgCurrent->getByteLength() != this->bitFieldMsgPrev->getByteLength()){
                         this->bitFieldMsgPrev = this->bitFieldMsgCurrent;
                        //std::cerr<< "[Temporizador_1-handleMessage] :: (BitField ha cambiado) "<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
@@ -1408,7 +1413,6 @@ if(msg->arrivedOn("peerIn")){
                     //std::cerr<< "[Temporizador_3-handleMessage] :: (BitField NULL)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
                     this->askMoreUnconnectedPeers(this->infoHash_);
                 }
-
                 this->scheduleAt(simTime()+this->timerAskMorePeers, askMoreMsg);
 
             }
@@ -1425,5 +1429,3 @@ if(msg->arrivedOn("peerIn")){
     }
   }//Fin else
 }
-
-

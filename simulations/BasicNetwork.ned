@@ -27,4 +27,22 @@ network BasicNetwork
 {
     parameters:
         int numPeers;
+        int staticPeerA; //1
+        int staticPeerB; //2
+        int staticPeerC; //3
+        int staticPeerD; //4
+
+//        int staticPeerE; //5
+//        int staticPeerF; //6
+//        int staticPeerG; //7
+//        int staticPeerH; //8
+
+
+//        int staticPeerI = -1; //9
+//        int staticPeerJ = -1; //10
+//        int staticPeerK = -1; //11
+//        int staticPeerL = -1; //12
+//        int staticPeerM = -1; //13
+//        int staticPeerN = -1; //14
+        
 }

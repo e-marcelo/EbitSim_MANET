@@ -15,6 +15,7 @@
 
 package br.larc.usp.nodes;
 
+import inet.transport.udp.UDP;
 import inet.util.PcapRecorder;
 import inet.networklayer.ipv4.RoutingTable;
 import inet.networklayer.common.InterfaceTable;
@@ -31,13 +32,14 @@ import inet.transport.tcp.TCP;
 
 import inet.networklayer.IManetRouting;
 
-module PeerEx{
-        parameters:
+module PeerEx
+{
+    parameters:
         @display("bgb=,448");
         @node;
         @labels(node,ethernet-node,wireless-node);
         @display("i=device/cellphone");
-        
+
         //StandardHost
         int numTcpApps = default(0);  // no of TCP apps. Specify the app types in INI file with tcpApp[0..1].typename="TCPEchoApp" syntax
         int numUdpApps = default(0);  // no of UDP apps. Specify the app types in INI file with udpApp[0..1].typename="UDPVideoStreamCli" syntax
@@ -49,13 +51,13 @@ module PeerEx{
         string tcpType = default(firstAvailable("TCP", "TCP_lwIP", "TCP_NSC", "TCP_None"));  // tcp implementation (e.g. ~TCP, ~TCP_lwIP, ~TCP_NSC) or ~TCPSpoof
         string udpType = default(firstAvailable("UDP","UDP_None"));
         string sctpType = default(firstAvailable("SCTP","SCTP_None"));
-        
-        
+		int isAnchor = default(0);
+
         wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");  // use adhoc management        
         int numExtInterfaces = default(0);
         int numRadios = default(1);               // the number of radios in the router. by default no wireless
         int numPcapRecorders = default(0); // no of PcapRecorders.
-        string mobilityType = default(numRadios > 0 ? "StationaryMobility" : "");
+        string mobilityType = default(isAnchor > 0 ? "StationaryMobility" : "SlawMobility");
         string routingFile = default("");
         bool IPForward = default(true);
         bool forwardMulticast = default(false);
@@ -78,13 +80,13 @@ module PeerEx{
 
         // network layer
         networkLayer: NetworkLayer {
-              
+
             parameters:
-            	proxyARP = true;           
-                @display("p=329,287;q=queue");        
-             gates:
-	                ifIn[1];
-    	            ifOut[1];
+                proxyARP = true;
+                @display("p=329,287;q=queue");
+            gates:
+                ifIn[1];
+                ifOut[1];
         }
 
         routingTable: RoutingTable {
@@ -121,7 +123,7 @@ module PeerEx{
             parameters:
                 @display("p=45,406,row,10;q=txQueue;i=block/ifcard");
         }
-        
+
         bitTorrentApp: BitTorrentApp {
             parameters:
                 @display("p=237,39;i=abstract/penguin");
@@ -130,11 +132,11 @@ module PeerEx{
             parameters:
                 @display("p=163,154");
         }
-        
+
         manetrouting: <routingProtocol> like IManetRouting if routingProtocol != "" {
             @display("p=522,307");
         }
-        
+
 
     connections allowunconnected:
         // connections to network outside
@@ -160,7 +162,7 @@ module PeerEx{
             ext[i].upperLayerOut --> networkLayer.ifIn++;
             ext[i].upperLayerIn <-- networkLayer.ifOut++;
         }
-        
+
         //EAM :: Cambio ++ --> upperLayerIn
 //        wlan.upperLayerOut --> networkLayer.ifIn++;
 //        wlan.upperLayerIn <-- networkLayer.ifOut++;
@@ -173,11 +175,11 @@ module PeerEx{
         bitTorrentApp.tcpOut[1] --> tcp.appIn++;
         bitTorrentApp.tcpIn[0] <-- tcp.appOut++;
         bitTorrentApp.tcpIn[1] <-- tcp.appOut++;
-        
+
         networkLayer.manetOut --> manetrouting.from_ip if routingProtocol != "";
         networkLayer.manetIn <-- manetrouting.to_ip if routingProtocol != "";
-    	//Comunicación capa de encaminamiento y capa de aplicación (BT)
- 		bitTorrentApp.peerIn <-- manetrouting.to_peer if routingProtocol != "";   	
-    
-    
+        //Comunicación capa de encaminamiento y capa de aplicación (BT)
+        bitTorrentApp.peerIn <-- manetrouting.to_peer if routingProtocol != "";
+
+
 }

@@ -179,10 +179,10 @@ bool BitField::operator==(BitField const& b) const {
 }
 
 std::string BitField::unavailablePieces() const {
-    std::string strRep;
+    std::string strRep = "";
     for (int i = 0; i < this->bitField.size(); ++i) {
         if (!this->bitField.test(i)) {
-            strRep += boost::lexical_cast<std::string>(i) + " ";
+            strRep += boost::lexical_cast<std::string>(i) + " , ";
         }
     }
     return strRep;
