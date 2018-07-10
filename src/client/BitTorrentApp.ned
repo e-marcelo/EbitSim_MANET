@@ -81,6 +81,7 @@ module BitTorrentApp
         @peer(); // used by the Tracker to find all Peers in the simulation
         @display("i=bittorrent");
         string clientControllerModule = default("");
+        int anchor = default(0);
     gates:
         input tcpIn[2];
         output tcpOut[2];
@@ -91,6 +92,7 @@ module BitTorrentApp
         }
         bitTorrentClient: BitTorrentClient {
             @display("p=68,128");
+            mobility_anchor = anchor;
         }
 //        uploadLimiter: RateLimiter {
 //            @display("p=167,128");

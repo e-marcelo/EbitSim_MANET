@@ -328,11 +328,11 @@ void BitTorrentClient::createSwarm(int infoHash, int numOfPieces,
     if(!newSwarmSeeding){ //Sino es semilla, el par actual solo adquiere pares de tu cuadrante
          selectListPeersRandom(); //Selección por cuadrantes, no al azar!!!
          if(this->peers.size()){
-                std::cerr << "***[Enjambre] Lista de pares, nodo :: " << this->strCurrentNode << " -> " <<this->peers.size() <<  "\n";
+//                std::cerr << "***[Enjambre] Lista de pares, nodo :: " << this->strCurrentNode << " -> " <<this->peers.size() <<  "\n";
         //          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
                 addUnconnectedPeers(infoHash, this->peers);
          }else{
-                std::cerr << "***[Enjambre] Lista de pares vacia, nodo :: " << this->strCurrentNode << " aislado :(\n";
+//                std::cerr << "***[Enjambre] Lista de pares vacia, nodo :: " << this->strCurrentNode << " aislado :(\n";
                 cMessage * askMsg = new cMessage("AskMorePeers");
                 askMsg->setContextPointer(this);
                 //EAMstd::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 30 minutos!\n";
@@ -869,6 +869,7 @@ void BitTorrentClient::registerEmittedSignals() {
 
     //Tiempo de descarga exitosa del par
     SIGNAL(numDownloadComplete_Signal,DownloadComplete_Test);
+    SIGNAL(isAnchor_Signal,isAnchor_Test);
 
     SIGNAL(numUnconnected_Signal, NumUnconnected);
     SIGNAL(numConnected_Signal, NumConnected);
@@ -939,6 +940,8 @@ void BitTorrentClient::initialize(int stage) {
         this->numWant = par("numWant");
         this->sizeX = par("sizeX");
         this->sizeY = par("sizeY");
+        this->anchor = par("mobility_anchor");
+
 
         IPvXAddressResolver resolver;
         this->localIp = resolver.addressOf(getParentModule()->getParentModule(),
@@ -990,6 +993,8 @@ void BitTorrentClient::initialize(int stage) {
         // Test if Tracker has this content -> especificamos el hash del contenido digital a compartir
         this->numberOfPeers = par("numberOfPeers");
         this->communicationRange = par("communicationRange");
+
+//        printf(this->localPeerId);
 //        std::string opt;
 //        std::ostringstream numNode;
 //        int peerId;
@@ -1109,13 +1114,13 @@ void BitTorrentClient::askMoreUnconnectedPeers(int infoHash)
       if(this->peers.size()){
         //          std::cerr << "[Renovación] Nueva lista de pares :: " << this->peers.size()<< "\n";
 //          peers.unique();
-          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << ", agregando :: "<< peers.size()<<"\n";
+//          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << ", agregando :: "<< peers.size()<<"\n";
           addUnconnectedPeers(infoHash, this->peers);
       }else{
-          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << " aislado :(\n";
+//          std::cerr << "***[Agregando] Lista de pares extra, nodo " << this->strCurrentNode << " aislado :(\n";
           cMessage * askMsg = new cMessage("AskMorePeers");
           askMsg->setContextPointer(this);
-          std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 1:30 minutos!\n";
+//          std::cerr<< "[AskMorePeers] :: " << this->strCurrentNode << " :: Busqueda en 1:30 minutos!\n";
           this->scheduleAt(simTime()+this->timerAskMorePeers, askMsg);
       }
 
@@ -1225,6 +1230,11 @@ void BitTorrentClient::selectListPeersRandom()
             this->optNumtoStr << i;
             this->strArgNode.append(this->optNumtoStr.str());
             this->strArgNode.append("]");
+//            if(this->anchor == 0)
+            if(this->localPeerId == peerIdNode){
+                std::cerr << this->strArgNode.c_str() << this->anchor << "\n";
+                emit(this->isAnchor_Signal,this->anchor);
+            }
             peerIdNode = simulation.getModuleByPath(this->strArgNode.c_str())->getId();
 
             if(this->localPeerId != peerIdNode){ //Cuidamos que no se trate del par actual

@@ -10,12 +10,19 @@ simple BitTorrentClient extends TCPSrvHostApp
        
     parameters:
         @signal[BitTorrentClient_DownloadComplete_Test];
+        @signal[Is_Anchor];
         
         
         @statistic[DownloadComplete_Test](
             source=BitTorrentClient_DownloadComplete_Test;
             title="Descargas completas (prueba)";
             record=vector
+        );
+        
+        @statistic[Peer_Anchor](
+            source=BitTorrentClient_isAnchor_Test;
+            title="Registro de anclas";
+            record=last
         );
         
         @signal[BitTorrentClient_NumUnconnected];
@@ -49,7 +56,7 @@ simple BitTorrentClient extends TCPSrvHostApp
         @signal[BitTorrentClient_RequestReceived];
         @signal[BitTorrentClient_UnchokeSent];
         @signal[BitTorrentClient_UnchokeReceived];
-        
+        int mobility_anchor = default(0);
         @display("i=misc/globe,green");
         @class(BitTorrentClient); // tell omnet++ to use this class instead of TCPSrvHostApp
         // class name of "thread" objects to launch on incoming connections

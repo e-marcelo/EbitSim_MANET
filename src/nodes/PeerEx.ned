@@ -58,6 +58,7 @@ module PeerEx
         int numRadios = default(1);               // the number of radios in the router. by default no wireless
         int numPcapRecorders = default(0); // no of PcapRecorders.
         string mobilityType = default(isAnchor > 0 ? "StationaryMobility" : "SlawMobility");
+        
         string routingFile = default("");
         bool IPForward = default(true);
         bool forwardMulticast = default(false);
@@ -126,6 +127,7 @@ module PeerEx
 
         bitTorrentApp: BitTorrentApp {
             parameters:
+                anchor = isAnchor;
                 @display("p=237,39;i=abstract/penguin");
         }
         tcp: TCP {

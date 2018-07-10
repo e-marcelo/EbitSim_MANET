@@ -339,10 +339,14 @@ private:
     int numWant;
     int sizeX;
     int sizeY;
+
+    int anchor = 0;
     //!@name Signals and helper variables
     //@{
     unsigned int prevNumUnconnected;
     unsigned int prevNumConnected;
+
+    simsignal_t isAnchor_Signal;
     simsignal_t numDownloadComplete_Signal;
     simsignal_t numUnconnected_Signal;
     simsignal_t numConnected_Signal;

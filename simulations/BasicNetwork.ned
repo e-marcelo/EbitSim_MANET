@@ -31,7 +31,7 @@ network BasicNetwork
         int staticPeerB; //2
         int staticPeerC; //3
         int staticPeerD; //4
-
+//
 //        int staticPeerE; //5
 //        int staticPeerF; //6
 //        int staticPeerG; //7
