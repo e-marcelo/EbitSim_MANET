@@ -81,6 +81,7 @@ class noncobject IPvXAddress;
 enum UserCommandKind {
     USER_COMMAND_ENTER_SWARM = 0;
     USER_COMMAND_LEAVE_SWARM = 1;
+    USER_COMMAND_RENEW_SWARM = 2;
 }
 
 class UserCommand {
