@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!ELEMENT profileList (profile+)>
-<!ELEMENT profile (content+)>
-<!ELEMENT content (name, interarrival)>
-<!ELEMENT name (#PCDATA)>
-<!ELEMENT interarrival (#PCDATA)>
-<!ATTLIST profile name ID #REQUIRED>

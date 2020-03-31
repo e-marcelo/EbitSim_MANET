@@ -1417,8 +1417,13 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
 //                std::cerr << "Error TCP detectado ! Peer :: [ " << this->localPeerId << "]\n";
                 //            //EAM :: delete msg;
 //            }else{
-//                // statistics about the PeerWireMsgs
-                //            //EAM :: this->peerWireStatistics(msg,false);
+//              // statistics about the PeerWireMsgs
+                //EAM :: this->peerWireStatistics(msg,false);
+                Swarm & swarm = this->getSwarm(this->infoHash_);
+                if(swarm.numActive > 0)
+                    swarm.numActive--;
+                if(swarm.numPassive > 0)
+                    swarm.numPassive--;
                 this->peerWireStatistics(msg);
                 socket->processMessage(msg);
             }
@@ -1455,13 +1460,23 @@ void BitTorrentClient::handleMessage(cMessage* msg) {
 //                        std::cerr<< "[Temporizador_2-handleMessage] :: (BitField no cambio)"<< this->strCurrentNode << " :: Monitoreo en 1h!\n";
                         //this->allThreads.clear();
                         //this->socketMap.deleteSockets();
-                        swarm.numActive = 0;
-                        swarm.numPassive = 0;
+
+                        Swarm & swarm = this->getSwarm(this->infoHash_);
+                        if(swarm.numActive > 0)
+                            swarm.numActive--;
+                        if(swarm.numPassive > 0)
+                            swarm.numPassive--;
                         swarm.seeding = false;
                         swarm.closing = false;
                         this->askMoreUnconnectedPeers(this->infoHash_);
                     }
                 }else{
+
+                    Swarm & swarm = this->getSwarm(this->infoHash_);
+                    if(swarm.numActive > 0)
+                        swarm.numActive--;
+                    if(swarm.numPassive > 0)
+                        swarm.numPassive--;
                     //Preguntamos de todos modos!
                     //this->allThreads.clear();
                     //this->socketMap.deleteSockets();
