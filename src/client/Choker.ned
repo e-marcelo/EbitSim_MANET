@@ -18,7 +18,7 @@ simple Choker
         // Number of optimistic unchoked
         int numberOfOptimisticSlots = default(1);
         // Number of regular unchoked
-        int numberOfRegularSlots = default(3);
+        int numberOfRegularSlots = default(6);
         //The time between each unchoke round
         //double roundInterval @unit(s) = default(40s);
         //double roundInterval @unit(s) = default(10s);

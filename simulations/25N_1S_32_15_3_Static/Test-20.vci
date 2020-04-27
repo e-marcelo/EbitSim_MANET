@@ -1,0 +1,440 @@
+file 220366 1587955535                                          
+version 2
+run Test-20-20200425-12:24:19-9457
+attr configname Test
+attr datetime 20200425-12:24:19
+attr experiment "\"Simulation Test\""
+attr inifile BasicConfig.ini
+attr iterationvars ""
+attr iterationvars2 $repetition=20
+attr measurement "\"Peers: $peers, Rate: $rate\""
+attr network BasicTopology
+attr processid 9457
+attr repetition 20
+attr replication #20
+attr resultdir results
+attr runnumber 20
+attr seedset 20
+
+vector 3  BasicTopology.peer[1].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 5  BasicTopology.peer[2].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 7  BasicTopology.peer[3].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 9  BasicTopology.peer[4].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 11  BasicTopology.peer[5].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 13  BasicTopology.peer[6].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 15  BasicTopology.peer[7].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 17  BasicTopology.peer[8].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 19  BasicTopology.peer[9].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 21  BasicTopology.peer[10].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 23  BasicTopology.peer[11].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 25  BasicTopology.peer[12].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 27  BasicTopology.peer[13].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 29  BasicTopology.peer[14].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 31  BasicTopology.peer[15].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 33  BasicTopology.peer[16].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 35  BasicTopology.peer[17].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 37  BasicTopology.peer[18].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 39  BasicTopology.peer[19].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 41  BasicTopology.peer[20].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 43  BasicTopology.peer[21].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 45  BasicTopology.peer[22].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 47  BasicTopology.peer[23].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 49  BasicTopology.peer[24].bitTorrentApp.bitTorrentClient  DownloadComplete_Test:vector  ETV
+attr source  BitTorrentClient_DownloadComplete_Test
+attr title  "Descargas completas (prueba), vector"
+vector 833  BasicTopology.peer[0].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 1000  BasicTopology.peer[21].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 992  BasicTopology.peer[20].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 840  BasicTopology.peer[1].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 839  BasicTopology.peer[1].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 841  BasicTopology.peer[1].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 920  BasicTopology.peer[11].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 936  BasicTopology.peer[13].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 991  BasicTopology.peer[20].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 993  BasicTopology.peer[20].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 919  BasicTopology.peer[11].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 921  BasicTopology.peer[11].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 872  BasicTopology.peer[5].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 864  BasicTopology.peer[4].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 952  BasicTopology.peer[15].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 928  BasicTopology.peer[12].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 999  BasicTopology.peer[21].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 1001  BasicTopology.peer[21].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 863  BasicTopology.peer[4].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 865  BasicTopology.peer[4].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 912  BasicTopology.peer[10].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 880  BasicTopology.peer[6].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 848  BasicTopology.peer[2].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 1024  BasicTopology.peer[24].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 904  BasicTopology.peer[9].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 896  BasicTopology.peer[8].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 888  BasicTopology.peer[7].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 1016  BasicTopology.peer[23].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 903  BasicTopology.peer[9].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 905  BasicTopology.peer[9].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 927  BasicTopology.peer[12].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 929  BasicTopology.peer[12].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 879  BasicTopology.peer[6].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 911  BasicTopology.peer[10].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 881  BasicTopology.peer[6].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 984  BasicTopology.peer[19].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 968  BasicTopology.peer[17].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 856  BasicTopology.peer[3].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 976  BasicTopology.peer[18].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 975  BasicTopology.peer[18].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 977  BasicTopology.peer[18].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 944  BasicTopology.peer[14].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 913  BasicTopology.peer[10].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 983  BasicTopology.peer[19].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 1008  BasicTopology.peer[22].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 871  BasicTopology.peer[5].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 873  BasicTopology.peer[5].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 943  BasicTopology.peer[14].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 935  BasicTopology.peer[13].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 951  BasicTopology.peer[15].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 967  BasicTopology.peer[17].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 855  BasicTopology.peer[3].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 857  BasicTopology.peer[3].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 960  BasicTopology.peer[16].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesDownloaded:vector  ETV
+attr source  ContentManager_TotalBytesDownloaded
+attr title  "Total of Bytes Downloaded, vector"
+attr unit  B
+vector 1023  BasicTopology.peer[24].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 1015  BasicTopology.peer[23].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 847  BasicTopology.peer[2].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 937  BasicTopology.peer[13].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 1025  BasicTopology.peer[24].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 959  BasicTopology.peer[16].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 953  BasicTopology.peer[15].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 1017  BasicTopology.peer[23].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 887  BasicTopology.peer[7].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 1007  BasicTopology.peer[22].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 849  BasicTopology.peer[2].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 1009  BasicTopology.peer[22].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 895  BasicTopology.peer[8].bitTorrentApp.bitTorrentClient.contentManager_26  PiecesDownloaded:vector  ETV
+attr source  ContentManager_PieceDownloaded
+attr title  "Pieces Downloaded, vector"
+vector 889  BasicTopology.peer[7].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 897  BasicTopology.peer[8].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+vector 945  BasicTopology.peer[14].bitTorrentApp.bitTorrentClient.contentManager_26  TotalBytesUploaded:vector  ETV
+attr source  ContentManager_TotalBytesUploaded
+attr title  "Total of Bytes Uploaded, vector"
+attr unit  B
+3	20367 63 85 29271756 36001 36054.882967718012 2 36001 36054.882967718 72055.882967718 2596026586.8158
+5	20430 62 86 43645421 36001 36080.15121430933 2 36001 36080.151214309 72081.151214309 2597849312.6474
+7	20492 63 87 65445762 36001 36123.182669989385 2 36001 36123.182669989 72124.182669989 2600956327.2094
+9	20555 60 88 73292614 36001 36144.446828664 2 36001 36144.446828664 72145.446828664 2602493037.5501
+11	20615 64 89 76298789 36001 36153.01910322369 2 36001 36153.019103224 72154.019103224 2603112791.2781
+13	20679 65 90 76143700 36001 36152.536730318149 2 36001 36152.536730318 72153.536730318 2603077913.037
+15	20744 65 91 65280380 36001 36122.857996066162 2 36001 36122.857996066 72123.857996066 2600932870.804
+17	20809 65 92 69117297 36001 36132.108379746327 2 36001 36132.108379746 72133.108379746 2601601256.9657
+19	20874 65 93 72384108 36001 36142.016052146548 2 36001 36142.016052147 72143.016052147 2602317325.3136
+21	20939 65 94 73048122 36001 36143.817509616873 2 36001 36143.817509617 72144.817509617 2602447545.1685
+23	21004 65 95 68721854 36001 36130.926971162048 2 36001 36130.926971162 72131.926971162 2601515884.7954
+25	21069 65 96 66622437 36001 36125.660707943423 2 36001 36125.660707943 72126.660707943 2601135362.5854
+27	21134 65 97 73580625 36001 36145.243691904138 2 36001 36145.243691904 72146.243691904 2602550642.5471
+29	21199 65 98 71158896 36001 36138.651907776864 2 36001 36138.651907777 72139.651907777 2602074162.7115
+31	21264 65 99 66718199 36001 36125.864814883255 2 36001 36125.864814883 72126.864814883 2601150109.6232
+33	21329 66 100 76983782 36001 36305.057650397411 2 36001 36305.057650397 72306.057650397 2614129211.9987
+35	21395 66 101 74852848 36001 36148.633542262689 2 36001 36148.633542263 72149.633542263 2602795707.9728
+37	21461 66 102 76769916 36001 36302.469834358946 2 36001 36302.469834359 72303.469834359 2613941317.0745
+39	21527 66 103 73378600 36001 36144.679073549353 2 36001 36144.679073549 72145.679073549 2602509826.3299
+41	21593 66 104 32914035 36001 36060.729476239318 2 36001 36060.729476239 72061.729476239 2596448211.3585
+43	21659 66 105 28330520 36001 36053.391190563384 2 36001 36053.391190563 72054.391190563 2595919017.3398
+45	21725 66 106 63516799 36001 36118.971665702361 2 36001 36118.971665702 72119.971665702 2600652115.1878
+47	21791 66 107 54868456 36001 36101.921078961772 2 36001 36101.921078962 72102.921078962 2599420706.5916
+49	21857 66 108 73514476 36001 36145.100914813826 2 36001 36145.100914814 72146.100914814 2602540321.1421
+833	21923 10230 543873 70916687 36003.042991729804 36138.042765189862 262 32768 8585216 1128955904 6.4738847358976e+15
+839	32153 402 1208147 29271756 36006.630726147463 36054.882967718012 12 0 11 66 506
+840	32555 3747 901259 29271756 36004.434760116204 36054.882967718012 96 32768 3145728 152567808 3.2162433099366e+14
+841	36302 8292 1248350 62872229 36006.77071064092 36117.753114675302 211 32768 6914048 732889088 3.3861586586173e+15
+847	44594 407 9607776 43645421 36023.820299426119 36080.15121430933 12 0 11 66 506
+848	45001 3777 3469275 43645421 36013.20399908692 36080.15121430933 96 32768 3145728 152567808 3.2162433099366e+14
+849	48778 6276 13199285 49143634 36029.586526432765 36090.377463483038 158 32768 5177344 411598848 1.4251549744169e+15
+855	55054 408 8536798 65445762 36021.971852181949 36123.182669989385 12 0 11 66 506
+856	55462 3782 5529049 65445762 36017.269317039606 36123.182669989385 96 32768 3145728 152567808 3.2162433099366e+14
+857	59244 4726 8567625 46075864 36022.00405881472 36084.74098451768 120 32768 3932160 237895680 6.2622770659328e+14
+863	63970 406 2871077 73292614 36011.855425466701 36144.446828664 12 0 11 66 506
+864	64376 3774 1952096 73292614 36009.710494621793 36144.446828664 96 32768 3145728 152567808 3.2162433099366e+14
+865	68150 6586 2893502 76761073 36011.889027656966 36301.170761815376 167 32768 5472256 459669504 1.681973617623e+15
+871	74736 408 7073400 76298789 36019.810490595618 36153.01910322369 12 0 11 66 506
+872	75144 3788 1879522 76298789 36009.506481444495 36153.01910322369 96 32768 3145728 152567808 3.2162433099366e+14
+873	78932 2806 7108628 23007515 36019.896269353868 36045.099707989264 72 32768 2359296 86114304 1.3638668648448e+14
+879	81738 409 5176885 76143700 36016.587297534897 36152.536730318149 12 0 11 66 506
+880	82147 4110 3396135 76143700 36013.091170080542 36152.536730318149 104 32768 3407872 178913280 4.0842991501312e+14
+881	86257 1262 5206027 76735091 36016.633235435988 36301.041426228018 33 32768 1081344 18382848 13452911312896
+887	87519 409 11026302 65280380 36026.081100920788 36122.857996066162 12 0 11 66 506
+888	87928 3782 4404652 65280380 36015.13310713235 36122.857996066162 96 32768 3145728 152567808 3.2162433099366e+14
+889	91710 2518 30426915 55497189 36056.768540679001 36103.21838592334 64 32768 2097152 68157440 96035468738560
+895	94228 408 16124952 69117297 36034.21014307292 36132.108379746327 12 0 11 66 506
+896	94636 3786 4301132 69117297 36014.907262810111 36132.108379746327 96 32768 3145728 152567808 3.2162433099366e+14
+897	98422 621 44542750 44641933 36081.871308702096 36082.017777790536 16 32768 524288 4456448 1606317768704
+903	99043 408 4774594 72384108 36015.693092996567 36142.016052146548 12 0 11 66 506
+904	99451 4104 3651257 72384108 36013.639338213325 36142.016052146548 104 32768 3407872 178913280 4.0842991501312e+14
+905	103555 1850 4808725 46110360 36015.735031226667 36084.82349505931 48 32768 1572864 38535168 40827959115776
+911	105405 409 5178773 73048122 36016.589752308084 36143.817509616873 12 0 11 66 506
+912	105814 3795 3222616 73048122 36012.670751296827 36143.817509616873 96 32768 3145728 152567808 3.2162433099366e+14
+913	109609 3921 6259802 75150503 36018.475978224895 36149.743920962292 100 32768 3276800 165478400 3.633005461504e+14
+919	113530 409 1776106 68721854 36009.240619269973 36130.926971162048 12 0 11 66 506
+920	113939 3781 1276253 68721854 36006.842188702101 36130.926971162048 96 32768 3145728 152567808 3.2162433099366e+14
+921	117720 10705 1789448 64094052 36009.261629590757 36120.13383092201 271 32768 8880128 1207697408 7.1628629884273e+15
+927	128425 408 4952082 66622437 36015.957821910488 36125.660707943423 12 0 11 66 506
+928	128833 3786 2229392 66622437 36010.215656254138 36125.660707943423 96 32768 3145728 152567808 3.2162433099366e+14
+929	132619 1414 4974705 56862966 36016.001764928366 36105.760331408483 37 32768 1212416 23035904 18871012556800
+935	134033 407 8005839 73580625 36021.314125332982 36145.243691904138 12 0 11 66 506
+936	134440 3778 1573822 73580625 36008.524815588061 36145.243691904138 96 32768 3145728 152567808 3.2162433099366e+14
+937	138218 3767 9723095 71006571 36023.965691237438 36138.275326192078 96 32768 3145728 152567808 3.2162433099366e+14
+943	141985 404 7983562 71158896 36021.28030912499 36138.651907776864 12 0 11 66 506
+944	142389 3778 6000971 71158896 36018.095019414669 36138.651907776864 96 32768 3145728 152567808 3.2162433099366e+14
+945	146167 308 71185061 71200774 36138.70557693016 36138.743558017316 8 32768 262144 1179648 219043332096
+951	146475 407 8133197 66718199 36021.491227000976 36125.864814883255 12 0 11 66 506
+952	146882 3787 1996554 66718199 36009.83527868038 36125.864814883255 96 32768 3145728 152567808 3.2162433099366e+14
+953	150669 2802 10889201 68887287 36025.850284799552 36131.37165927911 71 32768 2326528 83755008 1.3082040886886e+14
+959	153471 410 10648201 76983782 36025.357544004703 36305.057650397411 12 0 11 66 506
+960	153881 3792 9054428 76983782 36022.73317861404 36305.057650397411 96 32768 3145728 152567808 3.2162433099366e+14
+967	157673 408 8513802 74852848 36021.946945839631 36148.633542262689 12 0 11 66 506
+968	158081 4345 5516551 74852848 36017.249195537636 36148.633542262689 110 32768 3604480 200048640 4.8289927921664e+14
+975	162426 406 5886374 76769916 36017.939638715835 36302.469834358946 12 0 11 66 506
+976	162832 4105 5657797 76769916 36017.586810732254 36302.469834358946 104 32768 3407872 178913280 4.0842991501312e+14
+977	166937 866 5911102 7582461 36017.973834525835 36020.690085953011 23 32768 753664 9043968 4642859646976
+983	167803 409 6957293 73378600 36019.595156254104 36144.679073549353 12 0 11 66 506
+984	168212 3790 5493584 73378600 36017.216309369156 36144.679073549353 96 32768 3145728 152567808 3.2162433099366e+14
+991	172002 405 1669419 32914035 36008.770457633498 36060.729476239318 12 0 11 66 506
+992	172407 3944 804566 32914035 36004.150747101803 36060.729476239318 101 32768 3309568 168787968 3.7425378649702e+14
+993	176351 6733 1682152 70393715 36008.797200951138 36136.593397794841 171 32768 5603328 481886208 1.8053744704881e+15
+999	183084 408 2490842 28330520 36010.904721266769 36053.391190563384 12 0 11 66 506
+1000	183492 3869 589951 28330520 36003.183909920691 36053.391190563384 96 32768 3145728 152567808 3.2162433099366e+14
+1001	187361 6808 2519739 74590330 36010.969866919175 36148.072737968265 168 32768 5505024 465174528 1.7122789068636e+15
+1007	194169 421 11896443 63516799 36027.618803254217 36118.971665702361 12 0 11 66 506
+1008	194590 3974 6958125 63516799 36019.595881356496 36118.971665702361 98 32768 3211264 158957568 3.4203938429338e+14
+1009	198564 6350 13674034 72942918 36030.315236986558 36143.524690337892 156 32768 5111808 401276928 1.3718834213028e+15
+1015	204914 420 9271655 54868456 36023.228473138357 36101.921078961772 12 0 11 66 506
+1016	205334 4166 4431029 54868456 36015.1764704054 36101.921078961772 103 32768 3375104 175505408 3.9681632344474e+14
+1017	209500 4755 10919668 70598355 36025.910983193699 36137.113999377448 117 32768 3833856 226197504 5.8060978520064e+14
+1023	214255 421 9215169 73514476 36023.074457962967 36145.100914813826 12 0 11 66 506
+1024	214676 4210 3547043 73514476 36013.42263248508 36145.100914813826 104 32768 3407872 178913280 4.0842991501312e+14
+1025	218886 1480 10451007 33533111 36025.080769932615 36061.793311442833 37 32768 1212416 23035904 18871012556800
