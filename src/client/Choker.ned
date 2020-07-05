@@ -22,7 +22,7 @@ simple Choker
         //The time between each unchoke round
         //double roundInterval @unit(s) = default(40s);
         //double roundInterval @unit(s) = default(10s);
-        double roundInterval @unit(s) = default(30s);
+        double roundInterval @unit(s) = default(5s);
 		//double roundInterval @unit(s) = default(30s);
 
         // True if the Client have all pieces already.
